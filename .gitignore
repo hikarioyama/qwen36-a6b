@@ -10,3 +10,5 @@ __pycache__/
 *.pt
 *.gguf
 *.log
+CONCEPT.md
+ESFT_PLAN.md
