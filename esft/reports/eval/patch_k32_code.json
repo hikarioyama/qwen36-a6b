@@ -1,0 +1,57 @@
+{
+  "_meta": {
+    "model": "patched",
+    "model_path": "~/.cache/huggingface/hub/models--Qwen--Qwen3.6-35B-A3B/snapshots/995ad96eacd98c81ed38be0c5b274b04031597b0",
+    "patch": "~/esft-patches/expert_patch.safetensors",
+    "topk": 32,
+    "benchmarks": [
+      "humaneval",
+      "mbpp"
+    ],
+    "n_per_benchmark": 600,
+    "batch_size": 8,
+    "max_new": 4096,
+    "seed": 0,
+    "shuffle": true,
+    "gpus": [
+      0,
+      1
+    ],
+    "no_think": false,
+    "choice_logprob": false,
+    "split": "first-N shuffled",
+    "note": "reasoning model; per-benchmark max_new may truncate <think>"
+  },
+  "results": {
+    "humaneval": {
+      "model": "patched",
+      "topk": 32,
+      "benchmark": "humaneval",
+      "n": 164,
+      "acc": 0.9024,
+      "ci95": 0.0454,
+      "correct": 148,
+      "truncated_n": 7,
+      "gen_tokens": 212475,
+      "tok_s": 29.59,
+      "tok_s_parallel": 56.94,
+      "gen_time_sum_s": 7181.2,
+      "max_new": 4096
+    },
+    "mbpp": {
+      "model": "patched",
+      "topk": 32,
+      "benchmark": "mbpp",
+      "n": 500,
+      "acc": 0.828,
+      "ci95": 0.0331,
+      "correct": 414,
+      "truncated_n": 67,
+      "gen_tokens": 690630,
+      "tok_s": 25.99,
+      "tok_s_parallel": 48.86,
+      "gen_time_sum_s": 26574.6,
+      "max_new": 4096
+    }
+  }
+}

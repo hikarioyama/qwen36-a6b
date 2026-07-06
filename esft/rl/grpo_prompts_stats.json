@@ -1,0 +1,101 @@
+{
+  "stats": {
+    "mode": "FULL",
+    "source": "SWE-bench/SWE-smith-trajectories",
+    "prompt_format": "SWE-RL agentless-repair (arXiv:2502.18449)",
+    "data_contract": {
+      "main_jsonl": "~/esft/data/rl/grpo_prompts.jsonl (160.7 MB): prompt_messages[system,user], oracle_patch(gold fix), oracle_files, repo, base_commit, instance_id, source, strategy, prompt_tokens",
+      "sidecar_jsonl": "~/esft/data/rl/grpo_prompts_files.jsonl (251.3 MB): instance_id, repo_files{path:pre-fix content}, oracle_new_files{path:post-fix content}",
+      "reward_pair": "reward uses (repo_files, oracle_new_files) per instance_id; oracle_patch is the equivalent buggy->fixed diff",
+      "invariant": "prompt (system+user) contains ONLY pre-fix code (repo_files) + issue; never gold fix / post-fix content. Enforced; violations dropped.",
+      "invariant_violations_dropped": 44
+    },
+    "oracle_patch_source": "SWE-bench/SWE-smith base (join by instance_id; trajectory patch column corrupt)",
+    "code_context_source": "raw.githubusercontent.com/swesmith/{mirror}/{instance_id-branch}/{file} (buggy state, no clone)",
+    "search_replace_spec": {
+      "search_start": "<<<<<<< SEARCH",
+      "divider": "=======",
+      "replace_end": ">>>>>>> REPLACE",
+      "file_path_header": "### {path}",
+      "solution_wrapper": "<think>...</think>\\n<solution>\\n```\\n### path\\n<blocks>\\n```\\n</solution>",
+      "note": "verbatim from facebookresearch/swe-rl core/prompts.py; reward agent applies blocks to oracle_files content and scores diff similarity vs oracle_patch"
+    },
+    "reconciliation": {
+      "unique_resolved_instances": 7270,
+      "minus_selection_drops": {
+        "no_oracle_in_base": 636,
+        "empty_problem_statement": 568
+      },
+      "equals_selected_pre_fetch": 6066,
+      "fetch_input (after --limit)": 6066,
+      "minus_fetch_drops": {
+        "fetch_404": 238
+      },
+      "equals_built": 5828,
+      "minus_prompt_gt_24k": 609,
+      "equals_written": 5175,
+      "dup_instance_rows_collapsed": 4233
+    },
+    "drops": {
+      "empty_problem_statement": 568,
+      "no_oracle_in_base": 636,
+      "dup_instance": 4233,
+      "fetch_404": 238,
+      "prompt_gt_24k": 609,
+      "invariant_leak": 44
+    },
+    "kept_by_strategy": {
+      "lm_rewrite": 1474,
+      "pr_": 1009,
+      "func_pm_ctrl_shuffle": 762,
+      "func_pm_ctrl_invert_if": 356,
+      "func_pm_remove_assign": 330,
+      "func_pm_remove_cond": 237,
+      "combine_module": 231,
+      "combine_file": 182,
+      "func_pm_class_rm_funcs": 156,
+      "func_pm_remove_loop": 89,
+      "func_pm_class_rm_base": 85,
+      "func_pm_op_swap": 78,
+      "func_pm_op_change": 69,
+      "func_pm_remove_wrapper": 40,
+      "func_pm_op_change_const": 35,
+      "func_pm_op_break_chains": 28,
+      "func_pm_class_shuffle_funcs": 8,
+      "func_basic": 6
+    },
+    "prompt_token_len": {
+      "n": 5175,
+      "min": 449,
+      "p50": 4734,
+      "p90": 13680,
+      "p95": 17914,
+      "p99": 22131,
+      "max": 23910,
+      "mean": 6294.6,
+      "gt_16384": 330,
+      "gt_8192": 1389
+    },
+    "max_prompt_tokens_cap": 24000,
+    "tokenizer": "~/esft-work/models/Qwen3.6-35B-A3B",
+    "elapsed_sec": 146.6
+  },
+  "samples": [
+    {
+      "instance_id": "pexpect__ptyprocess.1067dbda.lm_rewrite__xm4uq84l",
+      "repo": "pexpect/ptyprocess",
+      "prompt_tokens": 8514,
+      "system_head_400": "A user will ask you to solve a task. You should first draft your thinking process (inner monologue). Then, generate the solution.\n\nYour response format must follow the template below:\n<think>\nYour thoughts or/and draft, like working through an exercise on scratch paper. Be as casual and as long as you want until you are confident to generate a correct solution.\n</think>\n<solution>\nFinal solution p",
+      "user_head_400": "We are currently solving the following issue within our repository. Here is the issue text:\n--- BEGIN ISSUE ---\nUsing `read()` instead of `read1()` causes unexpected behavior in PtyProcess\n\n```\nIn [1]: from ptyprocess import PtyProcess\nIn [2]: p = PtyProcess.spawn(['bash', '-c', 'echo \"hello world\"'])\nIn [3]: p.read(100)\nOut[3]: b''\nIn [4]: p.wait()\nOut[4]: 0\n```\n\nThe command executes successfully",
+      "gold_fix_head_300": "diff --git a/ptyprocess/ptyprocess.py b/ptyprocess/ptyprocess.py\nindex 41eae20..0f05803 100644\n--- a/ptyprocess/ptyprocess.py\n+++ b/ptyprocess/ptyprocess.py\n@@ -515,7 +515,7 @@ class PtyProcess(object):\n \n         Can block if there is nothing to read. Raises :exc:`EOFError` if the\n         terminal"
+    },
+    {
+      "instance_id": "conan-io__conan.86f29e13.lm_rewrite__rb7shtde",
+      "repo": "conan-io/conan",
+      "prompt_tokens": 2222,
+      "system_head_400": "A user will ask you to solve a task. You should first draft your thinking process (inner monologue). Then, generate the solution.\n\nYour response format must follow the template below:\n<think>\nYour thoughts or/and draft, like working through an exercise on scratch paper. Be as casual and as long as you want until you are confident to generate a correct solution.\n</think>\n<solution>\nFinal solution p",
+      "user_head_400": "We are currently solving the following issue within our repository. Here is the issue text:\n--- BEGIN ISSUE ---\nPackage settings values in Profile are not correctly accumulated when updating\n\nDescription\n\nProblem\nWhen updating package settings in a Profile, the values are not correctly accumulated. Instead, the new values overwrite the previous ones.\n\nVersions:\nConan: latest\nPython: 3.10\n\nExample:",
+      "gold_fix_head_300": "diff --git a/conan/internal/model/profile.py b/conan/internal/model/profile.py\nindex c001550..54aa126 100644\n--- a/conan/internal/model/profile.py\n+++ b/conan/internal/model/profile.py\n@@ -63,13 +63,12 @@ class Profile:\n \n     @property\n     def package_settings_values(self):\n-        \"\"\"Returns a d"
+    }
+  ]
+}

@@ -1,0 +1,540 @@
+{
+  "_meta": {
+    "model": "base",
+    "model_path": "~/.cache/huggingface/hub/models--Qwen--Qwen3.6-35B-A3B/snapshots/995ad96eacd98c81ed38be0c5b274b04031597b0",
+    "patch": null,
+    "topk": 8,
+    "benchmarks": [
+      "mmlu"
+    ],
+    "n_per_benchmark": 64,
+    "batch_size": 8,
+    "max_new": null,
+    "seed": 0,
+    "shuffle": true,
+    "gpus": [
+      0,
+      1
+    ],
+    "no_think": false,
+    "choice_logprob": true,
+    "split": "first-N shuffled",
+    "note": "reasoning model; per-benchmark max_new may truncate <think>"
+  },
+  "items": {
+    "mmlu": [
+      {
+        "id": 0,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 1,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 2,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 3,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 4,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 5,
+        "pred": "A",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 6,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 7,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 8,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 9,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 10,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 11,
+        "pred": "C",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 12,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 13,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 14,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 15,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 16,
+        "pred": "A",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 17,
+        "pred": "C",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 18,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 19,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 20,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 21,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 22,
+        "pred": "A",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 23,
+        "pred": "C",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 24,
+        "pred": "A",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 25,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 26,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 27,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 28,
+        "pred": "D",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 29,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 30,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 31,
+        "pred": "D",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 32,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 33,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 34,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 35,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 36,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 37,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 38,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 39,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 40,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 41,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 42,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 43,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 44,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 45,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 46,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 47,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 48,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 49,
+        "pred": "B",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 50,
+        "pred": "D",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 51,
+        "pred": "C",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 52,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 53,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 54,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 55,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 56,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 57,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 58,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 59,
+        "pred": "D",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 60,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 61,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 62,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 63,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      }
+    ]
+  }
+}

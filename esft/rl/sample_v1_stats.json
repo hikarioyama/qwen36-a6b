@@ -1,0 +1,83 @@
+{
+  "stats": {
+    "mode": "SAMPLE",
+    "source": "SWE-bench/SWE-smith-trajectories",
+    "prompt_format": "SWE-RL agentless-repair (arXiv:2502.18449)",
+    "data_contract": {
+      "main_jsonl": "~/esft/data/rl/sample_v1.jsonl (1.7 MB): prompt_messages[system,user], oracle_patch(gold fix), oracle_files, repo, base_commit, instance_id, source, strategy, prompt_tokens",
+      "sidecar_jsonl": "~/esft/data/rl/sample_v1_files.jsonl (2.8 MB): instance_id, repo_files{path:pre-fix content}, oracle_new_files{path:post-fix content}",
+      "reward_pair": "reward uses (repo_files, oracle_new_files) per instance_id; oracle_patch is the equivalent buggy->fixed diff",
+      "invariant": "prompt (system+user) contains ONLY pre-fix code (repo_files) + issue; never gold fix / post-fix content. Enforced; violations dropped.",
+      "invariant_violations_dropped": 0
+    },
+    "oracle_patch_source": "SWE-bench/SWE-smith base (join by instance_id; trajectory patch column corrupt)",
+    "code_context_source": "raw.githubusercontent.com/swesmith/{mirror}/{instance_id-branch}/{file} (buggy state, no clone)",
+    "search_replace_spec": {
+      "search_start": "<<<<<<< SEARCH",
+      "divider": "=======",
+      "replace_end": ">>>>>>> REPLACE",
+      "file_path_header": "### {path}",
+      "solution_wrapper": "<think>...</think>\\n<solution>\\n```\\n### path\\n<blocks>\\n```\\n</solution>",
+      "note": "verbatim from facebookresearch/swe-rl core/prompts.py; reward agent applies blocks to oracle_files content and scores diff similarity vs oracle_patch"
+    },
+    "reconciliation": {
+      "unique_resolved_instances": 7270,
+      "minus_selection_drops": {
+        "no_oracle_in_base": 636,
+        "empty_problem_statement": 568
+      },
+      "equals_selected_pre_fetch": 6066,
+      "fetch_input (after --limit)": 80,
+      "minus_fetch_drops": {
+        "fetch_404": 3
+      },
+      "equals_built": 77,
+      "minus_prompt_gt_24k": 6,
+      "equals_written": 71,
+      "dup_instance_rows_collapsed": 4233
+    },
+    "drops": {
+      "empty_problem_statement": 568,
+      "no_oracle_in_base": 636,
+      "dup_instance": 4233,
+      "fetch_404": 3,
+      "prompt_gt_24k": 6
+    },
+    "kept_by_strategy": {
+      "lm_rewrite": 71
+    },
+    "prompt_token_len": {
+      "n": 71,
+      "min": 712,
+      "p50": 3431,
+      "p90": 10034,
+      "p95": 16751,
+      "p99": 22507,
+      "max": 22507,
+      "mean": 5269.4,
+      "gt_16384": 4,
+      "gt_8192": 19
+    },
+    "max_prompt_tokens_cap": 24000,
+    "tokenizer": "~/esft-work/models/Qwen3.6-35B-A3B",
+    "elapsed_sec": 4.4
+  },
+  "samples": [
+    {
+      "instance_id": "adrienverge__yamllint.8513d9b9.lm_rewrite__rkpalnk3",
+      "repo": "adrienverge/yamllint",
+      "prompt_tokens": 2401,
+      "system_head_400": "A user will ask you to solve a task. You should first draft your thinking process (inner monologue). Then, generate the solution.\n\nYour response format must follow the template below:\n<think>\nYour thoughts or/and draft, like working through an exercise on scratch paper. Be as casual and as long as you want until you are confident to generate a correct solution.\n</think>\n<solution>\nFinal solution p",
+      "user_head_400": "We are currently solving the following issue within our repository. Here is the issue text:\n--- BEGIN ISSUE ---\n# YAML file-level disable directive not working\n\nI've discovered an issue with the `yamllint disable-file` directive. When I add this directive to the first line of a YAML file, the linter still reports issues.\n\n## Steps to reproduce\n\n1. Create a YAML file with the following content:\n```",
+      "gold_fix_head_300": "diff --git a/yamllint/linter.py b/yamllint/linter.py\nindex 6cb96e0..a2faa06 100644\n--- a/yamllint/linter.py\n+++ b/yamllint/linter.py\n@@ -185,26 +185,35 @@ def get_syntax_error(buffer):\n \n \n def _run(buffer, conf, filepath):\n-    \"\"\"Runs the linting process on the provided buffer.\n-    \n-    This fun"
+    },
+    {
+      "instance_id": "Suor__funcy.207a7810.lm_rewrite__jtztgbzu",
+      "repo": "Suor/funcy",
+      "prompt_tokens": 3471,
+      "system_head_400": "A user will ask you to solve a task. You should first draft your thinking process (inner monologue). Then, generate the solution.\n\nYour response format must follow the template below:\n<think>\nYour thoughts or/and draft, like working through an exercise on scratch paper. Be as casual and as long as you want until you are confident to generate a correct solution.\n</think>\n<solution>\nFinal solution p",
+      "user_head_400": "We are currently solving the following issue within our repository. Here is the issue text:\n--- BEGIN ISSUE ---\n# join() function returns empty dict instead of None for empty collections\n\n## Description\n\nWhen calling `join([])` with an empty list, it returns an empty dictionary `{}` instead of `None` as expected.\n\n```python\nfrom funcy import join\n\n# Expected:\nassert join([]) is None\n\n# Actual:\npri",
+      "gold_fix_head_300": "diff --git a/funcy/colls.py b/funcy/colls.py\nindex 2626b39..6acfd53 100644\n--- a/funcy/colls.py\n+++ b/funcy/colls.py\n@@ -62,32 +62,32 @@ itervalues.__doc__ = \"Yields values of the given collection.\"\n \n def join(colls):\n     \"\"\"Joins several collections of same type into one.\"\"\"\n-    colls = list(col"
+    }
+  ]
+}

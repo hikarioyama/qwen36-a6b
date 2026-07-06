@@ -1,0 +1,165 @@
+{
+  "_meta": {
+    "model": "base",
+    "model_path": "~/.cache/huggingface/hub/models--Qwen--Qwen3.6-35B-A3B/snapshots/995ad96eacd98c81ed38be0c5b274b04031597b0",
+    "patch": null,
+    "topk": 8,
+    "benchmarks": [
+      "mmlu",
+      "humaneval"
+    ],
+    "n_per_benchmark": 8,
+    "batch_size": 4,
+    "max_new": null,
+    "seed": 0,
+    "shuffle": false,
+    "gpus": [
+      0,
+      1
+    ],
+    "split": "first-N",
+    "note": "reasoning model; per-benchmark max_new may truncate <think>"
+  },
+  "items": {
+    "mmlu": [
+      {
+        "id": 0,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": true,
+        "gen_len": 1536
+      },
+      {
+        "id": 1,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": true,
+        "gen_len": 1536
+      },
+      {
+        "id": 2,
+        "pred": null,
+        "gold": "D",
+        "correct": false,
+        "truncated": true,
+        "gen_len": 1536
+      },
+      {
+        "id": 3,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": true,
+        "gen_len": 1536
+      },
+      {
+        "id": 4,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": true,
+        "gen_len": 1536
+      },
+      {
+        "id": 5,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": true,
+        "gen_len": 1536
+      },
+      {
+        "id": 6,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": true,
+        "gen_len": 1536
+      },
+      {
+        "id": 7,
+        "pred": "C",
+        "gold": "D",
+        "correct": false,
+        "truncated": true,
+        "gen_len": 1536
+      }
+    ],
+    "humaneval": [
+      {
+        "id": 0,
+        "pred": "from typing import List\n\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    sorted_numbers = sorted(numbers)\n    for i in range(len(sorted_numbers) - 1):\n        if sorted_numbers[i+1] - sorted_numbers[i] < threshold:\n            return True\n    return False",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 2048,
+        "task_id": "HumanEval/0"
+      },
+      {
+        "id": 1,
+        "pred": "from typing import List\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    paren_string = paren_string.replace(\" \", \"\")\n    result = []\n    current_group = []\n    balance = 0\n    for char in paren_string:\n        current_group.append(char)\n        balance += 1 if char == '(' else -1\n        if balance == 0:\n            result.append(\"\".join(current_group))\n            current_group = []\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 2048,
+        "task_id": "HumanEval/1"
+      },
+      {
+        "id": 2,
+        "pred": "def truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number % 1",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1856,
+        "task_id": "HumanEval/2"
+      },
+      {
+        "id": 3,
+        "pred": "from typing import List\n\ndef below_zero(operations: List[int]) -> bool:\n    balance = 0\n    for op in operations:\n        balance += op\n        if balance < 0:\n            return True\n    return False",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1605,
+        "task_id": "HumanEval/3"
+      },
+      {
+        "id": 4,
+        "pred": "from typing import List\n\n\ndef mean_absolute_deviation(numbers: List[float]) -> float:\n    \"\"\" For a given list of input numbers, calculate Mean Absolute Deviation\n    around the mean of this dataset.\n    Mean Absolute Deviation is the average absolute difference between each\n    element and a centerpoint (mean in this case):\n    MAD = average | x - x_mean |\n    >>> mean_absolute_deviation([1.0, 2.0, 3.0, 4.0])\n    1.0\n    \"\"\"\n    if not numbers:\n        return 0.0\n    mean_val = sum(numbers) / len(numbers)\n    return sum(abs(x - mean_val) for x in numbers) / len(numbers)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1763,
+        "task_id": "HumanEval/4"
+      },
+      {
+        "id": 5,
+        "pred": "from typing import List\n\ndef intersperse(numbers: List[int], delimeter: int) -> List[int]:\n    if not numbers:\n        return []\n    result = []\n    for i in range(len(numbers) - 1):\n        result.append(numbers[i])\n        result.append(delimeter)\n    result.append(numbers[-1])\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 2048,
+        "task_id": "HumanEval/5"
+      },
+      {
+        "id": 6,
+        "pred": "from typing import List\n\ndef parse_nested_parens(paren_string: str) -> List[int]:\n    groups = paren_string.split()\n    result = []\n    for group in groups:\n        current_depth = 0\n        max_depth = 0\n        for char in group:\n            if char == '(':\n                current_depth += 1\n                max_depth = max(max_depth, current_depth)\n            elif char == ')':\n                current_depth -= 1\n        result.append(max_depth)\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 2048,
+        "task_id": "HumanEval/6"
+      },
+      {
+        "id": 7,
+        "pred": "from typing import List\n\ndef filter_by_substring(strings: List[str], substring: str) -> List[str]:\n    \"\"\" Filter an input list of strings only for ones that contain given substring\n    >>> filter_by_substring([], 'a')\n    []\n    >>> filter_by_substring(['abc', 'bacd', 'cde', 'array'], 'a')\n    ['abc', 'bacd', 'array']\n    \"\"\"\n    return [s for s in strings if substring in s]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1288,
+        "task_id": "HumanEval/7"
+      }
+    ]
+  }
+}

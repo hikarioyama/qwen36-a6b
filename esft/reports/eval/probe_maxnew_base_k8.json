@@ -1,0 +1,39 @@
+{
+  "_meta": {
+    "model": "base",
+    "model_path": "~/.cache/huggingface/hub/models--Qwen--Qwen3.6-35B-A3B/snapshots/995ad96eacd98c81ed38be0c5b274b04031597b0",
+    "patch": null,
+    "topk": 8,
+    "benchmarks": [
+      "mmlu"
+    ],
+    "n_per_benchmark": 16,
+    "batch_size": 4,
+    "max_new": 6144,
+    "seed": 0,
+    "shuffle": false,
+    "gpus": [
+      0,
+      1
+    ],
+    "split": "first-N",
+    "note": "reasoning model; per-benchmark max_new may truncate <think>"
+  },
+  "results": {
+    "mmlu": {
+      "model": "base",
+      "topk": 8,
+      "benchmark": "mmlu",
+      "n": 16,
+      "acc": 0.6875,
+      "ci95": 0.2271,
+      "correct": 11,
+      "truncated_n": 11,
+      "gen_tokens": 87980,
+      "tok_s": 76.56,
+      "tok_s_parallel": 150.23,
+      "gen_time_sum_s": 1149.1,
+      "max_new": 6144
+    }
+  }
+}

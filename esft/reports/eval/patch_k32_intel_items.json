@@ -1,0 +1,9631 @@
+{
+  "_meta": {
+    "model": "patched",
+    "model_path": "~/.cache/huggingface/hub/models--Qwen--Qwen3.6-35B-A3B/snapshots/995ad96eacd98c81ed38be0c5b274b04031597b0",
+    "patch": "~/esft-patches/expert_patch.safetensors",
+    "topk": 32,
+    "benchmarks": [
+      "mmlu",
+      "gsm8k"
+    ],
+    "n_per_benchmark": 600,
+    "batch_size": 16,
+    "max_new": 1024,
+    "seed": 0,
+    "shuffle": true,
+    "gpus": [
+      0,
+      1
+    ],
+    "no_think": true,
+    "choice_logprob": true,
+    "split": "first-N shuffled",
+    "note": "reasoning model; per-benchmark max_new may truncate <think>"
+  },
+  "items": {
+    "mmlu": [
+      {
+        "id": 0,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 1,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 2,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 3,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 4,
+        "pred": "C",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 5,
+        "pred": "A",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 6,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 7,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 8,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 9,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 10,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 11,
+        "pred": "C",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 12,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 13,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 14,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 15,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 16,
+        "pred": "A",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 17,
+        "pred": "C",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 18,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 19,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 20,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 21,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 22,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 23,
+        "pred": "C",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 24,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 25,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 26,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 27,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 28,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 29,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 30,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 31,
+        "pred": "D",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 32,
+        "pred": "B",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 33,
+        "pred": "D",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 34,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 35,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 36,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 37,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 38,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 39,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 40,
+        "pred": "C",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 41,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 42,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 43,
+        "pred": "D",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 44,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 45,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 46,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 47,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 48,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 49,
+        "pred": "B",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 50,
+        "pred": "D",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 51,
+        "pred": "C",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 52,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 53,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 54,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 55,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 56,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 57,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 58,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 59,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 60,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 61,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 62,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 63,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 64,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 65,
+        "pred": "C",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 66,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 67,
+        "pred": "B",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 68,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 69,
+        "pred": "D",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 70,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 71,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 72,
+        "pred": "A",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 73,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 74,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 75,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 76,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 77,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 78,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 79,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 80,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 81,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 82,
+        "pred": "B",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 83,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 84,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 85,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 86,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 87,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 88,
+        "pred": "C",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 89,
+        "pred": "C",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 90,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 91,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 92,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 93,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 94,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 95,
+        "pred": "B",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 96,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 97,
+        "pred": "C",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 98,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 99,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 100,
+        "pred": "A",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 101,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 102,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 103,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 104,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 105,
+        "pred": "B",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 106,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 107,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 108,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 109,
+        "pred": "C",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 110,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 111,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 112,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 113,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 114,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 115,
+        "pred": "A",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 116,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 117,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 118,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 119,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 120,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 121,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 122,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 123,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 124,
+        "pred": "A",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 125,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 126,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 127,
+        "pred": "B",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 128,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 129,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 130,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 131,
+        "pred": "B",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 132,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 133,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 134,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 135,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 136,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 137,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 138,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 139,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 140,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 141,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 142,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 143,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 144,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 145,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 146,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 147,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 148,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 149,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 150,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 151,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 152,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 153,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 154,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 155,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 156,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 157,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 158,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 159,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 160,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 161,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 162,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 163,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 164,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 165,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 166,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 167,
+        "pred": "A",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 168,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 169,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 170,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 171,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 172,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 173,
+        "pred": "D",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 174,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 175,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 176,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 177,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 178,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 179,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 180,
+        "pred": "C",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 181,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 182,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 183,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 184,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 185,
+        "pred": "B",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 186,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 187,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 188,
+        "pred": "C",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 189,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 190,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 191,
+        "pred": "D",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 192,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 193,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 194,
+        "pred": "B",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 195,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 196,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 197,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 198,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 199,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 200,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 201,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 202,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 203,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 204,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 205,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 206,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 207,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 208,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 209,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 210,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 211,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 212,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 213,
+        "pred": "C",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 214,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 215,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 216,
+        "pred": "C",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 217,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 218,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 219,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 220,
+        "pred": "B",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 221,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 222,
+        "pred": "D",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 223,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 224,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 225,
+        "pred": "C",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 226,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 227,
+        "pred": "B",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 228,
+        "pred": "A",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 229,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 230,
+        "pred": "D",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 231,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 232,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 233,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 234,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 235,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 236,
+        "pred": "B",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 237,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 238,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 239,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 240,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 241,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 242,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 243,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 244,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 245,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 246,
+        "pred": "A",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 247,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 248,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 249,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 250,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 251,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 252,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 253,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 254,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 255,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 256,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 257,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 258,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 259,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 260,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 261,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 262,
+        "pred": "A",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 263,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 264,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 265,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 266,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 267,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 268,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 269,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 270,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 271,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 272,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 273,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 274,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 275,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 276,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 277,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 278,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 279,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 280,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 281,
+        "pred": "B",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 282,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 283,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 284,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 285,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 286,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 287,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 288,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 289,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 290,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 291,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 292,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 293,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 294,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 295,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 296,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 297,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 298,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 299,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 300,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 301,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 302,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 303,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 304,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 305,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 306,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 307,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 308,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 309,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 310,
+        "pred": "B",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 311,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 312,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 313,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 314,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 315,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 316,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 317,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 318,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 319,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 320,
+        "pred": "B",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 321,
+        "pred": "A",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 322,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 323,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 324,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 325,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 326,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 327,
+        "pred": "A",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 328,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 329,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 330,
+        "pred": "A",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 331,
+        "pred": "C",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 332,
+        "pred": "B",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 333,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 334,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 335,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 336,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 337,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 338,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 339,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 340,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 341,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 342,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 343,
+        "pred": "B",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 344,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 345,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 346,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 347,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 348,
+        "pred": "A",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 349,
+        "pred": "A",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 350,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 351,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 352,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 353,
+        "pred": "D",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 354,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 355,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 356,
+        "pred": "A",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 357,
+        "pred": "B",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 358,
+        "pred": "C",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 359,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 360,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 361,
+        "pred": "A",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 362,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 363,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 364,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 365,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 366,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 367,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 368,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 369,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 370,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 371,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 372,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 373,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 374,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 375,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 376,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 377,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 378,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 379,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 380,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 381,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 382,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 383,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 384,
+        "pred": "C",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 385,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 386,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 387,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 388,
+        "pred": "B",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 389,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 390,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 391,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 392,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 393,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 394,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 395,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 396,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 397,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 398,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 399,
+        "pred": "C",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 400,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 401,
+        "pred": "C",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 402,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 403,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 404,
+        "pred": "B",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 405,
+        "pred": "A",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 406,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 407,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 408,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 409,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 410,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 411,
+        "pred": "A",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 412,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 413,
+        "pred": "D",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 414,
+        "pred": "A",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 415,
+        "pred": "B",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 416,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 417,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 418,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 419,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 420,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 421,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 422,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 423,
+        "pred": "A",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 424,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 425,
+        "pred": "D",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 426,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 427,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 428,
+        "pred": "B",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 429,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 430,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 431,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 432,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 433,
+        "pred": "C",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 434,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 435,
+        "pred": "A",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 436,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 437,
+        "pred": "A",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 438,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 439,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 440,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 441,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 442,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 443,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 444,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 445,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 446,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 447,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 448,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 449,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 450,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 451,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 452,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 453,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 454,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 455,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 456,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 457,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 458,
+        "pred": "A",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 459,
+        "pred": "C",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 460,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 461,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 462,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 463,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 464,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 465,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 466,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 467,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 468,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 469,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 470,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 471,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 472,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 473,
+        "pred": "D",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 474,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 475,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 476,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 477,
+        "pred": "B",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 478,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 479,
+        "pred": "A",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 480,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 481,
+        "pred": "A",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 482,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 483,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 484,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 485,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 486,
+        "pred": "B",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 487,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 488,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 489,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 490,
+        "pred": "B",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 491,
+        "pred": "D",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 492,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 493,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 494,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 495,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 496,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 497,
+        "pred": "A",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 498,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 499,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 500,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 501,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 502,
+        "pred": "B",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 503,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 504,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 505,
+        "pred": "A",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 506,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 507,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 508,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 509,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 510,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 511,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 512,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 513,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 514,
+        "pred": "B",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 515,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 516,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 517,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 518,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 519,
+        "pred": "B",
+        "gold": "A",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 520,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 521,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 522,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 523,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 524,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 525,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 526,
+        "pred": "B",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 527,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 528,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 529,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 530,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 531,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 532,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 533,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 534,
+        "pred": "D",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 535,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 536,
+        "pred": "B",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 537,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 538,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 539,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 540,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 541,
+        "pred": "D",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 542,
+        "pred": "A",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 543,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 544,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 545,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 546,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 547,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 548,
+        "pred": "A",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 549,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 550,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 551,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 552,
+        "pred": "A",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 553,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 554,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 555,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 556,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 557,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 558,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 559,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 560,
+        "pred": "C",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 561,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 562,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 563,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 564,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 565,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 566,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 567,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 568,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 569,
+        "pred": "B",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 570,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 571,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 572,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 573,
+        "pred": "A",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 574,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 575,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 576,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 577,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 578,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 579,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 580,
+        "pred": "C",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 581,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 582,
+        "pred": "A",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 583,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 584,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 585,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 586,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 587,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 588,
+        "pred": "D",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 589,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 590,
+        "pred": "B",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 591,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 592,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 593,
+        "pred": "A",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 594,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 595,
+        "pred": "A",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 596,
+        "pred": "C",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 597,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 598,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 599,
+        "pred": "B",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      }
+    ],
+    "gsm8k": [
+      {
+        "id": 0,
+        "pred": "400",
+        "gold": "400",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 223
+      },
+      {
+        "id": 1,
+        "pred": "25",
+        "gold": "25",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 232
+      },
+      {
+        "id": 2,
+        "pred": "3",
+        "gold": "3",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 389
+      },
+      {
+        "id": 3,
+        "pred": "800",
+        "gold": "800",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 523
+      },
+      {
+        "id": 4,
+        "pred": "5",
+        "gold": "5",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 283
+      },
+      {
+        "id": 5,
+        "pred": "12",
+        "gold": "13",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 854
+      },
+      {
+        "id": 6,
+        "pred": "8",
+        "gold": "8",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 237
+      },
+      {
+        "id": 7,
+        "pred": "30",
+        "gold": "30",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 217
+      },
+      {
+        "id": 8,
+        "pred": "70",
+        "gold": "145",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 381
+      },
+      {
+        "id": 9,
+        "pred": "20",
+        "gold": "20",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 368
+      },
+      {
+        "id": 10,
+        "pred": "90",
+        "gold": "90",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 149
+      },
+      {
+        "id": 11,
+        "pred": "7.00",
+        "gold": "7",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 411
+      },
+      {
+        "id": 12,
+        "pred": "3",
+        "gold": "104",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 710
+      },
+      {
+        "id": 13,
+        "pred": "15",
+        "gold": "5",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 339
+      },
+      {
+        "id": 14,
+        "pred": "25",
+        "gold": "25",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 367
+      },
+      {
+        "id": 15,
+        "pred": "96",
+        "gold": "96",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 288
+      },
+      {
+        "id": 16,
+        "pred": "296",
+        "gold": "296",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 343
+      },
+      {
+        "id": 17,
+        "pred": "26",
+        "gold": "26",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 158
+      },
+      {
+        "id": 18,
+        "pred": "52",
+        "gold": "52",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 382
+      },
+      {
+        "id": 19,
+        "pred": "30",
+        "gold": "150",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 187
+      },
+      {
+        "id": 20,
+        "pred": "2",
+        "gold": "2",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 570
+      },
+      {
+        "id": 21,
+        "pred": "5",
+        "gold": "5",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 196
+      },
+      {
+        "id": 22,
+        "pred": "144.00",
+        "gold": "144",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 474
+      },
+      {
+        "id": 23,
+        "pred": "490",
+        "gold": "490",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 205
+      },
+      {
+        "id": 24,
+        "pred": "320",
+        "gold": "320",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 407
+      },
+      {
+        "id": 25,
+        "pred": "144",
+        "gold": "144",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 438
+      },
+      {
+        "id": 26,
+        "pred": "15",
+        "gold": "15",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 141
+      },
+      {
+        "id": 27,
+        "pred": "30",
+        "gold": "30",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 303
+      },
+      {
+        "id": 28,
+        "pred": "7",
+        "gold": "7",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 401
+      },
+      {
+        "id": 29,
+        "pred": "225",
+        "gold": "225",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 279
+      },
+      {
+        "id": 30,
+        "pred": "3",
+        "gold": "8",
+        "correct": false,
+        "truncated": true,
+        "gen_len": 1024
+      },
+      {
+        "id": 31,
+        "pred": "22",
+        "gold": "22",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 203
+      },
+      {
+        "id": 32,
+        "pred": "8",
+        "gold": "8",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 259
+      },
+      {
+        "id": 33,
+        "pred": "56",
+        "gold": "56",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 517
+      },
+      {
+        "id": 34,
+        "pred": "30",
+        "gold": "30",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 551
+      },
+      {
+        "id": 35,
+        "pred": "250",
+        "gold": "250",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 415
+      },
+      {
+        "id": 36,
+        "pred": "9",
+        "gold": "9",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 319
+      },
+      {
+        "id": 37,
+        "pred": "90000",
+        "gold": "90000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 448
+      },
+      {
+        "id": 38,
+        "pred": "1",
+        "gold": "1",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 206
+      },
+      {
+        "id": 39,
+        "pred": "480",
+        "gold": "480",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 466
+      },
+      {
+        "id": 40,
+        "pred": "288",
+        "gold": "288",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 182
+      },
+      {
+        "id": 41,
+        "pred": "40",
+        "gold": "40",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 478
+      },
+      {
+        "id": 42,
+        "pred": "18000",
+        "gold": "18000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 391
+      },
+      {
+        "id": 43,
+        "pred": "14",
+        "gold": "14",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 437
+      },
+      {
+        "id": 44,
+        "pred": "12",
+        "gold": "12",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 199
+      },
+      {
+        "id": 45,
+        "pred": "17500",
+        "gold": "17500",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 287
+      },
+      {
+        "id": 46,
+        "pred": "67",
+        "gold": "67",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 285
+      },
+      {
+        "id": 47,
+        "pred": "20",
+        "gold": "20",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 345
+      },
+      {
+        "id": 48,
+        "pred": "98",
+        "gold": "98",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 270
+      },
+      {
+        "id": 49,
+        "pred": "4",
+        "gold": "4",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 366
+      },
+      {
+        "id": 50,
+        "pred": "1198",
+        "gold": "1198",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 373
+      },
+      {
+        "id": 51,
+        "pred": "2",
+        "gold": "2",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 268
+      },
+      {
+        "id": 52,
+        "pred": "4500",
+        "gold": "4500",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 200
+      },
+      {
+        "id": 53,
+        "pred": "6250",
+        "gold": "6250",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 211
+      },
+      {
+        "id": 54,
+        "pred": "12",
+        "gold": "12",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 397
+      },
+      {
+        "id": 55,
+        "pred": "168000",
+        "gold": "168000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 597
+      },
+      {
+        "id": 56,
+        "pred": "4",
+        "gold": "4",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 339
+      },
+      {
+        "id": 57,
+        "pred": "59",
+        "gold": "59",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 610
+      },
+      {
+        "id": 58,
+        "pred": "4",
+        "gold": "4",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 523
+      },
+      {
+        "id": 59,
+        "pred": "255",
+        "gold": "255",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 263
+      },
+      {
+        "id": 60,
+        "pred": "20000",
+        "gold": "20000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 175
+      },
+      {
+        "id": 61,
+        "pred": "284",
+        "gold": "284",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 487
+      },
+      {
+        "id": 62,
+        "pred": "10",
+        "gold": "10",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 233
+      },
+      {
+        "id": 63,
+        "pred": "100",
+        "gold": "100",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 285
+      },
+      {
+        "id": 64,
+        "pred": "4",
+        "gold": "4",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 307
+      },
+      {
+        "id": 65,
+        "pred": "320",
+        "gold": "320",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 442
+      },
+      {
+        "id": 66,
+        "pred": "8",
+        "gold": "8",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 284
+      },
+      {
+        "id": 67,
+        "pred": "3",
+        "gold": "3",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 387
+      },
+      {
+        "id": 68,
+        "pred": "2304",
+        "gold": "2304",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 193
+      },
+      {
+        "id": 69,
+        "pred": "8.00",
+        "gold": "8",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 260
+      },
+      {
+        "id": 70,
+        "pred": "16",
+        "gold": "16",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 315
+      },
+      {
+        "id": 71,
+        "pred": "19",
+        "gold": "19",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 208
+      },
+      {
+        "id": 72,
+        "pred": "11",
+        "gold": "11",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 218
+      },
+      {
+        "id": 73,
+        "pred": "14",
+        "gold": "14",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 142
+      },
+      {
+        "id": 74,
+        "pred": "4",
+        "gold": "4",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 591
+      },
+      {
+        "id": 75,
+        "pred": "306",
+        "gold": "306",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 287
+      },
+      {
+        "id": 76,
+        "pred": "48",
+        "gold": "48",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 261
+      },
+      {
+        "id": 77,
+        "pred": "4",
+        "gold": "4",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 113
+      },
+      {
+        "id": 78,
+        "pred": "318",
+        "gold": "319",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 398
+      },
+      {
+        "id": 79,
+        "pred": "220",
+        "gold": "220",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 358
+      },
+      {
+        "id": 80,
+        "pred": "12",
+        "gold": "132",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 203
+      },
+      {
+        "id": 81,
+        "pred": "10",
+        "gold": "10",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 169
+      },
+      {
+        "id": 82,
+        "pred": "17",
+        "gold": "17",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 479
+      },
+      {
+        "id": 83,
+        "pred": "30",
+        "gold": "75",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 291
+      },
+      {
+        "id": 84,
+        "pred": "2400",
+        "gold": "2400",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 382
+      },
+      {
+        "id": 85,
+        "pred": "71",
+        "gold": "71",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 141
+      },
+      {
+        "id": 86,
+        "pred": "300",
+        "gold": "300",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 186
+      },
+      {
+        "id": 87,
+        "pred": "40",
+        "gold": "40",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 371
+      },
+      {
+        "id": 88,
+        "pred": "4",
+        "gold": "4",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 339
+      },
+      {
+        "id": 89,
+        "pred": "75",
+        "gold": "75",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 422
+      },
+      {
+        "id": 90,
+        "pred": "74",
+        "gold": "74",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 241
+      },
+      {
+        "id": 91,
+        "pred": "26",
+        "gold": "26",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 271
+      },
+      {
+        "id": 92,
+        "pred": "24",
+        "gold": "15",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 545
+      },
+      {
+        "id": 93,
+        "pred": "5",
+        "gold": "5",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 211
+      },
+      {
+        "id": 94,
+        "pred": "74",
+        "gold": "74",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 197
+      },
+      {
+        "id": 95,
+        "pred": "16",
+        "gold": "16",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 294
+      },
+      {
+        "id": 96,
+        "pred": "50",
+        "gold": "50",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 260
+      },
+      {
+        "id": 97,
+        "pred": "156",
+        "gold": "156",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 379
+      },
+      {
+        "id": 98,
+        "pred": "1",
+        "gold": "1",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 438
+      },
+      {
+        "id": 99,
+        "pred": "6",
+        "gold": "6",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 517
+      },
+      {
+        "id": 100,
+        "pred": "100",
+        "gold": "100",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 322
+      },
+      {
+        "id": 101,
+        "pred": "60",
+        "gold": "60",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 372
+      },
+      {
+        "id": 102,
+        "pred": "32",
+        "gold": "32",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 243
+      },
+      {
+        "id": 103,
+        "pred": "1800",
+        "gold": "1800",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 239
+      },
+      {
+        "id": 104,
+        "pred": "70",
+        "gold": "70",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 241
+      },
+      {
+        "id": 105,
+        "pred": "80",
+        "gold": "80",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 294
+      },
+      {
+        "id": 106,
+        "pred": "28.00",
+        "gold": "28",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 206
+      },
+      {
+        "id": 107,
+        "pred": "24",
+        "gold": "24",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 367
+      },
+      {
+        "id": 108,
+        "pred": "220",
+        "gold": "220",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 212
+      },
+      {
+        "id": 109,
+        "pred": "6",
+        "gold": "6",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 243
+      },
+      {
+        "id": 110,
+        "pred": "9",
+        "gold": "9",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 157
+      },
+      {
+        "id": 111,
+        "pred": "6",
+        "gold": "6",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 417
+      },
+      {
+        "id": 112,
+        "pred": "18",
+        "gold": "18",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 229
+      },
+      {
+        "id": 113,
+        "pred": "180",
+        "gold": "180",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 343
+      },
+      {
+        "id": 114,
+        "pred": "20",
+        "gold": "20",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 498
+      },
+      {
+        "id": 115,
+        "pred": "1248",
+        "gold": "1248",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 363
+      },
+      {
+        "id": 116,
+        "pred": "14",
+        "gold": "14",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 321
+      },
+      {
+        "id": 117,
+        "pred": "243.00",
+        "gold": "243",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 374
+      },
+      {
+        "id": 118,
+        "pred": "34",
+        "gold": "34",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 248
+      },
+      {
+        "id": 119,
+        "pred": "800",
+        "gold": "800",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 196
+      },
+      {
+        "id": 120,
+        "pred": "450",
+        "gold": "450",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 330
+      },
+      {
+        "id": 121,
+        "pred": "7",
+        "gold": "7",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 328
+      },
+      {
+        "id": 122,
+        "pred": "31.00",
+        "gold": "31",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 450
+      },
+      {
+        "id": 123,
+        "pred": "4",
+        "gold": "8",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 131
+      },
+      {
+        "id": 124,
+        "pred": "120",
+        "gold": "120",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 360
+      },
+      {
+        "id": 125,
+        "pred": "10",
+        "gold": "10",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 164
+      },
+      {
+        "id": 126,
+        "pred": "8",
+        "gold": "2",
+        "correct": false,
+        "truncated": true,
+        "gen_len": 1024
+      },
+      {
+        "id": 127,
+        "pred": "260",
+        "gold": "260",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 297
+      },
+      {
+        "id": 128,
+        "pred": "31",
+        "gold": "31",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 376
+      },
+      {
+        "id": 129,
+        "pred": "7",
+        "gold": "1260",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 239
+      },
+      {
+        "id": 130,
+        "pred": "60",
+        "gold": "60",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 245
+      },
+      {
+        "id": 131,
+        "pred": "8",
+        "gold": "8",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 172
+      },
+      {
+        "id": 132,
+        "pred": "10",
+        "gold": "10",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 269
+      },
+      {
+        "id": 133,
+        "pred": "315",
+        "gold": "315",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 474
+      },
+      {
+        "id": 134,
+        "pred": "221",
+        "gold": "221",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 196
+      },
+      {
+        "id": 135,
+        "pred": "3",
+        "gold": "3",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 179
+      },
+      {
+        "id": 136,
+        "pred": "7",
+        "gold": "7",
+        "correct": true,
+        "truncated": true,
+        "gen_len": 1024
+      },
+      {
+        "id": 137,
+        "pred": "90",
+        "gold": "45",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 426
+      },
+      {
+        "id": 138,
+        "pred": "30",
+        "gold": "30",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 257
+      },
+      {
+        "id": 139,
+        "pred": "50",
+        "gold": "50",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 223
+      },
+      {
+        "id": 140,
+        "pred": "21",
+        "gold": "21",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 383
+      },
+      {
+        "id": 141,
+        "pred": "5",
+        "gold": "70",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 246
+      },
+      {
+        "id": 142,
+        "pred": "16",
+        "gold": "16",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 291
+      },
+      {
+        "id": 143,
+        "pred": "23",
+        "gold": "23",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 378
+      },
+      {
+        "id": 144,
+        "pred": "10",
+        "gold": "10",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 410
+      },
+      {
+        "id": 145,
+        "pred": "4",
+        "gold": "4",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 717
+      },
+      {
+        "id": 146,
+        "pred": "1800",
+        "gold": "1800",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 486
+      },
+      {
+        "id": 147,
+        "pred": "50",
+        "gold": "50",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 409
+      },
+      {
+        "id": 148,
+        "pred": "5",
+        "gold": "320",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 220
+      },
+      {
+        "id": 149,
+        "pred": "18.8",
+        "gold": "1128",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 432
+      },
+      {
+        "id": 150,
+        "pred": "6",
+        "gold": "6",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 339
+      },
+      {
+        "id": 151,
+        "pred": "11",
+        "gold": "11",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 354
+      },
+      {
+        "id": 152,
+        "pred": "2.67",
+        "gold": "2",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 231
+      },
+      {
+        "id": 153,
+        "pred": "5",
+        "gold": "5",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 304
+      },
+      {
+        "id": 154,
+        "pred": "240",
+        "gold": "240",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 363
+      },
+      {
+        "id": 155,
+        "pred": "60",
+        "gold": "60",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 240
+      },
+      {
+        "id": 156,
+        "pred": "58",
+        "gold": "58",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 309
+      },
+      {
+        "id": 157,
+        "pred": "7",
+        "gold": "7",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 273
+      },
+      {
+        "id": 158,
+        "pred": "55",
+        "gold": "55",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 300
+      },
+      {
+        "id": 159,
+        "pred": "3",
+        "gold": "3",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 380
+      },
+      {
+        "id": 160,
+        "pred": "70000",
+        "gold": "70000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 402
+      },
+      {
+        "id": 161,
+        "pred": "27.00",
+        "gold": "27",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 490
+      },
+      {
+        "id": 162,
+        "pred": "360",
+        "gold": "360",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 181
+      },
+      {
+        "id": 163,
+        "pred": "1170",
+        "gold": "1170",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 258
+      },
+      {
+        "id": 164,
+        "pred": "5",
+        "gold": "5",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 230
+      },
+      {
+        "id": 165,
+        "pred": "40",
+        "gold": "40",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 310
+      },
+      {
+        "id": 166,
+        "pred": "1125",
+        "gold": "1125",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 220
+      },
+      {
+        "id": 167,
+        "pred": "736",
+        "gold": "736",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 400
+      },
+      {
+        "id": 168,
+        "pred": "2",
+        "gold": "2",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 259
+      },
+      {
+        "id": 169,
+        "pred": "6",
+        "gold": "2",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 204
+      },
+      {
+        "id": 170,
+        "pred": "762",
+        "gold": "762",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 390
+      },
+      {
+        "id": 171,
+        "pred": "40",
+        "gold": "40",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 430
+      },
+      {
+        "id": 172,
+        "pred": "33",
+        "gold": "33",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 420
+      },
+      {
+        "id": 173,
+        "pred": "11",
+        "gold": "11",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 272
+      },
+      {
+        "id": 174,
+        "pred": "76",
+        "gold": "76",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 212
+      },
+      {
+        "id": 175,
+        "pred": "4",
+        "gold": "4",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 232
+      },
+      {
+        "id": 176,
+        "pred": "160",
+        "gold": "160",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 250
+      },
+      {
+        "id": 177,
+        "pred": "240",
+        "gold": "240",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 389
+      },
+      {
+        "id": 178,
+        "pred": "80",
+        "gold": "2",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 217
+      },
+      {
+        "id": 179,
+        "pred": "14000",
+        "gold": "14000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 382
+      },
+      {
+        "id": 180,
+        "pred": "7",
+        "gold": "7",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 328
+      },
+      {
+        "id": 181,
+        "pred": "6.00",
+        "gold": "6",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 194
+      },
+      {
+        "id": 182,
+        "pred": "1",
+        "gold": "1",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 167
+      },
+      {
+        "id": 183,
+        "pred": "2",
+        "gold": "168",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 163
+      },
+      {
+        "id": 184,
+        "pred": "11.00",
+        "gold": "11",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 466
+      },
+      {
+        "id": 185,
+        "pred": "110",
+        "gold": "110",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 300
+      },
+      {
+        "id": 186,
+        "pred": "82",
+        "gold": "82",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 161
+      },
+      {
+        "id": 187,
+        "pred": "162.00",
+        "gold": "162",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 300
+      },
+      {
+        "id": 188,
+        "pred": "5",
+        "gold": "240",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 423
+      },
+      {
+        "id": 189,
+        "pred": "120",
+        "gold": "120",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 479
+      },
+      {
+        "id": 190,
+        "pred": "3.5",
+        "gold": "3",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 431
+      },
+      {
+        "id": 191,
+        "pred": "1",
+        "gold": "310",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 267
+      },
+      {
+        "id": 192,
+        "pred": "8",
+        "gold": "8",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 201
+      },
+      {
+        "id": 193,
+        "pred": "14",
+        "gold": "14",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 158
+      },
+      {
+        "id": 194,
+        "pred": "6",
+        "gold": "6",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 396
+      },
+      {
+        "id": 195,
+        "pred": "30",
+        "gold": "30",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 159
+      },
+      {
+        "id": 196,
+        "pred": "2",
+        "gold": "2",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 286
+      },
+      {
+        "id": 197,
+        "pred": "595",
+        "gold": "595",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 359
+      },
+      {
+        "id": 198,
+        "pred": "23",
+        "gold": "23",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 406
+      },
+      {
+        "id": 199,
+        "pred": "7",
+        "gold": "7",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 172
+      },
+      {
+        "id": 200,
+        "pred": "280",
+        "gold": "280",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 233
+      },
+      {
+        "id": 201,
+        "pred": "100",
+        "gold": "100",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 312
+      },
+      {
+        "id": 202,
+        "pred": "85000",
+        "gold": "85000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 416
+      },
+      {
+        "id": 203,
+        "pred": "10",
+        "gold": "10",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 243
+      },
+      {
+        "id": 204,
+        "pred": "1",
+        "gold": "1",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 374
+      },
+      {
+        "id": 205,
+        "pred": "6",
+        "gold": "6",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 181
+      },
+      {
+        "id": 206,
+        "pred": "2",
+        "gold": "2",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 380
+      },
+      {
+        "id": 207,
+        "pred": "75",
+        "gold": "75",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 348
+      },
+      {
+        "id": 208,
+        "pred": "160",
+        "gold": "160",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 223
+      },
+      {
+        "id": 209,
+        "pred": "1000",
+        "gold": "1000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 314
+      },
+      {
+        "id": 210,
+        "pred": "68",
+        "gold": "68",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 392
+      },
+      {
+        "id": 211,
+        "pred": "860",
+        "gold": "860",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 352
+      },
+      {
+        "id": 212,
+        "pred": "17000",
+        "gold": "17000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 245
+      },
+      {
+        "id": 213,
+        "pred": "64.00",
+        "gold": "64",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 236
+      },
+      {
+        "id": 214,
+        "pred": "38",
+        "gold": "38",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 149
+      },
+      {
+        "id": 215,
+        "pred": "4",
+        "gold": "4",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 332
+      },
+      {
+        "id": 216,
+        "pred": "12",
+        "gold": "12",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 319
+      },
+      {
+        "id": 217,
+        "pred": "2",
+        "gold": "2",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 388
+      },
+      {
+        "id": 218,
+        "pred": "8",
+        "gold": "8",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 193
+      },
+      {
+        "id": 219,
+        "pred": "10",
+        "gold": "60",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 307
+      },
+      {
+        "id": 220,
+        "pred": "43",
+        "gold": "43",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 497
+      },
+      {
+        "id": 221,
+        "pred": "120",
+        "gold": "120",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 399
+      },
+      {
+        "id": 222,
+        "pred": "300",
+        "gold": "240",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 174
+      },
+      {
+        "id": 223,
+        "pred": "6",
+        "gold": "6",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 197
+      },
+      {
+        "id": 224,
+        "pred": "80",
+        "gold": "80",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 283
+      },
+      {
+        "id": 225,
+        "pred": "70",
+        "gold": "70",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 124
+      },
+      {
+        "id": 226,
+        "pred": "7500",
+        "gold": "7500",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 433
+      },
+      {
+        "id": 227,
+        "pred": "20",
+        "gold": "20",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 318
+      },
+      {
+        "id": 228,
+        "pred": "15",
+        "gold": "15",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 309
+      },
+      {
+        "id": 229,
+        "pred": "49",
+        "gold": "49",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 215
+      },
+      {
+        "id": 230,
+        "pred": "60",
+        "gold": "60",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 220
+      },
+      {
+        "id": 231,
+        "pred": "120",
+        "gold": "120",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 361
+      },
+      {
+        "id": 232,
+        "pred": "25",
+        "gold": "25",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 307
+      },
+      {
+        "id": 233,
+        "pred": "6",
+        "gold": "18",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 323
+      },
+      {
+        "id": 234,
+        "pred": "12.00",
+        "gold": "12",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 187
+      },
+      {
+        "id": 235,
+        "pred": "9",
+        "gold": "9",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 294
+      },
+      {
+        "id": 236,
+        "pred": "36",
+        "gold": "36",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 304
+      },
+      {
+        "id": 237,
+        "pred": "575",
+        "gold": "575",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 382
+      },
+      {
+        "id": 238,
+        "pred": "3",
+        "gold": "13",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 268
+      },
+      {
+        "id": 239,
+        "pred": "3",
+        "gold": "6",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 386
+      },
+      {
+        "id": 240,
+        "pred": "350",
+        "gold": "350",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 304
+      },
+      {
+        "id": 241,
+        "pred": "33.00",
+        "gold": "33",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 358
+      },
+      {
+        "id": 242,
+        "pred": "12",
+        "gold": "12",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 428
+      },
+      {
+        "id": 243,
+        "pred": "3",
+        "gold": "3",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 249
+      },
+      {
+        "id": 244,
+        "pred": "10",
+        "gold": "10",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 335
+      },
+      {
+        "id": 245,
+        "pred": "240",
+        "gold": "240",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 259
+      },
+      {
+        "id": 246,
+        "pred": "14",
+        "gold": "21",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 221
+      },
+      {
+        "id": 247,
+        "pred": "40",
+        "gold": "40",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 470
+      },
+      {
+        "id": 248,
+        "pred": "98",
+        "gold": "98",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 268
+      },
+      {
+        "id": 249,
+        "pred": "34",
+        "gold": "34",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 325
+      },
+      {
+        "id": 250,
+        "pred": "20",
+        "gold": "20",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 201
+      },
+      {
+        "id": 251,
+        "pred": "3528",
+        "gold": "3528",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 590
+      },
+      {
+        "id": 252,
+        "pred": "21",
+        "gold": "21",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 157
+      },
+      {
+        "id": 253,
+        "pred": "180.00",
+        "gold": "180",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 238
+      },
+      {
+        "id": 254,
+        "pred": "4",
+        "gold": "4",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 318
+      },
+      {
+        "id": 255,
+        "pred": "108",
+        "gold": "108",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 389
+      },
+      {
+        "id": 256,
+        "pred": "16",
+        "gold": "16",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 472
+      },
+      {
+        "id": 257,
+        "pred": "4",
+        "gold": "4",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 242
+      },
+      {
+        "id": 258,
+        "pred": "5",
+        "gold": "5",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 302
+      },
+      {
+        "id": 259,
+        "pred": "26",
+        "gold": "26",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 522
+      },
+      {
+        "id": 260,
+        "pred": "16",
+        "gold": "16",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 261
+      },
+      {
+        "id": 261,
+        "pred": "42",
+        "gold": "42",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 179
+      },
+      {
+        "id": 262,
+        "pred": "70",
+        "gold": "70",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 306
+      },
+      {
+        "id": 263,
+        "pred": "63",
+        "gold": "63",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 264
+      },
+      {
+        "id": 264,
+        "pred": "65960",
+        "gold": "65960",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 715
+      },
+      {
+        "id": 265,
+        "pred": "18",
+        "gold": "18",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 149
+      },
+      {
+        "id": 266,
+        "pred": "310",
+        "gold": "310",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 182
+      },
+      {
+        "id": 267,
+        "pred": "40",
+        "gold": "40",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 290
+      },
+      {
+        "id": 268,
+        "pred": "50",
+        "gold": "50",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 477
+      },
+      {
+        "id": 269,
+        "pred": "0",
+        "gold": "2",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 311
+      },
+      {
+        "id": 270,
+        "pred": "5",
+        "gold": "5",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 153
+      },
+      {
+        "id": 271,
+        "pred": "17",
+        "gold": "17",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 373
+      },
+      {
+        "id": 272,
+        "pred": "36",
+        "gold": "36",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 330
+      },
+      {
+        "id": 273,
+        "pred": "1450000",
+        "gold": "1450000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 691
+      },
+      {
+        "id": 274,
+        "pred": "6",
+        "gold": "6",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 281
+      },
+      {
+        "id": 275,
+        "pred": "6",
+        "gold": "6",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 270
+      },
+      {
+        "id": 276,
+        "pred": "27",
+        "gold": "27",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 227
+      },
+      {
+        "id": 277,
+        "pred": "8",
+        "gold": "16",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 403
+      },
+      {
+        "id": 278,
+        "pred": "440",
+        "gold": "440",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 374
+      },
+      {
+        "id": 279,
+        "pred": "20",
+        "gold": "20",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 327
+      },
+      {
+        "id": 280,
+        "pred": "21",
+        "gold": "21",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 253
+      },
+      {
+        "id": 281,
+        "pred": "54",
+        "gold": "54",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 231
+      },
+      {
+        "id": 282,
+        "pred": "17",
+        "gold": "17",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 219
+      },
+      {
+        "id": 283,
+        "pred": "31",
+        "gold": "31",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 390
+      },
+      {
+        "id": 284,
+        "pred": "84",
+        "gold": "84",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 307
+      },
+      {
+        "id": 285,
+        "pred": "15",
+        "gold": "15",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 287
+      },
+      {
+        "id": 286,
+        "pred": "64",
+        "gold": "64",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 428
+      },
+      {
+        "id": 287,
+        "pred": "15",
+        "gold": "15",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 416
+      },
+      {
+        "id": 288,
+        "pred": "67",
+        "gold": "67",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 355
+      },
+      {
+        "id": 289,
+        "pred": "38.00",
+        "gold": "38",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 315
+      },
+      {
+        "id": 290,
+        "pred": "34.00",
+        "gold": "34",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 496
+      },
+      {
+        "id": 291,
+        "pred": "300",
+        "gold": "300",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 326
+      },
+      {
+        "id": 292,
+        "pred": "28",
+        "gold": "28",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 564
+      },
+      {
+        "id": 293,
+        "pred": "16",
+        "gold": "16",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 203
+      },
+      {
+        "id": 294,
+        "pred": "3",
+        "gold": "3",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 171
+      },
+      {
+        "id": 295,
+        "pred": "459",
+        "gold": "9",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 320
+      },
+      {
+        "id": 296,
+        "pred": "48",
+        "gold": "48",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 391
+      },
+      {
+        "id": 297,
+        "pred": "88",
+        "gold": "88",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 487
+      },
+      {
+        "id": 298,
+        "pred": "25",
+        "gold": "25",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 207
+      },
+      {
+        "id": 299,
+        "pred": "30",
+        "gold": "30",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 224
+      },
+      {
+        "id": 300,
+        "pred": "14",
+        "gold": "14",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 387
+      },
+      {
+        "id": 301,
+        "pred": "30",
+        "gold": "30",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 119
+      },
+      {
+        "id": 302,
+        "pred": "3",
+        "gold": "8",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 385
+      },
+      {
+        "id": 303,
+        "pred": "4",
+        "gold": "4",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 179
+      },
+      {
+        "id": 304,
+        "pred": "5",
+        "gold": "5",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 603
+      },
+      {
+        "id": 305,
+        "pred": "7000",
+        "gold": "7000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 384
+      },
+      {
+        "id": 306,
+        "pred": "30",
+        "gold": "30",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 362
+      },
+      {
+        "id": 307,
+        "pred": "5",
+        "gold": "5",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 499
+      },
+      {
+        "id": 308,
+        "pred": "330000",
+        "gold": "330000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 475
+      },
+      {
+        "id": 309,
+        "pred": "4",
+        "gold": "4",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 576
+      },
+      {
+        "id": 310,
+        "pred": "2",
+        "gold": "2",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 322
+      },
+      {
+        "id": 311,
+        "pred": "262500",
+        "gold": "262500",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 443
+      },
+      {
+        "id": 312,
+        "pred": "90",
+        "gold": "90",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 346
+      },
+      {
+        "id": 313,
+        "pred": "8",
+        "gold": "8",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 270
+      },
+      {
+        "id": 314,
+        "pred": "6",
+        "gold": "6",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 456
+      },
+      {
+        "id": 315,
+        "pred": "1000",
+        "gold": "1000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 519
+      },
+      {
+        "id": 316,
+        "pred": "655",
+        "gold": "655",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 245
+      },
+      {
+        "id": 317,
+        "pred": "3200",
+        "gold": "3200",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 231
+      },
+      {
+        "id": 318,
+        "pred": "66",
+        "gold": "66",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 381
+      },
+      {
+        "id": 319,
+        "pred": "4",
+        "gold": "4",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 267
+      },
+      {
+        "id": 320,
+        "pred": "66",
+        "gold": "66",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 307
+      },
+      {
+        "id": 321,
+        "pred": "76",
+        "gold": "76",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 327
+      },
+      {
+        "id": 322,
+        "pred": "55",
+        "gold": "55",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 319
+      },
+      {
+        "id": 323,
+        "pred": "195",
+        "gold": "195",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 376
+      },
+      {
+        "id": 324,
+        "pred": "34",
+        "gold": "34",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 212
+      },
+      {
+        "id": 325,
+        "pred": "1520",
+        "gold": "1520",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 325
+      },
+      {
+        "id": 326,
+        "pred": "15",
+        "gold": "15",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 200
+      },
+      {
+        "id": 327,
+        "pred": "11",
+        "gold": "11",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 471
+      },
+      {
+        "id": 328,
+        "pred": "14000",
+        "gold": "14000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 395
+      },
+      {
+        "id": 329,
+        "pred": "7.00",
+        "gold": "7",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 226
+      },
+      {
+        "id": 330,
+        "pred": "19",
+        "gold": "19",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 184
+      },
+      {
+        "id": 331,
+        "pred": "27",
+        "gold": "54",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 353
+      },
+      {
+        "id": 332,
+        "pred": "10",
+        "gold": "10",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 179
+      },
+      {
+        "id": 333,
+        "pred": "4",
+        "gold": "45",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 689
+      },
+      {
+        "id": 334,
+        "pred": "225",
+        "gold": "225",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 279
+      },
+      {
+        "id": 335,
+        "pred": "19",
+        "gold": "19",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 513
+      },
+      {
+        "id": 336,
+        "pred": "36",
+        "gold": "36",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 307
+      },
+      {
+        "id": 337,
+        "pred": "110",
+        "gold": "110",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 332
+      },
+      {
+        "id": 338,
+        "pred": "1375",
+        "gold": "1375",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 348
+      },
+      {
+        "id": 339,
+        "pred": "350",
+        "gold": "350",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 615
+      },
+      {
+        "id": 340,
+        "pred": "100",
+        "gold": "100",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 174
+      },
+      {
+        "id": 341,
+        "pred": "3",
+        "gold": "3",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 175
+      },
+      {
+        "id": 342,
+        "pred": "245",
+        "gold": "245",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 353
+      },
+      {
+        "id": 343,
+        "pred": "50",
+        "gold": "50",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 350
+      },
+      {
+        "id": 344,
+        "pred": "20",
+        "gold": "20",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 291
+      },
+      {
+        "id": 345,
+        "pred": "87",
+        "gold": "87",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 211
+      },
+      {
+        "id": 346,
+        "pred": "56",
+        "gold": "56",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 460
+      },
+      {
+        "id": 347,
+        "pred": "13.00",
+        "gold": "13",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 406
+      },
+      {
+        "id": 348,
+        "pred": "6",
+        "gold": "4",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 935
+      },
+      {
+        "id": 349,
+        "pred": "3",
+        "gold": "3",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 393
+      },
+      {
+        "id": 350,
+        "pred": "26",
+        "gold": "26",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 199
+      },
+      {
+        "id": 351,
+        "pred": "40000",
+        "gold": "40000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 302
+      },
+      {
+        "id": 352,
+        "pred": "2",
+        "gold": "2",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 400
+      },
+      {
+        "id": 353,
+        "pred": "3",
+        "gold": "3",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 342
+      },
+      {
+        "id": 354,
+        "pred": "80",
+        "gold": "80",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 259
+      },
+      {
+        "id": 355,
+        "pred": "18",
+        "gold": "18",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 583
+      },
+      {
+        "id": 356,
+        "pred": "44",
+        "gold": "44",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 132
+      },
+      {
+        "id": 357,
+        "pred": "7425",
+        "gold": "7425",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 300
+      },
+      {
+        "id": 358,
+        "pred": "00",
+        "gold": "8",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 222
+      },
+      {
+        "id": 359,
+        "pred": "3160",
+        "gold": "3160",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 368
+      },
+      {
+        "id": 360,
+        "pred": "160",
+        "gold": "160",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 345
+      },
+      {
+        "id": 361,
+        "pred": "40",
+        "gold": "40",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 242
+      },
+      {
+        "id": 362,
+        "pred": "500",
+        "gold": "500",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 712
+      },
+      {
+        "id": 363,
+        "pred": "130000",
+        "gold": "130000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 213
+      },
+      {
+        "id": 364,
+        "pred": "5",
+        "gold": "120",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 292
+      },
+      {
+        "id": 365,
+        "pred": "9",
+        "gold": "9",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 224
+      },
+      {
+        "id": 366,
+        "pred": "9",
+        "gold": "9",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 362
+      },
+      {
+        "id": 367,
+        "pred": "3",
+        "gold": "50",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 366
+      },
+      {
+        "id": 368,
+        "pred": "2.00",
+        "gold": "2",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 351
+      },
+      {
+        "id": 369,
+        "pred": "48",
+        "gold": "48",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 99
+      },
+      {
+        "id": 370,
+        "pred": "360",
+        "gold": "360",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 430
+      },
+      {
+        "id": 371,
+        "pred": "75",
+        "gold": "90",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 470
+      },
+      {
+        "id": 372,
+        "pred": "94",
+        "gold": "94",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 398
+      },
+      {
+        "id": 373,
+        "pred": "15",
+        "gold": "15",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 480
+      },
+      {
+        "id": 374,
+        "pred": "112",
+        "gold": "112",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 162
+      },
+      {
+        "id": 375,
+        "pred": "240000",
+        "gold": "240000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 417
+      },
+      {
+        "id": 376,
+        "pred": "2400",
+        "gold": "2400",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 270
+      },
+      {
+        "id": 377,
+        "pred": "15.00",
+        "gold": "15",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 278
+      },
+      {
+        "id": 378,
+        "pred": "101",
+        "gold": "101",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 324
+      },
+      {
+        "id": 379,
+        "pred": "70",
+        "gold": "70",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 374
+      },
+      {
+        "id": 380,
+        "pred": "100",
+        "gold": "100",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 206
+      },
+      {
+        "id": 381,
+        "pred": "1",
+        "gold": "1",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 239
+      },
+      {
+        "id": 382,
+        "pred": "6",
+        "gold": "30",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 297
+      },
+      {
+        "id": 383,
+        "pred": "140",
+        "gold": "140",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 310
+      },
+      {
+        "id": 384,
+        "pred": "2450",
+        "gold": "2450",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 307
+      },
+      {
+        "id": 385,
+        "pred": "3",
+        "gold": "3",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 253
+      },
+      {
+        "id": 386,
+        "pred": "72",
+        "gold": "72",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 379
+      },
+      {
+        "id": 387,
+        "pred": "140",
+        "gold": "140",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 207
+      },
+      {
+        "id": 388,
+        "pred": "5",
+        "gold": "5",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 266
+      },
+      {
+        "id": 389,
+        "pred": "4",
+        "gold": "4",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 253
+      },
+      {
+        "id": 390,
+        "pred": "240",
+        "gold": "240",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 503
+      },
+      {
+        "id": 391,
+        "pred": "375",
+        "gold": "375",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 202
+      },
+      {
+        "id": 392,
+        "pred": "2000",
+        "gold": "114200",
+        "correct": false,
+        "truncated": true,
+        "gen_len": 1024
+      },
+      {
+        "id": 393,
+        "pred": "35",
+        "gold": "35",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 306
+      },
+      {
+        "id": 394,
+        "pred": "18",
+        "gold": "18",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 199
+      },
+      {
+        "id": 395,
+        "pred": "25",
+        "gold": "25",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 226
+      },
+      {
+        "id": 396,
+        "pred": "172",
+        "gold": "172",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 448
+      },
+      {
+        "id": 397,
+        "pred": "8.00",
+        "gold": "8",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 210
+      },
+      {
+        "id": 398,
+        "pred": "10",
+        "gold": "10",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 136
+      },
+      {
+        "id": 399,
+        "pred": "85",
+        "gold": "85",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 208
+      },
+      {
+        "id": 400,
+        "pred": "85",
+        "gold": "85",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 201
+      },
+      {
+        "id": 401,
+        "pred": "12",
+        "gold": "12",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 286
+      },
+      {
+        "id": 402,
+        "pred": "2",
+        "gold": "120",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 334
+      },
+      {
+        "id": 403,
+        "pred": "11",
+        "gold": "11",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 179
+      },
+      {
+        "id": 404,
+        "pred": "79",
+        "gold": "79",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 366
+      },
+      {
+        "id": 405,
+        "pred": "25",
+        "gold": "25",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 302
+      },
+      {
+        "id": 406,
+        "pred": "224000",
+        "gold": "224000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 566
+      },
+      {
+        "id": 407,
+        "pred": "312.00",
+        "gold": "312",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 266
+      },
+      {
+        "id": 408,
+        "pred": "68",
+        "gold": "68",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 342
+      },
+      {
+        "id": 409,
+        "pred": "3",
+        "gold": "3",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 364
+      },
+      {
+        "id": 410,
+        "pred": "7",
+        "gold": "7",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 267
+      },
+      {
+        "id": 411,
+        "pred": "54",
+        "gold": "54",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 390
+      },
+      {
+        "id": 412,
+        "pred": "23",
+        "gold": "23",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 355
+      },
+      {
+        "id": 413,
+        "pred": "650",
+        "gold": "650",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 301
+      },
+      {
+        "id": 414,
+        "pred": "335",
+        "gold": "335",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 215
+      },
+      {
+        "id": 415,
+        "pred": "3",
+        "gold": "3",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 263
+      },
+      {
+        "id": 416,
+        "pred": "10",
+        "gold": "10",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 586
+      },
+      {
+        "id": 417,
+        "pred": "80",
+        "gold": "80",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 289
+      },
+      {
+        "id": 418,
+        "pred": "105",
+        "gold": "105",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 232
+      },
+      {
+        "id": 419,
+        "pred": "13",
+        "gold": "13",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 244
+      },
+      {
+        "id": 420,
+        "pred": "24",
+        "gold": "24",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 364
+      },
+      {
+        "id": 421,
+        "pred": "60",
+        "gold": "5",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 511
+      },
+      {
+        "id": 422,
+        "pred": "70",
+        "gold": "70",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 428
+      },
+      {
+        "id": 423,
+        "pred": "72",
+        "gold": "72",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 347
+      },
+      {
+        "id": 424,
+        "pred": "3",
+        "gold": "21",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 125
+      },
+      {
+        "id": 425,
+        "pred": "8",
+        "gold": "8",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 523
+      },
+      {
+        "id": 426,
+        "pred": "324.00",
+        "gold": "324",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 526
+      },
+      {
+        "id": 427,
+        "pred": "2",
+        "gold": "2",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 345
+      },
+      {
+        "id": 428,
+        "pred": "32",
+        "gold": "32",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 203
+      },
+      {
+        "id": 429,
+        "pred": "105",
+        "gold": "75",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 298
+      },
+      {
+        "id": 430,
+        "pred": "31800",
+        "gold": "31800",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 441
+      },
+      {
+        "id": 431,
+        "pred": "24",
+        "gold": "24",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 384
+      },
+      {
+        "id": 432,
+        "pred": "175",
+        "gold": "175",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 454
+      },
+      {
+        "id": 433,
+        "pred": "340",
+        "gold": "360",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 438
+      },
+      {
+        "id": 434,
+        "pred": "31",
+        "gold": "31",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 384
+      },
+      {
+        "id": 435,
+        "pred": "81",
+        "gold": "81",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 350
+      },
+      {
+        "id": 436,
+        "pred": "25",
+        "gold": "25",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 408
+      },
+      {
+        "id": 437,
+        "pred": "3",
+        "gold": "3",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 220
+      },
+      {
+        "id": 438,
+        "pred": "8",
+        "gold": "8",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 254
+      },
+      {
+        "id": 439,
+        "pred": "2",
+        "gold": "2",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 289
+      },
+      {
+        "id": 440,
+        "pred": "2325",
+        "gold": "2325",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 185
+      },
+      {
+        "id": 441,
+        "pred": "840",
+        "gold": "840",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 213
+      },
+      {
+        "id": 442,
+        "pred": "10",
+        "gold": "36",
+        "correct": false,
+        "truncated": true,
+        "gen_len": 1024
+      },
+      {
+        "id": 443,
+        "pred": "4",
+        "gold": "4",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 492
+      },
+      {
+        "id": 444,
+        "pred": "140",
+        "gold": "140",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 159
+      },
+      {
+        "id": 445,
+        "pred": "75",
+        "gold": "75",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 596
+      },
+      {
+        "id": 446,
+        "pred": "4800",
+        "gold": "3200",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 361
+      },
+      {
+        "id": 447,
+        "pred": "17",
+        "gold": "17",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 274
+      },
+      {
+        "id": 448,
+        "pred": "15",
+        "gold": "4",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 325
+      },
+      {
+        "id": 449,
+        "pred": "20",
+        "gold": "20",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 473
+      },
+      {
+        "id": 450,
+        "pred": "92",
+        "gold": "92",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 677
+      },
+      {
+        "id": 451,
+        "pred": "1",
+        "gold": "1",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 269
+      },
+      {
+        "id": 452,
+        "pred": "9860.78",
+        "gold": "7400",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 463
+      },
+      {
+        "id": 453,
+        "pred": "50",
+        "gold": "50",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 296
+      },
+      {
+        "id": 454,
+        "pred": "1",
+        "gold": "1",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 205
+      },
+      {
+        "id": 455,
+        "pred": "14",
+        "gold": "14",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 196
+      },
+      {
+        "id": 456,
+        "pred": "300",
+        "gold": "300",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 256
+      },
+      {
+        "id": 457,
+        "pred": "2",
+        "gold": "4",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 211
+      },
+      {
+        "id": 458,
+        "pred": "16",
+        "gold": "16",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 523
+      },
+      {
+        "id": 459,
+        "pred": "163",
+        "gold": "163",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 395
+      },
+      {
+        "id": 460,
+        "pred": "27",
+        "gold": "27",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 122
+      },
+      {
+        "id": 461,
+        "pred": "93",
+        "gold": "93",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 364
+      },
+      {
+        "id": 462,
+        "pred": "160",
+        "gold": "160",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 340
+      },
+      {
+        "id": 463,
+        "pred": "100",
+        "gold": "100",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 297
+      },
+      {
+        "id": 464,
+        "pred": "42.00",
+        "gold": "42",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 346
+      },
+      {
+        "id": 465,
+        "pred": "2",
+        "gold": "2",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 238
+      },
+      {
+        "id": 466,
+        "pred": "31",
+        "gold": "31",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 211
+      },
+      {
+        "id": 467,
+        "pred": "30",
+        "gold": "30",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 313
+      },
+      {
+        "id": 468,
+        "pred": "6",
+        "gold": "6",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 262
+      },
+      {
+        "id": 469,
+        "pred": "6",
+        "gold": "6",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 266
+      },
+      {
+        "id": 470,
+        "pred": "20",
+        "gold": "20",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 124
+      },
+      {
+        "id": 471,
+        "pred": "3",
+        "gold": "3",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 332
+      },
+      {
+        "id": 472,
+        "pred": "5",
+        "gold": "20",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 231
+      },
+      {
+        "id": 473,
+        "pred": "4",
+        "gold": "4",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 265
+      },
+      {
+        "id": 474,
+        "pred": "7",
+        "gold": "7",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 262
+      },
+      {
+        "id": 475,
+        "pred": "21",
+        "gold": "21",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 201
+      },
+      {
+        "id": 476,
+        "pred": "90",
+        "gold": "90",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 267
+      },
+      {
+        "id": 477,
+        "pred": "16",
+        "gold": "16",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 133
+      },
+      {
+        "id": 478,
+        "pred": "150",
+        "gold": "150",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 581
+      },
+      {
+        "id": 479,
+        "pred": "24",
+        "gold": "24",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 575
+      },
+      {
+        "id": 480,
+        "pred": "150",
+        "gold": "150",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 383
+      },
+      {
+        "id": 481,
+        "pred": "80",
+        "gold": "80",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 327
+      },
+      {
+        "id": 482,
+        "pred": "14",
+        "gold": "14",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 165
+      },
+      {
+        "id": 483,
+        "pred": "9500",
+        "gold": "9500",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 405
+      },
+      {
+        "id": 484,
+        "pred": "842",
+        "gold": "842",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 233
+      },
+      {
+        "id": 485,
+        "pred": "18",
+        "gold": "18",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 255
+      },
+      {
+        "id": 486,
+        "pred": "45",
+        "gold": "45",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 282
+      },
+      {
+        "id": 487,
+        "pred": "12",
+        "gold": "12",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 317
+      },
+      {
+        "id": 488,
+        "pred": "10",
+        "gold": "10",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 385
+      },
+      {
+        "id": 489,
+        "pred": "160000",
+        "gold": "162000",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 301
+      },
+      {
+        "id": 490,
+        "pred": "36",
+        "gold": "36",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 349
+      },
+      {
+        "id": 491,
+        "pred": "450",
+        "gold": "450",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 241
+      },
+      {
+        "id": 492,
+        "pred": "50",
+        "gold": "50",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 254
+      },
+      {
+        "id": 493,
+        "pred": "10",
+        "gold": "10",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 310
+      },
+      {
+        "id": 494,
+        "pred": "15",
+        "gold": "15",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 206
+      },
+      {
+        "id": 495,
+        "pred": "15",
+        "gold": "15",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 350
+      },
+      {
+        "id": 496,
+        "pred": "5",
+        "gold": "5",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 341
+      },
+      {
+        "id": 497,
+        "pred": "16",
+        "gold": "16",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 119
+      },
+      {
+        "id": 498,
+        "pred": "2180",
+        "gold": "2280",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 401
+      },
+      {
+        "id": 499,
+        "pred": "205",
+        "gold": "205",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 346
+      },
+      {
+        "id": 500,
+        "pred": "27",
+        "gold": "27",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 281
+      },
+      {
+        "id": 501,
+        "pred": "15400",
+        "gold": "15400",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 296
+      },
+      {
+        "id": 502,
+        "pred": "38",
+        "gold": "38",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 315
+      },
+      {
+        "id": 503,
+        "pred": "90",
+        "gold": "90",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 233
+      },
+      {
+        "id": 504,
+        "pred": "45.00",
+        "gold": "45",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 424
+      },
+      {
+        "id": 505,
+        "pred": "6",
+        "gold": "6",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 237
+      },
+      {
+        "id": 506,
+        "pred": "7200",
+        "gold": "7200",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 285
+      },
+      {
+        "id": 507,
+        "pred": "4",
+        "gold": "72000",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 368
+      },
+      {
+        "id": 508,
+        "pred": "15",
+        "gold": "15",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 416
+      },
+      {
+        "id": 509,
+        "pred": "40",
+        "gold": "40",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 284
+      },
+      {
+        "id": 510,
+        "pred": "96",
+        "gold": "96",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 421
+      },
+      {
+        "id": 511,
+        "pred": "15",
+        "gold": "15",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 310
+      },
+      {
+        "id": 512,
+        "pred": "10",
+        "gold": "10",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 384
+      },
+      {
+        "id": 513,
+        "pred": "50",
+        "gold": "50",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 488
+      },
+      {
+        "id": 514,
+        "pred": "43500",
+        "gold": "43500",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 530
+      },
+      {
+        "id": 515,
+        "pred": "6",
+        "gold": "42",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 379
+      },
+      {
+        "id": 516,
+        "pred": "600",
+        "gold": "12",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 300
+      },
+      {
+        "id": 517,
+        "pred": "14",
+        "gold": "14",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 190
+      },
+      {
+        "id": 518,
+        "pred": "1600",
+        "gold": "1600",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 402
+      },
+      {
+        "id": 519,
+        "pred": "88",
+        "gold": "88",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 207
+      },
+      {
+        "id": 520,
+        "pred": "120000",
+        "gold": "120000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 345
+      },
+      {
+        "id": 521,
+        "pred": "80",
+        "gold": "80",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 183
+      },
+      {
+        "id": 522,
+        "pred": "150",
+        "gold": "150",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 391
+      },
+      {
+        "id": 523,
+        "pred": "6",
+        "gold": "6",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 396
+      },
+      {
+        "id": 524,
+        "pred": "2",
+        "gold": "2",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 245
+      },
+      {
+        "id": 525,
+        "pred": "58",
+        "gold": "58",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 461
+      },
+      {
+        "id": 526,
+        "pred": "25",
+        "gold": "25",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 460
+      },
+      {
+        "id": 527,
+        "pred": "60",
+        "gold": "20",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 310
+      },
+      {
+        "id": 528,
+        "pred": "60",
+        "gold": "60",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 316
+      },
+      {
+        "id": 529,
+        "pred": "6",
+        "gold": "6",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 239
+      },
+      {
+        "id": 530,
+        "pred": "400",
+        "gold": "400",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 406
+      },
+      {
+        "id": 531,
+        "pred": "26",
+        "gold": "26",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 537
+      },
+      {
+        "id": 532,
+        "pred": "101.00",
+        "gold": "101",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 283
+      },
+      {
+        "id": 533,
+        "pred": "3.00",
+        "gold": "3",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 350
+      },
+      {
+        "id": 534,
+        "pred": "10",
+        "gold": "10",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 261
+      },
+      {
+        "id": 535,
+        "pred": "105",
+        "gold": "105",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 393
+      },
+      {
+        "id": 536,
+        "pred": "6",
+        "gold": "6",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 303
+      },
+      {
+        "id": 537,
+        "pred": "200",
+        "gold": "200",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 214
+      },
+      {
+        "id": 538,
+        "pred": "1596",
+        "gold": "1596",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 451
+      },
+      {
+        "id": 539,
+        "pred": "4",
+        "gold": "4",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 209
+      },
+      {
+        "id": 540,
+        "pred": "540",
+        "gold": "540",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 261
+      },
+      {
+        "id": 541,
+        "pred": "120",
+        "gold": "120",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 400
+      },
+      {
+        "id": 542,
+        "pred": "100",
+        "gold": "100",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 545
+      },
+      {
+        "id": 543,
+        "pred": "6",
+        "gold": "6",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 142
+      },
+      {
+        "id": 544,
+        "pred": "30",
+        "gold": "30",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 487
+      },
+      {
+        "id": 545,
+        "pred": "19",
+        "gold": "19",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 484
+      },
+      {
+        "id": 546,
+        "pred": "145",
+        "gold": "145",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 583
+      },
+      {
+        "id": 547,
+        "pred": "16",
+        "gold": "16",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 403
+      },
+      {
+        "id": 548,
+        "pred": "720",
+        "gold": "720",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 306
+      },
+      {
+        "id": 549,
+        "pred": "36",
+        "gold": "36",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 439
+      },
+      {
+        "id": 550,
+        "pred": "110",
+        "gold": "110",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 234
+      },
+      {
+        "id": 551,
+        "pred": "1",
+        "gold": "10",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 330
+      },
+      {
+        "id": 552,
+        "pred": "90",
+        "gold": "90",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 416
+      },
+      {
+        "id": 553,
+        "pred": "255",
+        "gold": "255",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 500
+      },
+      {
+        "id": 554,
+        "pred": "112",
+        "gold": "112",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 231
+      },
+      {
+        "id": 555,
+        "pred": "24",
+        "gold": "24",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 221
+      },
+      {
+        "id": 556,
+        "pred": "14",
+        "gold": "14",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 324
+      },
+      {
+        "id": 557,
+        "pred": "348",
+        "gold": "348",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 415
+      },
+      {
+        "id": 558,
+        "pred": "26",
+        "gold": "26",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 281
+      },
+      {
+        "id": 559,
+        "pred": "35",
+        "gold": "35",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 187
+      },
+      {
+        "id": 560,
+        "pred": "18",
+        "gold": "18",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 555
+      },
+      {
+        "id": 561,
+        "pred": "60",
+        "gold": "7",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 252
+      },
+      {
+        "id": 562,
+        "pred": "120",
+        "gold": "120",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 452
+      },
+      {
+        "id": 563,
+        "pred": "72",
+        "gold": "18",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 245
+      },
+      {
+        "id": 564,
+        "pred": "142",
+        "gold": "142",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 239
+      },
+      {
+        "id": 565,
+        "pred": "4",
+        "gold": "60",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 188
+      },
+      {
+        "id": 566,
+        "pred": "6",
+        "gold": "6",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 437
+      },
+      {
+        "id": 567,
+        "pred": "48",
+        "gold": "48",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 979
+      },
+      {
+        "id": 568,
+        "pred": "24",
+        "gold": "24",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 226
+      },
+      {
+        "id": 569,
+        "pred": "2",
+        "gold": "2",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 351
+      },
+      {
+        "id": 570,
+        "pred": "5",
+        "gold": "5",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 207
+      },
+      {
+        "id": 571,
+        "pred": "93",
+        "gold": "93",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 201
+      },
+      {
+        "id": 572,
+        "pred": "20",
+        "gold": "20",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 219
+      },
+      {
+        "id": 573,
+        "pred": "99076.92",
+        "gold": "95200",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 822
+      },
+      {
+        "id": 574,
+        "pred": "1875",
+        "gold": "1875",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 552
+      },
+      {
+        "id": 575,
+        "pred": "140",
+        "gold": "140",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 469
+      },
+      {
+        "id": 576,
+        "pred": "27000",
+        "gold": "27000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 326
+      },
+      {
+        "id": 577,
+        "pred": "6",
+        "gold": "3",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 128
+      },
+      {
+        "id": 578,
+        "pred": "27",
+        "gold": "27",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 265
+      },
+      {
+        "id": 579,
+        "pred": "576",
+        "gold": "576",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 227
+      },
+      {
+        "id": 580,
+        "pred": "5",
+        "gold": "5",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 284
+      },
+      {
+        "id": 581,
+        "pred": "54",
+        "gold": "54",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 387
+      },
+      {
+        "id": 582,
+        "pred": "5",
+        "gold": "4",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 296
+      },
+      {
+        "id": 583,
+        "pred": "10",
+        "gold": "10",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 274
+      },
+      {
+        "id": 584,
+        "pred": "480",
+        "gold": "480",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 172
+      },
+      {
+        "id": 585,
+        "pred": "7",
+        "gold": "7",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 281
+      },
+      {
+        "id": 586,
+        "pred": "160",
+        "gold": "160",
+        "correct": true,
+        "truncated": true,
+        "gen_len": 1024
+      },
+      {
+        "id": 587,
+        "pred": "240",
+        "gold": "240",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 246
+      },
+      {
+        "id": 588,
+        "pred": "2",
+        "gold": "2",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 378
+      },
+      {
+        "id": 589,
+        "pred": "140",
+        "gold": "140",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 388
+      },
+      {
+        "id": 590,
+        "pred": "10",
+        "gold": "10",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 272
+      },
+      {
+        "id": 591,
+        "pred": "40",
+        "gold": "120",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 217
+      },
+      {
+        "id": 592,
+        "pred": "9",
+        "gold": "9",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 312
+      },
+      {
+        "id": 593,
+        "pred": "803",
+        "gold": "803",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 737
+      },
+      {
+        "id": 594,
+        "pred": "826.00",
+        "gold": "826",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 537
+      },
+      {
+        "id": 595,
+        "pred": "125",
+        "gold": "125",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 264
+      },
+      {
+        "id": 596,
+        "pred": "53",
+        "gold": "21",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 700
+      },
+      {
+        "id": 597,
+        "pred": "227",
+        "gold": "227",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 312
+      },
+      {
+        "id": 598,
+        "pred": "123",
+        "gold": "123",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 337
+      },
+      {
+        "id": 599,
+        "pred": "92",
+        "gold": "92",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 242
+      }
+    ]
+  }
+}

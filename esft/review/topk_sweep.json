@@ -1,0 +1,72 @@
+{
+  "_meta": {
+    "model": "~/esft-work/models/Qwen3.6-35B-A3B",
+    "n": 300,
+    "ks": [
+      8,
+      12,
+      16,
+      24,
+      32
+    ],
+    "batch_size": 16,
+    "max_new": 1536,
+    "prompt": "0-shot chat + 'Let's think step by step.', greedy",
+    "split": "gsm8k/test first-N",
+    "seed": 0,
+    "gpus": [
+      0,
+      1
+    ],
+    "split_sizes": {
+      "0": 150,
+      "1": 150
+    },
+    "note": "reasoning model; 512 tokens may truncate <think> -- see verify report"
+  },
+  "k=8": {
+    "acc": 0.7233,
+    "correct": 217,
+    "n": 300,
+    "gen_tokens": 361083,
+    "tok_s": 174.04,
+    "tok_s_parallel": 345.54,
+    "gen_time_sum_s": 2074.7
+  },
+  "k=12": {
+    "acc": 0.75,
+    "correct": 225,
+    "n": 300,
+    "gen_tokens": 342598,
+    "tok_s": 120.91,
+    "tok_s_parallel": 240.93,
+    "gen_time_sum_s": 2833.5
+  },
+  "k=16": {
+    "acc": 0.7667,
+    "correct": 230,
+    "n": 300,
+    "gen_tokens": 322703,
+    "tok_s": 92.26,
+    "tok_s_parallel": 183.67,
+    "gen_time_sum_s": 3497.9
+  },
+  "k=24": {
+    "acc": 0.82,
+    "correct": 246,
+    "n": 300,
+    "gen_tokens": 305113,
+    "tok_s": 62.65,
+    "tok_s_parallel": 124.9,
+    "gen_time_sum_s": 4870.3
+  },
+  "k=32": {
+    "acc": 0.85,
+    "correct": 255,
+    "n": 300,
+    "gen_tokens": 281498,
+    "tok_s": 46.83,
+    "tok_s_parallel": 93.61,
+    "gen_time_sum_s": 6011.6
+  }
+}

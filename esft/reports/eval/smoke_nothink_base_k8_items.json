@@ -1,0 +1,158 @@
+{
+  "_meta": {
+    "model": "base",
+    "model_path": "~/.cache/huggingface/hub/models--Qwen--Qwen3.6-35B-A3B/snapshots/995ad96eacd98c81ed38be0c5b274b04031597b0",
+    "patch": null,
+    "topk": 8,
+    "benchmarks": [
+      "mmlu",
+      "gsm8k"
+    ],
+    "n_per_benchmark": 8,
+    "batch_size": 4,
+    "max_new": 512,
+    "seed": 0,
+    "shuffle": false,
+    "gpus": [
+      0,
+      1
+    ],
+    "no_think": true,
+    "split": "first-N",
+    "note": "reasoning model; per-benchmark max_new may truncate <think>"
+  },
+  "items": {
+    "mmlu": [
+      {
+        "id": 0,
+        "pred": null,
+        "gold": "B",
+        "correct": false,
+        "truncated": true,
+        "gen_len": 512
+      },
+      {
+        "id": 1,
+        "pred": null,
+        "gold": "C",
+        "correct": false,
+        "truncated": true,
+        "gen_len": 512
+      },
+      {
+        "id": 2,
+        "pred": null,
+        "gold": "D",
+        "correct": false,
+        "truncated": true,
+        "gen_len": 512
+      },
+      {
+        "id": 3,
+        "pred": "D",
+        "gold": "B",
+        "correct": false,
+        "truncated": true,
+        "gen_len": 512
+      },
+      {
+        "id": 4,
+        "pred": null,
+        "gold": "B",
+        "correct": false,
+        "truncated": true,
+        "gen_len": 512
+      },
+      {
+        "id": 5,
+        "pred": null,
+        "gold": "A",
+        "correct": false,
+        "truncated": true,
+        "gen_len": 512
+      },
+      {
+        "id": 6,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 364
+      },
+      {
+        "id": 7,
+        "pred": "A",
+        "gold": "D",
+        "correct": false,
+        "truncated": true,
+        "gen_len": 512
+      }
+    ],
+    "gsm8k": [
+      {
+        "id": 0,
+        "pred": "18",
+        "gold": "18",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 246
+      },
+      {
+        "id": 1,
+        "pred": "3",
+        "gold": "3",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 144
+      },
+      {
+        "id": 2,
+        "pred": "120000",
+        "gold": "70000",
+        "correct": false,
+        "truncated": true,
+        "gen_len": 512
+      },
+      {
+        "id": 3,
+        "pred": "540",
+        "gold": "540",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 166
+      },
+      {
+        "id": 4,
+        "pred": "20",
+        "gold": "20",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 303
+      },
+      {
+        "id": 5,
+        "pred": "16",
+        "gold": "64",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 437
+      },
+      {
+        "id": 6,
+        "pred": "260",
+        "gold": "260",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 222
+      },
+      {
+        "id": 7,
+        "pred": "160",
+        "gold": "160",
+        "correct": true,
+        "truncated": true,
+        "gen_len": 512
+      }
+    ]
+  }
+}

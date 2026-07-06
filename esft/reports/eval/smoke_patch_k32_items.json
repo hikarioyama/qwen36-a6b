@@ -1,0 +1,129 @@
+{
+  "_meta": {
+    "model": "patched",
+    "model_path": "~/.cache/huggingface/hub/models--Qwen--Qwen3.6-35B-A3B/snapshots/995ad96eacd98c81ed38be0c5b274b04031597b0",
+    "patch": "~/esft-patches/expert_patch.safetensors",
+    "topk": 32,
+    "benchmarks": [
+      "mmlu",
+      "humaneval"
+    ],
+    "n_per_benchmark": 8,
+    "batch_size": 4,
+    "max_new": null,
+    "seed": 0,
+    "shuffle": false,
+    "gpus": [
+      0,
+      1
+    ],
+    "split": "first-N",
+    "note": "reasoning model; per-benchmark max_new may truncate <think>"
+  },
+  "items": {
+    "mmlu": [
+      {
+        "id": 0,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": true,
+        "gen_len": 1536
+      },
+      {
+        "id": 1,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": true,
+        "gen_len": 1536
+      },
+      {
+        "id": 2,
+        "pred": "D",
+        "gold": "D",
+        "correct": true,
+        "truncated": true,
+        "gen_len": 1536
+      },
+      {
+        "id": 3,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": true,
+        "gen_len": 1536
+      },
+      {
+        "id": 4,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": true,
+        "gen_len": 1536
+      },
+      {
+        "id": 5,
+        "pred": "C",
+        "gold": "A",
+        "correct": false,
+        "truncated": true,
+        "gen_len": 1536
+      },
+      {
+        "id": 6,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": true,
+        "gen_len": 1536
+      },
+      {
+        "id": 7,
+        "pred": "C",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 1243
+      }
+    ],
+    "humaneval": [
+      {
+        "id": 1,
+        "pred": "from typing import List\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    \"\"\" Input to this function is a string containing multiple groups of nested parentheses. Your goal is to\n    separate those group into separate strings and return the list of those.\n    Separate groups are balanced (each open brace is properly closed) and not nested within each other\n    Ignore any spaces in the input string.\n    >>> separate_paren_groups('( ) (( )) (( )( ))')\n    ['()', '(())', '(()())']\n    \"\"\"\n    # Remove spaces to simplify processing\n    s = paren_string.replace(' ', '')\n    result = []\n    current_group = []\n    depth = 0\n    for char in s:\n        if char == '(':\n            depth += 1\n            current_group.append(char)\n        elif char == ')':\n            depth -= 1\n            current_group.append(char)\n            if depth == 0:\n                result.append(''.join(current_group))\n                current_group = []\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 970,
+        "task_id": "HumanEval/1"
+      },
+      {
+        "id": 3,
+        "pred": "from typing import List\n\n\ndef below_zero(operations: List[int]) -> bool:\n    \"\"\" You're given a list of deposit and withdrawal operations on a bank account that starts with\n    zero balance. Your task is to detect if at any point the balance of account fallls below zero, and\n    at that point function should return True. Otherwise it should return False.\n    >>> below_zero([1, 2, 3])\n    False\n    >>> below_zero([1, 2, -4, 5])\n    True\n    \"\"\"\n    balance = 0\n    for op in operations:\n        balance += op\n        if balance < 0:\n            return True\n    return False",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 404,
+        "task_id": "HumanEval/3"
+      },
+      {
+        "id": 5,
+        "pred": "from typing import List\n\n\ndef intersperse(numbers: List[int], delimeter: int) -> List[int]:\n    \"\"\" Insert a number 'delimeter' between every two consecutive elements of input list `numbers'\n    >>> intersperse([], 4)\n    []\n    >>> intersperse([1, 2, 3], 4)\n    [1, 4, 2, 4, 3]\n    \"\"\"\n    if not numbers:\n        return []\n    result = []\n    for i, num in enumerate(numbers):\n        result.append(num)\n        if i < len(numbers) - 1:\n            result.append(delimeter)\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 619,
+        "task_id": "HumanEval/5"
+      },
+      {
+        "id": 7,
+        "pred": "from typing import List\n\ndef filter_by_substring(strings: List[str], substring: str) -> List[str]:\n    \"\"\" Filter an input list of strings only for ones that contain given substring\n    >>> filter_by_substring([], 'a')\n    []\n    >>> filter_by_substring(['abc', 'bacd', 'cde', 'array'], 'a')\n    ['abc', 'bacd', 'array']\n    \"\"\"\n    return [s for s in strings if substring in s]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 665,
+        "task_id": "HumanEval/7"
+      }
+    ]
+  }
+}

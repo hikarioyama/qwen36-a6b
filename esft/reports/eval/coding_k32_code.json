@@ -1,0 +1,42 @@
+{
+  "_meta": {
+    "model": "patched",
+    "model_path": "~/.cache/huggingface/hub/models--Qwen--Qwen3.6-35B-A3B/snapshots/995ad96eacd98c81ed38be0c5b274b04031597b0",
+    "patch": "~/esft-patches/coding_expert_patch.safetensors",
+    "topk": 32,
+    "benchmarks": [
+      "humaneval",
+      "mbpp"
+    ],
+    "n_per_benchmark": 600,
+    "batch_size": 8,
+    "max_new": 4096,
+    "seed": 0,
+    "shuffle": true,
+    "gpus": [
+      0,
+      1
+    ],
+    "no_think": false,
+    "choice_logprob": false,
+    "split": "first-N shuffled",
+    "note": "reasoning model; per-benchmark max_new may truncate <think>"
+  },
+  "results": {
+    "humaneval": {
+      "model": "patched",
+      "topk": 32,
+      "benchmark": "humaneval",
+      "n": 164,
+      "acc": 0.7622,
+      "ci95": 0.0652,
+      "correct": 125,
+      "truncated_n": 0,
+      "gen_tokens": 33525,
+      "tok_s": 38.35,
+      "tok_s_parallel": 72.51,
+      "gen_time_sum_s": 874.1,
+      "max_new": 4096
+    }
+  }
+}

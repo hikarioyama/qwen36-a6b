@@ -1,0 +1,4528 @@
+{
+  "_meta": {
+    "model": "base",
+    "model_path": "~/.cache/huggingface/hub/models--Qwen--Qwen3.6-35B-A3B/snapshots/995ad96eacd98c81ed38be0c5b274b04031597b0",
+    "patch": null,
+    "topk": 32,
+    "benchmarks": [
+      "mbpp"
+    ],
+    "n_per_benchmark": 600,
+    "batch_size": 8,
+    "max_new": 4096,
+    "seed": 0,
+    "shuffle": true,
+    "gpus": [
+      0,
+      1
+    ],
+    "no_think": false,
+    "choice_logprob": false,
+    "split": "first-N shuffled",
+    "note": "reasoning model; per-benchmark max_new may truncate <think>"
+  },
+  "items": {
+    "mbpp": [
+      {
+        "id": 0,
+        "pred": "def larg_nnum(dataset, n):\n    return sorted(dataset, reverse=True)[:n]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1438,
+        "task_id": 232
+      },
+      {
+        "id": 1,
+        "pred": "def index_multiplication(t1, t2):\n    return tuple(tuple(x * y for x, y in zip(i1, i2)) for i1, i2 in zip(t1, t2))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1941,
+        "task_id": 445
+      },
+      {
+        "id": 2,
+        "pred": "def max_product_tuple(tuples_list):\n    return max(a * b for a, b in tuples_list)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1305,
+        "task_id": 120
+      },
+      {
+        "id": 3,
+        "pred": "def diff_consecutivenums(nums):\n    return [nums[i+1] - nums[i] for i in range(len(nums) - 1)]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1184,
+        "task_id": 345
+      },
+      {
+        "id": 4,
+        "pred": "   def swap_count(s):\n       balance = 0\n       swaps = 0\n       for c in s:\n           if c == '[': balance += 1\n           else: balance -= 1\n           if balance < 0:\n               swaps += 1\n               balance += 2\n       return swaps\n   ",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 386
+      },
+      {
+        "id": 5,
+        "pred": "import math\ndef volume_sphere(r):\n    return (4/3) * math.pi * r**3",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1517,
+        "task_id": 82
+      },
+      {
+        "id": 6,
+        "pred": "def find_lucas(n):\n    if n == 0:\n        return 2\n    if n == 1:\n        return 1\n    prev, curr = 2, 1\n    for _ in range(2, n + 1):\n        prev, curr = curr, prev + curr\n    return curr",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1951,
+        "task_id": 389
+      },
+      {
+        "id": 7,
+        "pred": "   def check_subset_list(list1, list2):\n       for item in list2:\n           if item not in list1:\n               return False\n       return True\n   ",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 216
+      },
+      {
+        "id": 8,
+        "pred": "   def dict_depth(d):\n       if not isinstance(d, dict):\n           return 0\n       depth = 1\n       for v in d.values():\n           if isinstance(v, dict):\n           depth = max(depth, 1 + dict_depth(v))\n       return depth\n   ",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 301
+      },
+      {
+        "id": 9,
+        "pred": "def check_String(s):\n    return any(c.isalpha() for c in s) and any(c.isdigit() for c in s)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1685,
+        "task_id": 192
+      },
+      {
+        "id": 10,
+        "pred": "def remove_tuple(t):\n    return tuple(sorted(set(t)))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1735,
+        "task_id": 193
+      },
+      {
+        "id": 11,
+        "pred": "def number_of_substrings(s):\n    return len(s) * (len(s) + 1) // 2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 982,
+        "task_id": 238
+      },
+      {
+        "id": 12,
+        "pred": "def find_rotation_count(arr):\n    return arr.index(min(arr))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1768,
+        "task_id": 382
+      },
+      {
+        "id": 13,
+        "pred": "def parallelogram_area(base, height):\n    return base * height",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 419,
+        "task_id": 52
+      },
+      {
+        "id": 14,
+        "pred": "def pos_count(lst):\n    return sum(1 for num in lst if num > 0)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1525,
+        "task_id": 66
+      },
+      {
+        "id": 15,
+        "pred": "def round_and_sum(numbers):\n    rounded = [round(n) for n in numbers]\n    total_sum = sum(rounded)\n    result = total_sum * len(numbers)\n    print(result)\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1762,
+        "task_id": 419
+      },
+      {
+        "id": 16,
+        "pred": "def parabola_vertex(a, b, c):\n    x = -b / (2 * a)\n    y = c - (b ** 2) / (4 * a)\n    return (x, y)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1275,
+        "task_id": 153
+      },
+      {
+        "id": 17,
+        "pred": "def month_season(month, day):\n    season_map = {\n        'January': 'winter',\n        'February': 'winter',\n        'March': 'winter' if day <= 20 else 'spring',\n        'April': 'spring',\n        'May': 'spring',\n        'June': 'spring' if day <= 21 else 'summer',\n        'July': 'summer',\n        'August': 'summer',\n        'September': 'summer' if day <= 21 else 'autumn',\n        'October': 'autumn',\n        'November': 'autumn',\n        'December': 'autumn' if day <= 21 else 'winter'\n    }\n    return season_map[month]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2514,
+        "task_id": 159
+      },
+      {
+        "id": 18,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 303
+      },
+      {
+        "id": 19,
+        "pred": "def tuple_int_str(t):\n    return tuple(tuple(int(s) for s in inner) for inner in t)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1498,
+        "task_id": 156
+      },
+      {
+        "id": 20,
+        "pred": "def babylonian_squareroot(n):\n    x = n\n    for _ in range(10):\n        x = (x + n / x) / 2\n    return x",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2589,
+        "task_id": 246
+      },
+      {
+        "id": 21,
+        "pred": "def decimal_to_Octal(n):\n    if n == 0:\n        return 0\n    result = 0\n    multiplier = 1\n    while n > 0:\n        result += (n % 8) * multiplier\n        n //= 8\n        multiplier *= 10\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1990,
+        "task_id": 467
+      },
+      {
+        "id": 22,
+        "pred": "def check_k_elements(tuples_list, k):\n    return all(elem == k for t in tuples_list for elem in t)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2917,
+        "task_id": 26
+      },
+      {
+        "id": 23,
+        "pred": "def replace_max_specialchar(text, n):\n    result = []\n    count = 0\n    for char in text:\n        if char in (' ', ',', '.') and count < n:\n            result.append(':')\n            count += 1\n        else:\n            result.append(char)\n    return ''.join(result)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2115,
+        "task_id": 220
+      },
+      {
+        "id": 24,
+        "pred": "def split_two_parts(lst, length):\n    return (lst[:length], lst[length:])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1611,
+        "task_id": 262
+      },
+      {
+        "id": 25,
+        "pred": "def and_tuples(t1, t2):\n    return tuple(a & b for a, b in zip(t1, t2))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 692,
+        "task_id": 429
+      },
+      {
+        "id": 26,
+        "pred": "def max_occurrences(lst):\n    counts = {}\n    max_count = 0\n    max_item = None\n    for item in lst:\n        counts[item] = counts.get(item, 0) + 1\n        if counts[item] > max_count:\n            max_count = counts[item]\n            max_item = item\n    return (max_item, max_count)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1968,
+        "task_id": 130
+      },
+      {
+        "id": 27,
+        "pred": "   def find_Average_Of_Cube(n):\n       return sum(i**3 for i in range(1, n+1)) / n\n   ",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 422
+      },
+      {
+        "id": 28,
+        "pred": "def is_samepatterns(sequence, pattern):\n    if len(sequence) != len(pattern):\n        return False\n    pattern_map = {}\n    sequence_map = {}\n    pattern_ids = []\n    sequence_ids = []\n    for p in pattern:\n        if p not in pattern_map:\n            pattern_map[p] = len(pattern_map)\n        pattern_ids.append(pattern_map[p])\n    for s in sequence:\n        if s not in sequence_map:\n            sequence_map[s] = len(sequence_map)\n        sequence_ids.append(sequence_map[s])\n    return pattern_ids == sequence_ids",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3394,
+        "task_id": 74
+      },
+      {
+        "id": 29,
+        "pred": "import re\n\ndef remove_whitespaces(s):\n    return re.sub(r'\\s', '', s)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 818,
+        "task_id": 451
+      },
+      {
+        "id": 30,
+        "pred": "def ncr_modp(n, r, p):\n    if r < 0 or r > n:\n        return 0\n    r = min(r, n - r)\n    num = 1\n    den = 1\n    for i in range(r):\n        num *= (n - i)\n        den *= (i + 1)\n    return (num // den) % p",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3817,
+        "task_id": 402
+      },
+      {
+        "id": 31,
+        "pred": "def recursive_list_sum(lst):\n    total = 0\n    for item in lst:\n        if isinstance(item, list):\n            total += recursive_list_sum(item)\n        else:\n            total += item\n    return total",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1224,
+        "task_id": 65
+      },
+      {
+        "id": 32,
+        "pred": "def frequency_Of_Largest(n, arr):\n    return arr.count(max(arr))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1169,
+        "task_id": 489
+      },
+      {
+        "id": 33,
+        "pred": "def sequential_search(arr, target):\n    for i in range(len(arr)):\n        if arr[i] == target:\n            return (True, i)\n    return (False, -1)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1521,
+        "task_id": 280
+      },
+      {
+        "id": 34,
+        "pred": "def list_split(lst, n):\n    return [lst[i::n] for i in range(n)]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1506,
+        "task_id": 265
+      },
+      {
+        "id": 35,
+        "pred": "def max_sum(triangle, n):\n    dp = [[0] * (i + 1) for i in range(n)]\n    dp[0][0] = triangle[0][0]\n    for i in range(1, n):\n        for j in range(i + 1):\n            dp[i][j] = triangle[i][j] + max(dp[i-1][j-1] if j > 0 else 0, dp[i-1][j] if j < i else 0)\n    return max(dp[n-1])",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 231
+      },
+      {
+        "id": 36,
+        "pred": "import re\n\ndef text_lowercase_underscore(text):\n    if re.search(r'[a-z]+_[a-z]+', text):\n        return 'Found a match!'\n    else:\n        return 'Not matched!'",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 2442,
+        "task_id": 16
+      },
+      {
+        "id": 37,
+        "pred": "def large_product(list1, list2, n):\n    products = [a * b for a in list1 for b in list2]\n    products.sort(reverse=True)\n    return products[:n]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2348,
+        "task_id": 308
+      },
+      {
+        "id": 38,
+        "pred": "def is_majority(arr, n, x):\n    import bisect\n    return (bisect.bisect_right(arr, x) - bisect.bisect_left(arr, x)) > n / 2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2794,
+        "task_id": 223
+      },
+      {
+        "id": 39,
+        "pred": "def lateralsurface_cube(s):\n    return 4 * s ** 2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1135,
+        "task_id": 266
+      },
+      {
+        "id": 40,
+        "pred": "def get_perrin(n):\n    if n == 0:\n        return 3\n    elif n == 1:\n        return 0\n    elif n == 2:\n        return 2\n    else:\n        return get_perrin(n - 2) + get_perrin(n - 3)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1121,
+        "task_id": 385
+      },
+      {
+        "id": 41,
+        "pred": "from collections import Counter\n\ndef count_common(words):\n    counts = Counter(words)\n    sorted_counts = sorted(counts.items(), key=lambda x: (-x[1], x[0]))\n    return sorted_counts[:4]",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 13
+      },
+      {
+        "id": 42,
+        "pred": "def find_angle(a, b):\n    return 180 - (a + b)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 995,
+        "task_id": 356
+      },
+      {
+        "id": 43,
+        "pred": "def check_isosceles(a, b, c):\n    return a == b or a == c or b == c",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1337,
+        "task_id": 327
+      },
+      {
+        "id": 44,
+        "pred": "def first_Element(arr, length, k):\n    counts = {}\n    for x in arr:\n        counts[x] = counts.get(x, 0) + 1\n    for x in arr:\n        if counts[x] == k:\n            return x",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1976,
+        "task_id": 351
+      },
+      {
+        "id": 45,
+        "pred": "def find_Min(arr, start, end):\n    if arr[start] <= arr[end]:\n        return arr[start]\n    while start < end:\n        mid = (start + end) // 2\n        if arr[mid] > arr[end]:\n            start = mid + 1\n        else:\n            end = mid\n    return arr[start]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1927,
+        "task_id": 225
+      },
+      {
+        "id": 46,
+        "pred": "def ap_sum(a, n, d):\n    return n * (2 * a + (n - 1) * d) // 2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2083,
+        "task_id": 335
+      },
+      {
+        "id": 47,
+        "pred": "import itertools\n\ndef combinations_colors(colors, n):\n    return list(itertools.product(colors, repeat=n))",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 1363,
+        "task_id": 255
+      },
+      {
+        "id": 48,
+        "pred": "def count(lst):\n    return sum(1 for x in lst if x == True)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1813,
+        "task_id": 105
+      },
+      {
+        "id": 49,
+        "pred": "def Check_Solution(a, b, c):\n    return \"Yes\" if 2 * b**2 == 9 * a * c else \"No\"",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3085,
+        "task_id": 359
+      },
+      {
+        "id": 50,
+        "pred": "def is_tree_balanced(root):\n    def get_height(node):\n        if node is None:\n            return 0\n        left_height = get_height(node.left)\n        right_height = get_height(node.right)\n        if left_height == -1 or right_height == -1:\n            return -1\n        if abs(left_height - right_height) > 1:\n            return -1\n        return max(left_height, right_height) + 1\n    return get_height(root) != -1",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 2480,
+        "task_id": 367
+      },
+      {
+        "id": 51,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 122
+      },
+      {
+        "id": 52,
+        "pred": "def first_Repeated_Char(s):\n    seen = set()\n    for char in s:\n        if char in seen:\n            return char\n        seen.add(char)\n    return '\\0'",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1599,
+        "task_id": 217
+      },
+      {
+        "id": 53,
+        "pred": "def modular_inverse(array, a, p):\n    count = 0\n    for x in array:\n        if (x * x) % p == 1:\n            count += 1\n    return count",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2786,
+        "task_id": 288
+      },
+      {
+        "id": 54,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 392
+      },
+      {
+        "id": 55,
+        "pred": "def binary_to_integer(binary_tuple):\n    result = 0\n    for bit in binary_tuple:\n        result = result * 2 + bit\n    return str(result)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1378,
+        "task_id": 494
+      },
+      {
+        "id": 56,
+        "pred": "def extract_nth_element(tuples_list, n):\n    return [t[n] for t in tuples_list]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1288,
+        "task_id": 413
+      },
+      {
+        "id": 57,
+        "pred": "def check_value(d, v):\n    return all(val == v for val in d.values())",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1159,
+        "task_id": 464
+      },
+      {
+        "id": 58,
+        "pred": "def swap_numbers(a, b):\n    return (b, a)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 383,
+        "task_id": 257
+      },
+      {
+        "id": 59,
+        "pred": "def odd_Equivalent(s, n):\n    count = 0\n    for i in range(n):\n        rotated = s[i:] + s[:i]\n        if int(rotated, 2) % 2 == 1:\n            count += 1\n    return count",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2807,
+        "task_id": 109
+      },
+      {
+        "id": 60,
+        "pred": "def loss_amount(amount1, amount2):\n    if amount1 < amount2:\n        return amount2 - amount1\n    else:\n        return None",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1391,
+        "task_id": 452
+      },
+      {
+        "id": 61,
+        "pred": "def count_integer(lst):\n    return sum(isinstance(x, int) for x in lst)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1057,
+        "task_id": 253
+      },
+      {
+        "id": 62,
+        "pred": "def count_Occurrence(t, l):\n    return sum(t.count(x) for x in l)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1717,
+        "task_id": 446
+      },
+      {
+        "id": 63,
+        "pred": "def remove_tuples(tuples, k):\n    return [t for t in tuples if len(t) != k]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1304,
+        "task_id": 196
+      },
+      {
+        "id": 64,
+        "pred": "def decimal_to_binary(n):\n    return bin(n)[2:]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 684,
+        "task_id": 99
+      },
+      {
+        "id": 65,
+        "pred": "def cube_nums(nums):\n    return list(map(lambda x: x**3, nums))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1684,
+        "task_id": 447
+      },
+      {
+        "id": 66,
+        "pred": "def zero_count(arr):\n    count = sum(1 for x in arr if x == 0)\n    return count / len(arr)",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 1922,
+        "task_id": 137
+      },
+      {
+        "id": 67,
+        "pred": "def centered_hexagonal_number(n):\n    return 3 * n * (n - 1) + 1",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 830,
+        "task_id": 86
+      },
+      {
+        "id": 68,
+        "pred": "def char_frequency(s):\n    freq = {}\n    for char in s:\n        freq[char] = freq.get(char, 0) + 1\n    return freq",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1122,
+        "task_id": 332
+      },
+      {
+        "id": 69,
+        "pred": "def div_even_odd(lst):\n    first_odd = None\n    first_even = None\n    for num in lst:\n        if num % 2 != 0 and first_odd is None:\n            first_odd = num\n        if num % 2 == 0 and first_even is None:\n            first_even = num\n        if first_odd is not None and first_even is not None:\n            break\n    return first_even / first_odd",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2657,
+        "task_id": 38
+      },
+      {
+        "id": 70,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 346
+      },
+      {
+        "id": 71,
+        "pred": "def get_Odd_Occurrence(arr, n):\n    counts = {}\n    for x in arr:\n        counts[x] = counts.get(x, 0) + 1\n    for x, count in counts.items():\n        if count % 2 == 1:\n            return x",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1740,
+        "task_id": 29
+      },
+      {
+        "id": 72,
+        "pred": "def min_length_list(lst):\n    min_list = min(lst, key=lambda x: len(x))\n    return (len(min_list), min_list)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1993,
+        "task_id": 50
+      },
+      {
+        "id": 73,
+        "pred": "def largest_palindrome(arr, n):\n    palindromes = [num for num in arr if str(num) == str(num)[::-1]]\n    return max(palindromes)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2209,
+        "task_id": 485
+      },
+      {
+        "id": 74,
+        "pred": "import re\n\ndef remove_uppercase(s):\n    return re.sub('[A-Z]', '', s)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1713,
+        "task_id": 459
+      },
+      {
+        "id": 75,
+        "pred": "def add_string(lst, template):\n    return [template.format(item) for item in lst]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1305,
+        "task_id": 390
+      },
+      {
+        "id": 76,
+        "pred": "def max_Product(arr):\n    sorted_arr = sorted(arr)\n    max_prod = sorted_arr[-1] * sorted_arr[-2]\n    min_prod = sorted_arr[0] * sorted_arr[1]\n    if max_prod >= min_prod:\n        return (sorted_arr[-1], sorted_arr[-2])\n    else:\n        return (sorted_arr[0], sorted_arr[1])",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 415
+      },
+      {
+        "id": 77,
+        "pred": "import heapq\n\ndef heap_queue_smallest(numbers, k):\n    return heapq.nsmallest(k, numbers)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1519,
+        "task_id": 496
+      },
+      {
+        "id": 78,
+        "pred": "def kth_element(array, n, k):\n    sorted_array = sorted(array)\n    return sorted_array[k - 1]",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 1593,
+        "task_id": 101
+      },
+      {
+        "id": 79,
+        "pred": "def Find_Min_Length(sublists):\n    return min(len(sublist) for sublist in sublists)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1255,
+        "task_id": 95
+      },
+      {
+        "id": 80,
+        "pred": "def concatenate_elements(t):\n    return tuple(t[i] + t[i+1] for i in range(len(t) - 1))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1276,
+        "task_id": 206
+      },
+      {
+        "id": 81,
+        "pred": "def fourth_Power_Sum(n):\n    return sum(i**4 for i in range(1, n + 1))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1247,
+        "task_id": 212
+      },
+      {
+        "id": 82,
+        "pred": "def merge_dict(d1, d2):\n    return {**d1, **d2}",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2666,
+        "task_id": 263
+      },
+      {
+        "id": 83,
+        "pred": "def median_numbers(a, b, c):\n    return float(sorted([a, b, c])[1])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1068,
+        "task_id": 397
+      },
+      {
+        "id": 84,
+        "pred": "def cal_sum(n):\n    if n < 0:\n        return 0\n    p = [3, 0, 2]\n    for i in range(3, n + 1):\n        p.append(p[i - 2] + p[i - 3])\n    return sum(p)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2969,
+        "task_id": 448
+      },
+      {
+        "id": 85,
+        "pred": "def find(a, b):\n    return a % b",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 244,
+        "task_id": 502
+      },
+      {
+        "id": 86,
+        "pred": "def index_minimum(tuples):\n    return min(tuples, key=lambda x: x[1])[0]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1572,
+        "task_id": 94
+      },
+      {
+        "id": 87,
+        "pred": "def count_Squares(w, h):\n    total = 0\n    for k in range(1, min(w, h) + 1):\n        total += (w - k + 1) * (h - k + 1)\n    return total",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1742,
+        "task_id": 347
+      },
+      {
+        "id": 88,
+        "pred": "def sum_PPairs(arr, n):\n    total = 0\n    for i in range(n):\n        for j in range(i + 1, n):\n            total += abs(arr[i] - arr[j])\n    return total",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 2789,
+        "task_id": 144
+      },
+      {
+        "id": 89,
+        "pred": "def find_demlo(s):\n    n = len(s)\n    return ''.join(str(i) for i in list(range(1, n + 1)) + list(range(n - 1, 0, -1)))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2790,
+        "task_id": 321
+      },
+      {
+        "id": 90,
+        "pred": "def remove_splchar(s):\n    return ''.join(c for c in s if c.isalnum())",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 993,
+        "task_id": 173
+      },
+      {
+        "id": 91,
+        "pred": "def sort_tuple(tuples):\n    return sorted(tuples, key=lambda x: x[-1])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1028,
+        "task_id": 487
+      },
+      {
+        "id": 92,
+        "pred": "def next_smallest_palindrome(n):\n    candidate = n + 1\n    while str(candidate) != str(candidate)[::-1]:\n        candidate += 1\n    return candidate",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2182,
+        "task_id": 100
+      },
+      {
+        "id": 93,
+        "pred": "def divisor(n):\n    return sum(1 for i in range(1, n + 1) if n % i == 0)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1967,
+        "task_id": 96
+      },
+      {
+        "id": 94,
+        "pred": "def find_even_Pair(arr, n):\n    odd_count = sum(1 for x in arr if x % 2 != 0)\n    even_count = sum(1 for x in arr if x % 2 == 0)\n    return odd_count * (odd_count - 1) // 2 + even_count * (even_count - 1) // 2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2366,
+        "task_id": 166
+      },
+      {
+        "id": 95,
+        "pred": "def count_Substring_With_Equal_Ends(s):\n    counts = {}\n    for char in s:\n        counts[char] = counts.get(char, 0) + 1\n    total = 0\n    for k in counts.values():\n        total += k * (k + 1) // 2\n    return total",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2403,
+        "task_id": 30
+      },
+      {
+        "id": 96,
+        "pred": "import math\ndef area_pentagon(s):\n    return (5/4) * s**2 * math.cos(math.pi/5) / math.sin(math.pi/5)",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 2452,
+        "task_id": 488
+      },
+      {
+        "id": 97,
+        "pred": "def division_elements(t1, t2):\n    return tuple(a // b for a, b in zip(t1, t2))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 949,
+        "task_id": 261
+      },
+      {
+        "id": 98,
+        "pred": "def sort_on_occurence(lst):\n    seen_keys = []\n    groups = {}\n    for t in lst:\n        key = t[0]\n        val = t[1]\n        if key not in groups:\n            seen_keys.append(key)\n            groups[key] = []\n        groups[key].append(val)\n    return [(key, *groups[key], len(groups[key])) for key in seen_keys]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3503,
+        "task_id": 243
+      },
+      {
+        "id": 99,
+        "pred": "def find_max(records):\n    return max(max(t) for t in records)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1565,
+        "task_id": 357
+      },
+      {
+        "id": 100,
+        "pred": "def min_flip_to_make_string_alternate(s):\n    count0 = sum(1 for i, c in enumerate(s) if c != ('0' if i % 2 == 0 else '1'))\n    return min(count0, len(s) - count0)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3299,
+        "task_id": 364
+      },
+      {
+        "id": 101,
+        "pred": "def extract_missing(ranges, start, end):\n    result = []\n    for i, (s, e) in enumerate(ranges):\n        result.append((start, s))\n        result.append((e, end))\n        if i < len(ranges) - 1:\n            result.append((e, ranges[i+1][0]))\n    return result",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 3825,
+        "task_id": 110
+      },
+      {
+        "id": 102,
+        "pred": "def specified_element(matrix, index):\n    return [row[index] for row in matrix]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 731,
+        "task_id": 49
+      },
+      {
+        "id": 103,
+        "pred": "import math\n\ndef degree_radian(radians):\n    return radians * 180 / math.pi",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 1218,
+        "task_id": 214
+      },
+      {
+        "id": 104,
+        "pred": "def find_last_occurrence(arr, target):\n    for i in range(len(arr) - 1, -1, -1):\n        if arr[i] == target:\n            return i",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2400,
+        "task_id": 316
+      },
+      {
+        "id": 105,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 207
+      },
+      {
+        "id": 106,
+        "pred": "def dict_filter(d, threshold):\n    return {k: v for k, v in d.items() if v >= threshold}",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 544,
+        "task_id": 277
+      },
+      {
+        "id": 107,
+        "pred": "def assign_freq(tuples_list):\n    counts = {}\n    order = []\n    for t in tuples_list:\n        if t not in counts:\n            counts[t] = 1\n            order.append(t)\n        else:\n            counts[t] += 1\n    result = [t + (counts[t],) for t in order]\n    return str(result)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3891,
+        "task_id": 114
+      },
+      {
+        "id": 108,
+        "pred": "def set_Bit_Number(n):\n    return 1 << (n.bit_length() - 1)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2038,
+        "task_id": 302
+      },
+      {
+        "id": 109,
+        "pred": "import math\ndef surfacearea_cone(r, h):\n    return math.pi * r * (r + math.sqrt(r**2 + h**2))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2346,
+        "task_id": 497
+      },
+      {
+        "id": 110,
+        "pred": "import math\ndef lateralsuface_cylinder(r, h):\n    return 2 * math.pi * r * h",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 2607,
+        "task_id": 233
+      },
+      {
+        "id": 111,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 158
+      },
+      {
+        "id": 112,
+        "pred": "def Find_Max(sublists):\n    return max(sublists, key=len)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1055,
+        "task_id": 418
+      },
+      {
+        "id": 113,
+        "pred": "def string_literals(literals, target_string):\n    for literal in literals:\n        if literal in target_string:\n            return 'Matched!'\n    return 'Not Matched!'",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1248,
+        "task_id": 178
+      },
+      {
+        "id": 114,
+        "pred": "def compute_Last_Digit(a, b):\n    result = 1\n    for i in range(a + 1, b + 1):\n        result = (result * i) % 10\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2575,
+        "task_id": 47
+      },
+      {
+        "id": 115,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 275
+      },
+      {
+        "id": 116,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 147
+      },
+      {
+        "id": 117,
+        "pred": "def No_of_Triangle(n, k):\n    if k > n:\n        return -1\n    return (n - k + 1)**2 - (n - k)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3884,
+        "task_id": 236
+      },
+      {
+        "id": 118,
+        "pred": "def concatenate_strings(t1, t2):\n    return tuple(a + b for a, b in zip(t1, t2))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1381,
+        "task_id": 213
+      },
+      {
+        "id": 119,
+        "pred": "def max_length_list(lst):\n    max_list = max(lst, key=lambda x: len(x))\n    return (len(max_list), max_list)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1875,
+        "task_id": 393
+      },
+      {
+        "id": 120,
+        "pred": "def reverse_string_list(strings):\n    return [s[::-1] for s in strings]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 977,
+        "task_id": 456
+      },
+      {
+        "id": 121,
+        "pred": "def hexagonal_num(n):\n    return n * (2 * n - 1)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 946,
+        "task_id": 135
+      },
+      {
+        "id": 122,
+        "pred": "def is_valid_parenthese(s):\n    stack = []\n    mapping = {')': '(', '}': '{', ']': '['}\n    for char in s:\n        if char in mapping.values():\n            stack.append(char)\n        elif char in mapping.keys():\n            if not stack:\n                return False\n            if stack.pop() != mapping[char]:\n                return False\n    return len(stack) == 0",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2176,
+        "task_id": 175
+      },
+      {
+        "id": 123,
+        "pred": "import re\n\ndef find_long_word(s):\n    return re.findall(r'\\b\\w{5}\\b', s)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1950,
+        "task_id": 319
+      },
+      {
+        "id": 124,
+        "pred": "import re\ndef match(s):\n    return 'Yes' if re.search(r'[A-Z][a-z]+', s) else 'No'",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1851,
+        "task_id": 482
+      },
+      {
+        "id": 125,
+        "pred": "def count_occurance(s):\n    return s.count(\"std\")",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1079,
+        "task_id": 172
+      },
+      {
+        "id": 126,
+        "pred": "def max_difference(pairs):\n    return max(abs(a - b) for a, b in pairs)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2376,
+        "task_id": 63
+      },
+      {
+        "id": 127,
+        "pred": "import re\ndef text_match_two_three(text):\n    if re.search(r'ab{2,3}', text):\n        return 'Found a match!'\n    else:\n        return 'Not matched!'",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1735,
+        "task_id": 285
+      },
+      {
+        "id": 128,
+        "pred": "def remove_replica(t):\n    seen = set()\n    result = []\n    for item in t:\n        if item in seen:\n            result.append('MSP')\n        else:\n            result.append(item)\n            seen.add(item)\n    return tuple(result)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2242,
+        "task_id": 376
+      },
+      {
+        "id": 129,
+        "pred": "def perimeter_pentagon(side_length):\n    return 5 * side_length",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 840,
+        "task_id": 171
+      },
+      {
+        "id": 130,
+        "pred": "def sort_sublists(lst):\n    return [sorted(sublist, key=lambda x: x) for sublist in lst]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1526,
+        "task_id": 104
+      },
+      {
+        "id": 131,
+        "pred": "def adjacent_num_product(lst):\n    return max(lst[i] * lst[i+1] for i in range(len(lst) - 1))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1258,
+        "task_id": 366
+      },
+      {
+        "id": 132,
+        "pred": "def volume_cuboid(l, w, h):\n    return l * w * h",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 405,
+        "task_id": 373
+      },
+      {
+        "id": 133,
+        "pred": "def check_distinct(t):\n    return len(t) == len(set(t))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 938,
+        "task_id": 394
+      },
+      {
+        "id": 134,
+        "pred": "def filter_oddnumbers(lst):\n    return list(filter(lambda x: x % 2 != 0, lst))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1274,
+        "task_id": 426
+      },
+      {
+        "id": 135,
+        "pred": "def tn_gp(a, t, r):\n    return a * r**(t - 1)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2891,
+        "task_id": 55
+      },
+      {
+        "id": 136,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 247
+      },
+      {
+        "id": 137,
+        "pred": "def count_Digit(n):\n    return len(str(n))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1222,
+        "task_id": 365
+      },
+      {
+        "id": 138,
+        "pred": "def volume_cube(side):\n    return side ** 3",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 343,
+        "task_id": 234
+      },
+      {
+        "id": 139,
+        "pred": "def overlapping(seq1, seq2):\n    return bool(set(seq1) & set(seq2))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1857,
+        "task_id": 414
+      },
+      {
+        "id": 140,
+        "pred": "def freq_count(lst):\n    counts = {}\n    for item in lst:\n        counts[item] = counts.get(item, 0) + 1\n    return counts",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 982,
+        "task_id": 88
+      },
+      {
+        "id": 141,
+        "pred": "def find_Sum(arr, n):\n    counts = {}\n    for element in arr:\n        counts[element] = counts.get(element, 0) + 1\n    return sum(value * count for value, count in counts.items() if count > 1)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3069,
+        "task_id": 42
+      },
+      {
+        "id": 142,
+        "pred": "import re\ndef text_match(text):\n    if re.match(r'^[a-z]+_[a-z]+$', text):\n        return 'Found a match!'\n    else:\n        return 'Not matched!'",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1816,
+        "task_id": 43
+      },
+      {
+        "id": 143,
+        "pred": "def square_Sum(n):\n    return sum((2 * i - 1) ** 2 for i in range(1, n + 1))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2369,
+        "task_id": 267
+      },
+      {
+        "id": 144,
+        "pred": "def convert_list_dictionary(list1, list2, list3):\n    return [{'k1': {'k2': v}} for k1, k2, v in zip(list1, list2, list3)]",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 1771,
+        "task_id": 391
+      },
+      {
+        "id": 145,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 148
+      },
+      {
+        "id": 146,
+        "pred": "def sum_three_smallest_nums(nums):\n    positive_nums = [n for n in nums if n > 0]\n    positive_nums.sort()\n    return sum(positive_nums[:3])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1373,
+        "task_id": 340
+      },
+      {
+        "id": 147,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 416
+      },
+      {
+        "id": 148,
+        "pred": "def set_left_most_unset_bit(n):\n    if n == 0:\n        return 0\n    mask = (1 << n.bit_length()) - 1\n    unset_bits = mask & ~n\n    if unset_bits == 0:\n        return n\n    return n | (1 << unset_bits.bit_length() - 1)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3619,
+        "task_id": 311
+      },
+      {
+        "id": 149,
+        "pred": "def drop_empty(d):\n    return {k: v for k, v in d.items() if v is not None}",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 978,
+        "task_id": 465
+      },
+      {
+        "id": 150,
+        "pred": "import math\n\ndef binomial_probability(n, k, p):\n    return math.comb(n, k) * (p ** k) * ((1 - p) ** (n - k))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2112,
+        "task_id": 486
+      },
+      {
+        "id": 151,
+        "pred": "   def dog_age(human_age):\n       return 4 * human_age + 13\n   ",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 264
+      },
+      {
+        "id": 152,
+        "pred": "def areEquivalent(n1, n2):\n    sum1 = sum(i for i in range(1, n1) if n1 % i == 0)\n    sum2 = sum(i for i in range(1, n2) if n2 % i == 0)\n    return sum1 == sum2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3226,
+        "task_id": 164
+      },
+      {
+        "id": 153,
+        "pred": "def common_element(list1, list2):\n    for item in list1:\n        if item in list2:\n            return True\n    return None",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 640,
+        "task_id": 431
+      },
+      {
+        "id": 154,
+        "pred": "def answer(start, end):\n    return (start, start * 2)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2473,
+        "task_id": 177
+      },
+      {
+        "id": 155,
+        "pred": "import heapq\n\ndef heap_assending(lst):\n    heap = []\n    for item in lst:\n        heapq.heappush(heap, item)\n    result = []\n    while heap:\n        result.append(heapq.heappop(heap))\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2491,
+        "task_id": 372
+      },
+      {
+        "id": 156,
+        "pred": "def even_bit_toggle_number(n):\n    return n ^ 0x55",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 3182,
+        "task_id": 383
+      },
+      {
+        "id": 157,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 211
+      },
+      {
+        "id": 158,
+        "pred": "def find(a, b):\n    return a // b",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 656,
+        "task_id": 292
+      },
+      {
+        "id": 159,
+        "pred": "def first_Digit(n):\n    return int(str(n)[0])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1118,
+        "task_id": 479
+      },
+      {
+        "id": 160,
+        "pred": "def extract_min_max(t, k):\n    sorted_t = sorted(t)\n    if 2 * k >= len(sorted_t):\n        return tuple(sorted_t)\n    else:\n        return tuple(sorted_t[:k] + sorted_t[-k:])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3852,
+        "task_id": 219
+      },
+      {
+        "id": 161,
+        "pred": "def remove_Occ(s, c):\n    first_idx = s.find(c)\n    last_idx = s.rfind(c)\n    if first_idx == -1:\n        return s\n    if first_idx == last_idx:\n        return s[:first_idx] + s[first_idx+1:]\n    return s[:first_idx] + s[first_idx+1:last_idx] + s[last_idx+1:]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2772,
+        "task_id": 11
+      },
+      {
+        "id": 162,
+        "pred": "def string_to_tuple(s):\n    return tuple(s)",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 871,
+        "task_id": 310
+      },
+      {
+        "id": 163,
+        "pred": "def counting_sort(arr):\n    if not arr:\n        return []\n    max_val = max(arr)\n    count = [0] * (max_val + 1)\n    for num in arr:\n        count[num] += 1\n    sorted_arr = []\n    for i in range(max_val + 1):\n        sorted_arr.extend([i] * count[i])\n    return sorted_arr",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1540,
+        "task_id": 54
+      },
+      {
+        "id": 164,
+        "pred": "def position_max(lst):\n    max_val = max(lst)\n    return [i for i, val in enumerate(lst) if val == max_val]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1296,
+        "task_id": 200
+      },
+      {
+        "id": 165,
+        "pred": "def find_Max_Num(digits, n):\n    return int(''.join(str(d) for d in sorted(digits, reverse=True)[:n]))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1462,
+        "task_id": 57
+      },
+      {
+        "id": 166,
+        "pred": "def replace_list(lst, new_lst):\n    return lst[:-1] + new_lst",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1486,
+        "task_id": 240
+      },
+      {
+        "id": 167,
+        "pred": "def sum_range_list(lst, start, end):\n    return sum(lst[start:end+1])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1693,
+        "task_id": 170
+      },
+      {
+        "id": 168,
+        "pred": "def circle_circumference(radius):\n    return 2 * 3.1415 * radius",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2309,
+        "task_id": 139
+      },
+      {
+        "id": 169,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 378
+      },
+      {
+        "id": 170,
+        "pred": "import heapq\n\ndef heap_replace(heap, item):\n    heapq.heapify(heap)\n    heapq.heapreplace(heap, item)\n    return heap",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 209
+      },
+      {
+        "id": 171,
+        "pred": "def add_consecutive_nums(lst):\n    return [lst[i] + lst[i+1] for i in range(len(lst) - 1)]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1447,
+        "task_id": 503
+      },
+      {
+        "id": 172,
+        "pred": "def multiples_of_num(m, n):\n    return [n * i for i in range(1, m + 1)]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 588,
+        "task_id": 21
+      },
+      {
+        "id": 173,
+        "pred": "def validate(n):\n    s = str(n)\n    for digit in s:\n        if s.count(digit) > int(digit):\n            return False\n    return True",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2125,
+        "task_id": 283
+      },
+      {
+        "id": 174,
+        "pred": "import math\n\ndef eulerian_num(n, m):\n    if m < 0 or m >= n:\n        return 0\n    total = 0\n    for k in range(m + 1):\n        total += (-1)**k * math.comb(n + 1, k) * (m + 1 - k)**n\n    return total",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3035,
+        "task_id": 103
+      },
+      {
+        "id": 175,
+        "pred": "def replace_blank(s, char):\n    return s.replace(' ', char)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 639,
+        "task_id": 230
+      },
+      {
+        "id": 176,
+        "pred": "def sum_of_digits(lst):\n    total = 0\n    for item in lst:\n        if isinstance(item, list):\n            total += sum_of_digits(item)\n        elif isinstance(item, (int, float)):\n            total += sum(int(d) for d in str(abs(item)) if d.isdigit())\n    return total",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3144,
+        "task_id": 398
+      },
+      {
+        "id": 177,
+        "pred": "import math\ndef num_comm_div(a, b):\n    return math.gcd(a, b)",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 1540,
+        "task_id": 501
+      },
+      {
+        "id": 178,
+        "pred": "def zip_tuples(t1, t2):\n    return [(t1[i], t2[i % len(t2)) for i in range(len(t1))]",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 1936,
+        "task_id": 81
+      },
+      {
+        "id": 179,
+        "pred": "def bitwise_xor(t1, t2):\n    return tuple(a ^ b for a, b in zip(t1, t2))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1409,
+        "task_id": 399
+      },
+      {
+        "id": 180,
+        "pred": "def count_unset_bits(n):\n    return bin(n)[2:].count('0')",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1360,
+        "task_id": 331
+      },
+      {
+        "id": 181,
+        "pred": "def Extract(lst):\n    return [sublist[0] for sublist in lst]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 955,
+        "task_id": 460
+      },
+      {
+        "id": 182,
+        "pred": "def string_to_list(string):\n    return string.split()",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 561,
+        "task_id": 118
+      },
+      {
+        "id": 183,
+        "pred": "def float_sort(t):\n    return sorted(t, key=lambda x: float(x[1]), reverse=True)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1383,
+        "task_id": 370
+      },
+      {
+        "id": 184,
+        "pred": "def check_tuplex(t, e):\n    return e in t",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 504,
+        "task_id": 405
+      },
+      {
+        "id": 185,
+        "pred": "def merge_sort(arr):\n    if len(arr) <= 1:\n        return arr\n    \n    mid = len(arr) // 2\n    left = arr[:mid]\n    right = arr[mid:]\n    \n    left_sorted = merge_sort(left)\n    right_sorted = merge_sort(right)\n    \n    merged = []\n    i, j = 0, 0\n    \n    while i < len(left_sorted) and j < len(right_sorted):\n        if left_sorted[i] <= right_sorted[j]:\n            merged.append(left_sorted[i])\n            i += 1\n        else:\n            merged.append(right_sorted[j])\n            j += 1\n    \n    merged.extend(left_sorted[i:])\n    merged.extend(right_sorted[j:])\n    \n    return merged",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1440,
+        "task_id": 152
+      },
+      {
+        "id": 186,
+        "pred": "import re\n\ndef is_allowed_specific_char(s):\n    return bool(re.fullmatch(r'[a-zA-Z0-9]', s))",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 1638,
+        "task_id": 210
+      },
+      {
+        "id": 187,
+        "pred": "def same_order(list1, list2):\n    common1 = [x for x in list1 if x in list2]\n    common2 = [x for x in list2 if x in list1]\n    return common1 == common2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2580,
+        "task_id": 508
+      },
+      {
+        "id": 188,
+        "pred": "def min_val(lst):\n    return min([x for x in lst if isinstance(x, (int, float))])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1279,
+        "task_id": 410
+      },
+      {
+        "id": 189,
+        "pred": "def lateralsurface_cuboid(l, w, h):\n    return 2 * h * (l + w)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2059,
+        "task_id": 369
+      },
+      {
+        "id": 190,
+        "pred": "import heapq\n\ndef find_minimum_range(lists):\n    if not lists:\n        return (0, 0) # or handle edge case, but tests assume valid lists\n    \n    heap = []\n    max_val = -float('inf')\n    for i, lst in enumerate(lists):\n        heapq.heappush(heap, (lst[0], i, 0))\n        max_val = max(max_val, lst[0])\n    \n    best_range = (heap[0][0], max_val)\n    \n    while True:\n        val, list_idx, elem_idx = heapq.heappop(heap)\n        min_val = val\n        \n        if max_val - min_val < best_range[1] - best_range[0]:\n            best_range = (min_val, max_val)\n        \n        if elem_idx + 1 < len(lists[list_idx]):\n            next_val = lists[list_idx][elem_idx + 1]\n            heapq.heappush(heap, (next_val, list_idx, elem_idx + 1))\n            max_val = max(max_val, next_val)\n        else:\n            break\n            \n    return best_range",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 342
+      },
+      {
+        "id": 191,
+        "pred": "def check(n):\n    return n == 2 * int(str(n)[::-1]) - 1",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2144,
+        "task_id": 56
+      },
+      {
+        "id": 192,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 468
+      },
+      {
+        "id": 193,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 430
+      },
+      {
+        "id": 194,
+        "pred": "def opposite_Signs(a, b):\n    return a * b < 0",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 942,
+        "task_id": 58
+      },
+      {
+        "id": 195,
+        "pred": "def extract_rear(strings_tuple):\n    return [s[-1] for s in strings_tuple]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1167,
+        "task_id": 424
+      },
+      {
+        "id": 196,
+        "pred": "def sum_of_alternates(t):\n    return (sum(t[1::2]), sum(t[0::2]))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2435,
+        "task_id": 324
+      },
+      {
+        "id": 197,
+        "pred": "def maximum(a, b):\n    return max(a, b)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 823,
+        "task_id": 309
+      },
+      {
+        "id": 198,
+        "pred": "def remove_Char(string, character):\n    return string.replace(character, '')",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 698,
+        "task_id": 377
+      },
+      {
+        "id": 199,
+        "pred": "def count_Substring_With_Equal_Ends(s):\n    counts = {}\n    for char in s:\n        counts[char] = counts.get(char, 0) + 1\n    total = 0\n    for k in counts.values():\n        total += k * (k + 1) // 2\n    return total",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2575,
+        "task_id": 338
+      },
+      {
+        "id": 200,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 360
+      },
+      {
+        "id": 201,
+        "pred": "def cube_Sum(n):\n    return 2 * n**2 * (n + 1)**2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1624,
+        "task_id": 420
+      },
+      {
+        "id": 202,
+        "pred": "def add_pairwise(t):\n    return tuple(t[i] + t[i+1] for i in range(len(t) - 1))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1551,
+        "task_id": 470
+      },
+      {
+        "id": 203,
+        "pred": "def diameter_circle(radius):\n    return 2 * radius",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 397,
+        "task_id": 499
+      },
+      {
+        "id": 204,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 125
+      },
+      {
+        "id": 205,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 134
+      },
+      {
+        "id": 206,
+        "pred": "def remove_elements(list1, list2):\n    return [x for x in list1 if x not in list2]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1198,
+        "task_id": 161
+      },
+      {
+        "id": 207,
+        "pred": "import re\ndef text_match_string(text):\n    if re.match(r'^\\w+', text):\n        return 'Found a match!'\n    else:\n        return 'Not matched!'",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2979,
+        "task_id": 44
+      },
+      {
+        "id": 208,
+        "pred": "def even_bit_toggle_number(n):\n    return n ^ 0xAAAAAAAA",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 3668,
+        "task_id": 155
+      },
+      {
+        "id": 209,
+        "pred": "def find_peak(arr, n):\n    for i in range(n):\n        if (i == 0 or arr[i-1] <= arr[i]) and (i == n-1 or arr[i+1] <= arr[i]):\n            return i",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2958,
+        "task_id": 466
+      },
+      {
+        "id": 210,
+        "pred": "def extract_string(strings, size):\n    return [s for s in strings if len(s) == size]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1114,
+        "task_id": 450
+      },
+      {
+        "id": 211,
+        "pred": "def group_tuples(tuples):\n    groups = {}\n    order = []\n    for t in tuples:\n        key = t[0]\n        if key not in groups:\n            groups[key] = []\n            order.append(key)\n        groups[key].append(t[1])\n    return [(key, *groups[key]) for key in order]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2832,
+        "task_id": 417
+      },
+      {
+        "id": 212,
+        "pred": "def sum_div(n):\n    return sum(d for d in range(1, n) if n % d == 0)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1483,
+        "task_id": 295
+      },
+      {
+        "id": 213,
+        "pred": "def big_sum(arr):\n    return max(arr) + min(arr)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 417,
+        "task_id": 476
+      },
+      {
+        "id": 214,
+        "pred": "def concatenate_tuple(t):\n    return '-'.join(str(x) for x in t)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1063,
+        "task_id": 421
+      },
+      {
+        "id": 215,
+        "pred": "def binomial_Coeff(n, k):\n    if k < 0 or k > n:\n        return 0\n    result = 1\n    for i in range(k):\n        result = result * (n - i) // (i + 1)\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2277,
+        "task_id": 28
+      },
+      {
+        "id": 216,
+        "pred": "def is_num_keith(n):\n    digits = [int(d) for d in str(n)]\n    seq = digits[:]\n    while seq[-1] < n:\n        seq.append(sum(seq[-len(digits):]))\n    return n in seq",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2481,
+        "task_id": 179
+      },
+      {
+        "id": 217,
+        "pred": "import math\ndef is_coprime(a, b):\n    return math.gcd(a, b) == 1",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1523,
+        "task_id": 151
+      },
+      {
+        "id": 218,
+        "pred": "def multiply_int(a, b):\n    result = 0\n    sign = 1\n    if a < 0:\n        a = -a\n        sign = -sign\n    if b < 0:\n        b = -b\n        sign = -sign\n    while b > 0:\n        if b % 2 == 1:\n            result += a\n        a += a\n        b //= 2\n    return result if sign == 1 else -result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3056,
+        "task_id": 127
+      },
+      {
+        "id": 219,
+        "pred": "def check_element(lst, value):\n    return all(x == value for x in lst)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1125,
+        "task_id": 284
+      },
+      {
+        "id": 220,
+        "pred": "import re\n\ndef check_char(s):\n    return \"Valid\" if re.match(r'^(.).*\\1$', s) else \"Invalid\"",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 2013,
+        "task_id": 396
+      },
+      {
+        "id": 221,
+        "pred": "def upper_ctr(s):\n    return sum(c.isupper() for c in s)",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 977,
+        "task_id": 461
+      },
+      {
+        "id": 222,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 4096,
+        "task_id": 339
+      },
+      {
+        "id": 223,
+        "pred": "def is_subset_sum(arr, n, sum):\n    dp = [False] * (sum + 1)\n    dp[0] = True\n    for x in arr:\n        for j in range(sum, x - 1, -1):\n            dp[j] = dp[j] or dp[j - x]\n    return dp[sum]",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 481
+      },
+      {
+        "id": 224,
+        "pred": "def long_words(n, text):\n    return [word for word in text.split() if len(word) > n]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1128,
+        "task_id": 128
+      },
+      {
+        "id": 225,
+        "pred": "import heapq\n\ndef k_smallest_pairs(nums1, nums2, k):\n    if k == 0 or not nums1 or not nums2:\n        return []\n    \n    nums1.sort()\n    nums2.sort()\n    \n    heap = [(nums1[0] + nums2[0], 0, 0)]\n    result = []\n    \n    while heap and len(result) < k:\n        sum_val, i, j = heapq.heappop(heap)\n        result.append([nums1[i], nums2[j]])\n        \n        if j + 1 < len(nums2):\n            heapq.heappush(heap, (nums1[i] + nums2[j+1], i, j+1))\n        if i + 1 < len(nums1) and j == 0:\n            heapq.heappush(heap, (nums1[i+1] + nums2[j], i+1, j))\n            \n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3871,
+        "task_id": 408
+      },
+      {
+        "id": 226,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 354
+      },
+      {
+        "id": 227,
+        "pred": "def sum_negativenum(numbers):\n    return sum(filter(lambda x: x < 0, numbers))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1726,
+        "task_id": 133
+      },
+      {
+        "id": 228,
+        "pred": "def list_to_float(lst):\n    converted_list = [tuple(float(item) for item in t) for t in lst]\n    return str(converted_list)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2337,
+        "task_id": 117
+      },
+      {
+        "id": 229,
+        "pred": "def max_sum_increasing_subseq(arr, n, i, k):\n    dp = [0] * (i + 1)\n    for j in range(i + 1):\n        dp[j] = arr[j]\n        for p in range(j):\n            if arr[p] < arr[j]:\n                dp[j] = max(dp[j], dp[p] + arr[j])\n    best_prefix = 0\n    for p in range(i + 1):\n        if arr[p] < arr[k]:\n            best_prefix = max(best_prefix, dp[p])\n    return best_prefix + arr[k]",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 306
+      },
+      {
+        "id": 230,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 4096,
+        "task_id": 289
+      },
+      {
+        "id": 231,
+        "pred": "def check_Equality(s):\n    if s[0] == s[-1]:\n        return \"Equal\"\n    else:\n        return \"Not Equal\"",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1349,
+        "task_id": 53
+      },
+      {
+        "id": 232,
+        "pred": "def first_even(numbers):\n    for num in numbers:\n        if num % 2 == 0:\n            return num",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 768,
+        "task_id": 221
+      },
+      {
+        "id": 233,
+        "pred": "def get_Inv_Count(arr, n):\n    count = 0\n    for i in range(n):\n        for j in range(i + 1, n):\n            if arr[i] > arr[j]:\n                count += 1\n    return count",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1571,
+        "task_id": 296
+      },
+      {
+        "id": 234,
+        "pred": "def rearrange_bigger(n):\n    digits = list(str(n))\n    i = len(digits) - 2\n    while i >= 0 and digits[i] >= digits[i+1]:\n        i -= 1\n    if i < 0:\n        return False\n    j = len(digits) - 1\n    while digits[j] <= digits[i]:\n        j -= 1\n    digits[i], digits[j] = digits[j], digits[i]\n    digits[i+1:] = digits[i+1:][::-1]\n    return int(''.join(digits))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3181,
+        "task_id": 407
+      },
+      {
+        "id": 235,
+        "pred": "def set_to_tuple(s):\n    return tuple(sorted(s))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1151,
+        "task_id": 341
+      },
+      {
+        "id": 236,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 83
+      },
+      {
+        "id": 237,
+        "pred": "import math\ndef surfacearea_sphere(radius):\n    return 4 * math.pi * radius ** 2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1989,
+        "task_id": 85
+      },
+      {
+        "id": 238,
+        "pred": "def maximum_Sum(list_of_lists):\n    return max(sum(lst) for lst in list_of_lists)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1203,
+        "task_id": 23
+      },
+      {
+        "id": 239,
+        "pred": "def remove_column(nested_list, column_index):\n    return [row[:column_index] + row[column_index+1:] for row in nested_list]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1726,
+        "task_id": 353
+      },
+      {
+        "id": 240,
+        "pred": "def sort_mixed_list(lst):\n    integers = sorted([x for x in lst if isinstance(x, int)])\n    strings = sorted([x for x in lst if isinstance(x, str)])\n    return integers + strings",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1761,
+        "task_id": 37
+      },
+      {
+        "id": 241,
+        "pred": "def frequency(array, number):\n    return array.count(number)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 806,
+        "task_id": 168
+      },
+      {
+        "id": 242,
+        "pred": "def find_tuples(tuples_list, k):\n    filtered = [t for t in tuples_list if all(x % k == 0 for x in t)]\n    return str(filtered)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1486,
+        "task_id": 75
+      },
+      {
+        "id": 243,
+        "pred": "def minimum_Length(s):\n    from collections import Counter\n    counts = Counter(s)\n    return len(s) - max(counts.values())",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2025,
+        "task_id": 350
+      },
+      {
+        "id": 244,
+        "pred": "def min_of_three(a, b, c):\n    return min(a, b, c)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 825,
+        "task_id": 227
+      },
+      {
+        "id": 245,
+        "pred": "def find_exponentio(t1, t2):\n    return tuple(a ** b for a, b in zip(t1, t2))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 672,
+        "task_id": 197
+      },
+      {
+        "id": 246,
+        "pred": "def snake_to_camel(s):\n    return ''.join(part.capitalize() for part in s.split('_'))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1129,
+        "task_id": 102
+      },
+      {
+        "id": 247,
+        "pred": "def subject_marks(lst):\n    return sorted(lst, key=lambda x: x[1])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 907,
+        "task_id": 64
+      },
+      {
+        "id": 248,
+        "pred": "def decode_list(lst):\n    decoded = []\n    for item in lst:\n        if isinstance(item, list) and len(item) == 2:\n            decoded.extend([item[1]] * item[0])\n        else:\n            decoded.append(item)\n    return decoded",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2064,
+        "task_id": 215
+      },
+      {
+        "id": 249,
+        "pred": "def get_max_occuring_char(s):\n    counts = {}\n    for char in s:\n        counts[char] = counts.get(char, 0) + 1\n    return max(counts, key=counts.get)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2297,
+        "task_id": 480
+      },
+      {
+        "id": 250,
+        "pred": "def find_Nth_Digit(numerator, denominator, n):\n    remainder = numerator % denominator\n    for _ in range(n):\n        remainder *= 10\n        digit = remainder // denominator\n        remainder %= denominator\n    return digit",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3088,
+        "task_id": 36
+      },
+      {
+        "id": 251,
+        "pred": "def chkList(lst):\n    return len(set(lst)) == 1",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1932,
+        "task_id": 201
+      },
+      {
+        "id": 252,
+        "pred": "def test_duplicate(arr):\n    return len(arr) != len(set(arr))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1125,
+        "task_id": 19
+      },
+      {
+        "id": 253,
+        "pred": "def tup_string(t):\n    return ''.join(t)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 823,
+        "task_id": 132
+      },
+      {
+        "id": 254,
+        "pred": "def sum_gp(a, n, r):\n    if r == 1:\n        return a * n\n    else:\n        return a * (r**n - 1) // (r - 1)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2762,
+        "task_id": 491
+      },
+      {
+        "id": 255,
+        "pred": "def word_len(word):\n    return len(word) % 2 == 1",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 436,
+        "task_id": 79
+      },
+      {
+        "id": 256,
+        "pred": "import math\n\ndef find_ways(n):\n    k = n // 2\n    return math.comb(2 * k, k) // (k + 1)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2329,
+        "task_id": 348
+      },
+      {
+        "id": 257,
+        "pred": "def rear_extract(records):\n    return [t[-1] for t in records]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1192,
+        "task_id": 272
+      },
+      {
+        "id": 258,
+        "pred": "def gcd(a, b):\n    while b != 0:\n        a, b = b, a % b\n    return a",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1616,
+        "task_id": 498
+      },
+      {
+        "id": 259,
+        "pred": "def substract_elements(t1, t2):\n    return tuple(a - b for a, b in zip(t1, t2))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1398,
+        "task_id": 273
+      },
+      {
+        "id": 260,
+        "pred": "def max_sum(arr, n):\n    L = [0] * n\n    R = [0] * n\n    for i in range(n):\n        L[i] = arr[i]\n        for j in range(i):\n            if arr[j] <= arr[i]:\n                L[i] = max(L[i], L[j] + arr[i])\n    for i in range(n-1, -1, -1):\n        R[i] = arr[i]\n        for j in range(i+1, n):\n            if arr[j] <= arr[i]:\n                R[i] = max(R[i], R[j] + arr[i])\n    max_val = 0\n    for i in range(n):\n        max_val = max(max_val, L[i] + R[i] - arr[i])\n    return max_val",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 245
+      },
+      {
+        "id": 261,
+        "pred": "def moddiv_list(list1, list2):\n    return list(map(lambda x, y: x % y, list1, list2))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1377,
+        "task_id": 358
+      },
+      {
+        "id": 262,
+        "pred": "def count_Squares(w, h):\n    total = 0\n    for k in range(1, min(w, h) + 1):\n        total += (w - k + 1) * (h - k + 1)\n    return total",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2334,
+        "task_id": 76
+      },
+      {
+        "id": 263,
+        "pred": "def find_adverb_position(sentence):\n    adverb = sentence.split(\"!!\")[0]\n    return (0, len(adverb), adverb)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2621,
+        "task_id": 440
+      },
+      {
+        "id": 264,
+        "pred": "def square_perimeter(side):\n    return 4 * side",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 565,
+        "task_id": 17
+      },
+      {
+        "id": 265,
+        "pred": "def minimum(a, b):\n    return min(a, b)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 451,
+        "task_id": 404
+      },
+      {
+        "id": 266,
+        "pred": "def dif_Square(n):\n    return n % 4 != 2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2076,
+        "task_id": 72
+      },
+      {
+        "id": 267,
+        "pred": "def first_Missing_Positive(nums, n):\n    s = set(nums)\n    for i in range(1, n + 1):\n        if i not in s:\n            return i",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2724,
+        "task_id": 189
+      },
+      {
+        "id": 268,
+        "pred": "def check_monthnum(month_name):\n    month_days = {\n        \"January\": 31,\n        \"February\": 28,\n        \"March\": 31,\n        \"April\": 30,\n        \"May\": 31,\n        \"June\": 30,\n        \"July\": 31,\n        \"August\": 31,\n        \"September\": 30,\n        \"October\": 31,\n        \"November\": 30,\n        \"December\": 31\n    }\n    return month_days.get(month_name, 0) == 28",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1773,
+        "task_id": 336
+      },
+      {
+        "id": 269,
+        "pred": "def largest_neg(lst):\n    return min([x for x in lst if x < 0])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1668,
+        "task_id": 443
+      },
+      {
+        "id": 270,
+        "pred": "def surfacearea_cuboid(l, w, h):\n    return 2 * (l * w + w * h + h * l)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1857,
+        "task_id": 379
+      },
+      {
+        "id": 271,
+        "pred": "def find_remainder(arr, n, divisor):\n    product = 1\n    for x in arr:\n        product *= x\n    return product % divisor",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2736,
+        "task_id": 471
+      },
+      {
+        "id": 272,
+        "pred": "def binary_to_decimal(n):\n    return int(str(n), 2)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1805,
+        "task_id": 24
+      },
+      {
+        "id": 273,
+        "pred": "import heapq\n\ndef merge_sorted_list(*lists):\n    return list(heapq.merge(*[sorted(lst) for lst in lists]))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2763,
+        "task_id": 108
+      },
+      {
+        "id": 274,
+        "pred": "def find_Element(arr, rotations, index, num_rotations):\n    for i in range(num_rotations):\n        direction, amount = rotations[i]\n        if direction == 0:\n            arr = arr[-amount:] + arr[:-amount]\n        elif direction == 1:\n            arr = arr[amount:] + arr[:amount]\n    return arr[index]",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 3327,
+        "task_id": 304
+      },
+      {
+        "id": 275,
+        "pred": "def maximize_elements(t1, t2):\n    return tuple(tuple(max(a, b) for a, b in zip(t1_i, t2_i)) for t1_i, t2_i in zip(t1, t2))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2661,
+        "task_id": 259
+      },
+      {
+        "id": 276,
+        "pred": "def average_Odd(n):\n    return (n + 1) / 2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1445,
+        "task_id": 509
+      },
+      {
+        "id": 277,
+        "pred": "def count_Set_Bits(n):\n    return bin(n).count('1')",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1466,
+        "task_id": 224
+      },
+      {
+        "id": 278,
+        "pred": "def find_lists(t):\n    return sum(isinstance(x, list) for x in t)",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 1339,
+        "task_id": 143
+      },
+      {
+        "id": 279,
+        "pred": "def get_pell(n):\n    if n == 0:\n        return 0\n    if n == 1:\n        return 1\n    prev, curr = 0, 1\n    for _ in range(2, n + 1):\n        prev, curr = curr, 2 * curr + prev\n    return curr",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1774,
+        "task_id": 169
+      },
+      {
+        "id": 280,
+        "pred": "def greater_specificnum(lst, num):\n    return all(x > num for x in lst)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 981,
+        "task_id": 184
+      },
+      {
+        "id": 281,
+        "pred": "def sum_Of_Series(n):\n    return (n * (n + 1) // 2) ** 2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 911,
+        "task_id": 504
+      },
+      {
+        "id": 282,
+        "pred": "def magic_square_test(matrix):\n    n = len(matrix)\n    if n == 0:\n        return False\n    if any(len(row) != n for row in matrix):\n        return False\n    \n    row_sums = [sum(row) for row in matrix]\n    col_sums = [sum(matrix[i][j] for i in range(n)) for j in range(n)]\n    diag1_sum = sum(matrix[i][i] for i in range(n))\n    diag2_sum = sum(matrix[i][n - 1 - i] for i in range(n))\n    \n    target = row_sums[0]\n    return all(s == target for s in row_sums) and \\\n           all(s == target for s in col_sums) and \\\n           diag1_sum == target and diag2_sum == target",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2438,
+        "task_id": 129
+      },
+      {
+        "id": 283,
+        "pred": "def frequency_Of_Smallest(n, arr):\n    return arr.count(min(arr))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1402,
+        "task_id": 384
+      },
+      {
+        "id": 284,
+        "pred": "def pancake_sort(lst):\n    n = len(lst)\n    for k in range(n - 1, 0, -1):\n        # Find the index of the maximum element in the unsorted portion (0 to k)\n        max_idx = lst.index(max(lst[:k+1]))\n        \n        # Flip the portion to bring the maximum element to the top (index 0)\n        if max_idx != 0:\n            lst[:max_idx+1] = lst[:max_idx+1][::-1]\n        \n        # Flip the entire unsorted portion to bring the maximum element to the bottom (index k)\n        lst[:k+1] = lst[:k+1][::-1]\n    \n    return lst",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 141
+      },
+      {
+        "id": 285,
+        "pred": "def flatten_list(lst):\n    result = []\n    for item in lst:\n        if isinstance(item, list):\n            result.extend(flatten_list(item))\n        else:\n            result.append(item)\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1207,
+        "task_id": 297
+      },
+      {
+        "id": 286,
+        "pred": "def max_sum_rectangular_grid(grid, n):\n    if n == 0:\n        return 0\n    prev0 = 0\n    prev1 = grid[0][0]\n    prev2 = grid[1][0]\n    for i in range(1, n):\n        curr0 = max(prev0, prev1, prev2)\n        curr1 = prev0 + grid[0][i]\n        curr2 = prev0 + grid[1][i]\n        prev0, prev1, prev2 = curr0, curr1, curr2\n    return max(prev0, prev1, prev2)",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 314
+      },
+      {
+        "id": 287,
+        "pred": "def modified_encode(data):\n    result = []\n    if not data:\n        return result\n    current_val = data[0]\n    count = 1\n    for item in data[1:]:\n        if item == current_val:\n            count += 1\n        else:\n            if count > 1:\n                result.append([count, current_val])\n            else:\n                result.append(current_val)\n            current_val = item\n            count = 1\n    if count > 1:\n        result.append([count, current_val])\n    else:\n        result.append(current_val)\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3326,
+        "task_id": 317
+      },
+      {
+        "id": 288,
+        "pred": "def check(s):\n    return \"Yes\" if all(c in '01' for c in s) else \"No\"",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1201,
+        "task_id": 349
+      },
+      {
+        "id": 289,
+        "pred": "def remove_odd(s):\n    return s[1::2]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1638,
+        "task_id": 437
+      },
+      {
+        "id": 290,
+        "pred": "def sum_even_and_even_index(lst, n):\n    return sum(lst[i] for i in range(n) if i % 2 == 0 and lst[i] % 2 == 0)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2755,
+        "task_id": 270
+      },
+      {
+        "id": 291,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 48
+      },
+      {
+        "id": 292,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 39
+      },
+      {
+        "id": 293,
+        "pred": "def extended_gcd(a, b):\n    old_r, r = a, b\n    old_s, s = 1, 0\n    old_t, t = 0, 1\n    while r != 0:\n        quotient = old_r // r\n        old_r, r = r, old_r - quotient * r\n        old_s, s = s, old_s - quotient * s\n        old_t, t = t, old_t - quotient * t\n    return old_r, old_s, old_t",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 160
+      },
+      {
+        "id": 294,
+        "pred": "def is_woodall(n):\n    return str(n) == str(n)[::-1]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1488,
+        "task_id": 20
+      },
+      {
+        "id": 295,
+        "pred": "def colon_tuplex(tuplex, idx, val):\n    lst = list(tuplex)\n    lst[idx] = [val]\n    return tuple(lst)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1583,
+        "task_id": 307
+      },
+      {
+        "id": 296,
+        "pred": "def split_lowerstring(s):\n    res = []\n    cur = \"\"\n    first = True\n    for c in s:\n        if c.islower():\n            if not first and cur:\n                res.append(cur)\n            cur = c\n            first = False\n        else:\n            if not first:\n                cur += c\n    if cur:\n        res.append(cur)\n    return res",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 15
+      },
+      {
+        "id": 297,
+        "pred": "def is_octagonal(n):\n    return n * (3 * n - 2)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 813,
+        "task_id": 59
+      },
+      {
+        "id": 298,
+        "pred": "def array_3d(dim1, dim2, dim3):\n    return [[[ '*' for _ in range(dim3) ] for _ in range(dim2) ] for _ in range(dim1) ]",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 1664,
+        "task_id": 241
+      },
+      {
+        "id": 299,
+        "pred": "def comb_sort(lst):\n    gap = len(lst) / 1.3\n    shrink = 1.3\n    while gap > 1:\n        gap = int(gap / shrink)\n        if gap <= 0:\n            gap = 1\n        swapped = False\n        for i in range(len(lst) - gap):\n            if lst[i] > lst[i + gap]:\n                lst[i], lst[i + gap] = lst[i + gap], lst[i]\n                swapped = True\n        if not swapped:\n            gap = 1\n    return lst",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 3687,
+        "task_id": 71
+      },
+      {
+        "id": 300,
+        "pred": "import re\ndef text_match_word(text):\n    return 'Found a match!' if re.search(r'python[.,!?]*$', text) else 'Not matched!'",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2318,
+        "task_id": 337
+      },
+      {
+        "id": 301,
+        "pred": "def sum_series(n):\n    return sum(range(n, 0, -2))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2504,
+        "task_id": 162
+      },
+      {
+        "id": 302,
+        "pred": "def re_arrange(arr, n):\n    negs = [x for x in arr if x < 0]\n    pos = [x for x in arr if x >= 0]\n    res = []\n    for i in range(n):\n        if i % 2 == 0:\n            if negs:\n                res.append(negs.pop(0))\n            else:\n                res.append(pos.pop(0))\n        else:\n            if pos:\n                res.append(pos.pop(0))\n            else:\n                res.append(negs.pop(0))\n    return res",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 323
+      },
+      {
+        "id": 303,
+        "pred": "import re\ndef remove_lowercase(s):\n    return re.sub('[a-z]', '', s)",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 495
+      },
+      {
+        "id": 304,
+        "pred": "import re\ndef is_decimal(s):\n    return bool(re.fullmatch(r'^\\d+\\.\\d{2}$', s))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2663,
+        "task_id": 208
+      },
+      {
+        "id": 305,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 438
+      },
+      {
+        "id": 306,
+        "pred": "def check_occurences(tuples):\n    counts = {}\n    for pair in tuples:\n        normalized = tuple(sorted(pair))\n        counts[normalized] = counts.get(normalized, 0) + 1\n    return counts",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2283,
+        "task_id": 237
+      },
+      {
+        "id": 307,
+        "pred": "def count_With_Odd_SetBits(n):\n    return sum(1 for i in range(1, n + 1) if bin(i).count('1') % 2 == 1)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2833,
+        "task_id": 78
+      },
+      {
+        "id": 308,
+        "pred": "def parabola_focus(a, b, c):\n    return (-b / (2 * a), c + (1 - b**2) / (4 * a))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2526,
+        "task_id": 185
+      },
+      {
+        "id": 309,
+        "pred": "def check_integer(s):\n    try:\n        int(s)\n        return True\n    except ValueError:\n        return False",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1616,
+        "task_id": 113
+      },
+      {
+        "id": 310,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 423
+      },
+      {
+        "id": 311,
+        "pred": "def power(a, b):\n    return a ** b",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 638,
+        "task_id": 93
+      },
+      {
+        "id": 312,
+        "pred": "def count_Substrings(s, n):\n    count = 0\n    for i in range(n):\n        for j in range(i, n):\n            substring = s[i:j+1]\n            digit_sum = sum(int(d) for d in substring)\n            if digit_sum == j - i + 1:\n                count += 1\n    return count",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 61
+      },
+      {
+        "id": 313,
+        "pred": "def longest_subseq_with_diff_one(arr, n):\n    dp = [1] * n\n    for i in range(n):\n        for j in range(i):\n            if abs(arr[i] - arr[j]) == 1:\n                dp[i] = max(dp[i], dp[j] + 1)\n    return max(dp)",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 149
+      },
+      {
+        "id": 314,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 469
+      },
+      {
+        "id": 315,
+        "pred": "       def count_Intgral_Points(x1, y1, x2, y2):\n           dx = abs(x2 - x1)\n           dy = abs(y2 - y1)\n           if dx == 0 and dy == 0:\n               return 1\n           return (dx - 1) * (dy - 1)\n       ",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 190
+      },
+      {
+        "id": 316,
+        "pred": "def test_distinct(lst):\n    return len(set(lst)) == len(lst)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 455,
+        "task_id": 46
+      },
+      {
+        "id": 317,
+        "pred": "def extract_freq(tuples):\n    return len(set(tuple(sorted(t)) for t in tuples))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2675,
+        "task_id": 400
+      },
+      {
+        "id": 318,
+        "pred": "    import math\n    def area_polygon(n, s):\n        return (n * s**2) / (4 * math.tan(math.pi / n))\n    ",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 163
+      },
+      {
+        "id": 319,
+        "pred": "import re\n\ndef find_character(text):\n    uppercase = re.findall(r'[A-Z]', text)\n    lowercase = re.findall(r'[a-z]', text)\n    special = re.findall(r'[^A-Za-z]', text)\n    numeric = []\n    return (uppercase, lowercase, special, numeric)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2938,
+        "task_id": 182
+      },
+      {
+        "id": 320,
+        "pred": "def find_Product(arr, n):\n    counts = {}\n    for x in arr:\n        counts[x] = counts.get(x, 0) + 1\n    product = 1\n    for x in counts:\n        if counts[x] == 1:\n            product *= x\n    return product",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2505,
+        "task_id": 25
+      },
+      {
+        "id": 321,
+        "pred": "def find_missing(arr, n):\n    for i in range(n):\n        if arr[i] != i + 1:\n            return i + 1\n    return n",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3373,
+        "task_id": 34
+      },
+      {
+        "id": 322,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 254
+      },
+      {
+        "id": 323,
+        "pred": "def remove_empty(lst):\n    return [x for x in lst if x != []]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1316,
+        "task_id": 361
+      },
+      {
+        "id": 324,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 150
+      },
+      {
+        "id": 325,
+        "pred": "def count_odd(lst):\n    return len(list(filter(lambda x: x % 2 != 0, lst)))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1995,
+        "task_id": 258
+      },
+      {
+        "id": 326,
+        "pred": "def sub_list(list1, list2):\n    return list(map(lambda x, y: x - y, list1, list2))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 486,
+        "task_id": 282
+      },
+      {
+        "id": 327,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 260
+      },
+      {
+        "id": 328,
+        "pred": "def next_Perfect_Square(x):\n    return (int(x**0.5) + 1) ** 2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2984,
+        "task_id": 244
+      },
+      {
+        "id": 329,
+        "pred": "def find_substring(strings, substring):\n    return any(substring in s for s in strings)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 583,
+        "task_id": 91
+      },
+      {
+        "id": 330,
+        "pred": "def common_prefix(strings, n):\n    if not strings:\n        return \"\"\n    prefix = strings[0]\n    for i in range(len(prefix)):\n        for s in strings[1:]:\n            if i >= len(s) or s[i] != prefix[i]:\n                return prefix[:i]\n    return prefix",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2595,
+        "task_id": 181
+      },
+      {
+        "id": 331,
+        "pred": "import re\n\ndef text_match_one(text):\n    if re.search(r'a b+', text):\n        return 'Found a match!'\n    else:\n        return 'Not matched!'",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 1894,
+        "task_id": 434
+      },
+      {
+        "id": 332,
+        "pred": "def sum_difference(n):\n    sum_of_numbers = n * (n + 1) // 2\n    sum_of_squares = n * (n + 1) * (2 * n + 1) // 6\n    return sum_of_numbers ** 2 - sum_of_squares",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2589,
+        "task_id": 320
+      },
+      {
+        "id": 333,
+        "pred": "def count_first_elements(t):\n    for i, item in enumerate(t):\n        if isinstance(item, tuple):\n            return i",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1363,
+        "task_id": 278
+      },
+      {
+        "id": 334,
+        "pred": "def common_in_nested_lists(nested_lists):\n    if not nested_lists:\n        return []\n    first_list = nested_lists[0]\n    common = set(first_list)\n    for lst in nested_lists[1:]:\n        common &= set(lst)\n    result = [x for x in first_list if x in common]\n    return result",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 111
+      },
+      {
+        "id": 335,
+        "pred": "def count_Hexadecimal(start, end):\n    return sum(1 for n in range(start, end + 1) if any(c in 'abcdef' for c in hex(n)[2:]))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3111,
+        "task_id": 107
+      },
+      {
+        "id": 336,
+        "pred": "import itertools\n\ndef no_of_subsequences(arr, k):\n    count = 0\n    for r in range(1, len(arr) + 1):\n        for combo in itertools.combinations(arr, r):\n            prod = 1\n            for x in combo:\n                prod *= x\n            if prod < k:\n                count += 1\n    return count",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 4016,
+        "task_id": 510
+      },
+      {
+        "id": 337,
+        "pred": "def multiple_to_single(lst):\n    return int(''.join(str(x) for x in lst))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1091,
+        "task_id": 439
+      },
+      {
+        "id": 338,
+        "pred": "def remove_lowercase(s):\n    return \"\".join([c for c in s if c.isupper()])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1402,
+        "task_id": 478
+      },
+      {
+        "id": 339,
+        "pred": "def volume_cylinder(radius, height):\n    return 3.1415 * radius ** 2 * height",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1914,
+        "task_id": 276
+      },
+      {
+        "id": 340,
+        "pred": "def multiply_num(numbers):\n    product = 1\n    for num in numbers:\n        product *= num\n    return product / len(numbers)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1195,
+        "task_id": 98
+      },
+      {
+        "id": 341,
+        "pred": "def surfacearea_cube(side):\n    return 6 * side ** 2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 865,
+        "task_id": 441
+      },
+      {
+        "id": 342,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 229
+      },
+      {
+        "id": 343,
+        "pred": "def repeat_tuples(t, n):\n    return (t,) * n",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 944,
+        "task_id": 368
+      },
+      {
+        "id": 344,
+        "pred": "def odd_values_string(s):\n    return s[::2]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2113,
+        "task_id": 226
+      },
+      {
+        "id": 345,
+        "pred": "import re\ndef snake_to_camel(s):\n    return re.sub(r'_([a-z])', lambda m: m.group(1).upper(), s)",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 411
+      },
+      {
+        "id": 346,
+        "pred": "def count_samepair(l1, l2, l3):\n    return sum(1 for a, b, c in zip(l1, l2, l3) if a == b == c)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3347,
+        "task_id": 142
+      },
+      {
+        "id": 347,
+        "pred": "def remove(lst):\n    return [''.join(c for c in s if not c.isdigit()) for s in lst]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1331,
+        "task_id": 27
+      },
+      {
+        "id": 348,
+        "pred": "def min_product_tuple(tuples_list):\n    return min(a * b for a, b in tuples_list)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1551,
+        "task_id": 409
+      },
+      {
+        "id": 349,
+        "pred": "def tuple_to_int(t):\n    return int(''.join(str(x) for x in t))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1260,
+        "task_id": 116
+      },
+      {
+        "id": 350,
+        "pred": "import re\n\ndef change_date_format(date_str):\n    return re.sub(r'(\\d{4})-(\\d{2})-(\\d{2})', r'\\3-\\2-\\1', date_str)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1903,
+        "task_id": 427
+      },
+      {
+        "id": 351,
+        "pred": "def hamming_Distance(a, b):\n    return bin(a ^ b).count('1')",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1441,
+        "task_id": 203
+      },
+      {
+        "id": 352,
+        "pred": "def binary_search(arr, target):\n    low = 0\n    high = len(arr) - 1\n    while low <= high:\n        mid = (low + high) // 2\n        if arr[mid] == target:\n            return True\n        elif arr[mid] < target:\n            low = mid + 1\n        else:\n            high = mid - 1\n    return False",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1828,
+        "task_id": 492
+      },
+      {
+        "id": 353,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 121
+      },
+      {
+        "id": 354,
+        "pred": "import math\ndef angle_complex(real, imag):\n    return math.atan2(imag, real)",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 1647,
+        "task_id": 124
+      },
+      {
+        "id": 355,
+        "pred": "def filter_evennumbers(numbers):\n    return list(filter(lambda x: x % 2 == 0, numbers))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 958,
+        "task_id": 41
+      },
+      {
+        "id": 356,
+        "pred": "def sort_matrix(matrix):\n    return sorted(matrix, key=lambda row: sum(row))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1300,
+        "task_id": 12
+      },
+      {
+        "id": 357,
+        "pred": "def inversion_elements(t):\n    return tuple(-(x + 1) for x in t)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2887,
+        "task_id": 205
+      },
+      {
+        "id": 358,
+        "pred": "def extract_singly(tuples):\n    seen = set()\n    result = []\n    for t in tuples:\n        for x in t:\n            if x not in seen:\n                seen.add(x)\n                result.append(x)\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3105,
+        "task_id": 140
+      },
+      {
+        "id": 359,
+        "pred": "def re_order(arr):\n    non_zeros = [x for x in arr if x != 0]\n    zeros = [0] * arr.count(0)\n    return non_zeros + zeros",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1943,
+        "task_id": 505
+      },
+      {
+        "id": 360,
+        "pred": "def count_pairs(arr, k, n):\n    count = 0\n    for i in range(len(arr)):\n        for j in range(i + 1, len(arr)):\n            if abs(arr[i] - arr[j]) == n:\n                count += 1\n    return count",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 183
+      },
+      {
+        "id": 361,
+        "pred": "def tuple_intersection(list1, list2):\n    normalized1 = {tuple(sorted(t)) for t in list1}\n    normalized2 = {tuple(sorted(t)) for t in list2}\n    return normalized1.intersection(normalized2)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2510,
+        "task_id": 473
+      },
+      {
+        "id": 362,
+        "pred": "def find_star_num(n):\n    return 6 * n * (n - 1) + 1",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 731,
+        "task_id": 268
+      },
+      {
+        "id": 363,
+        "pred": "def trim_tuple(tuples_list, k):\n    return str([t[k:-k] for t in tuples_list])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2304,
+        "task_id": 444
+      },
+      {
+        "id": 364,
+        "pred": "def ascii_value(char):\n    return ord(char)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 576,
+        "task_id": 269
+      },
+      {
+        "id": 365,
+        "pred": "def smallest_missing(arr, start, end):\n    idx = 0\n    for val in range(start, end + 1):\n        while idx < len(arr) and arr[idx] < val:\n            idx += 1\n        if idx < len(arr) and arr[idx] == val:\n            continue\n        return val\n    return end + 1",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3281,
+        "task_id": 371
+      },
+      {
+        "id": 366,
+        "pred": "def sort_counter(counter):\n    return sorted(counter.items(), key=lambda x: x[1], reverse=True)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1296,
+        "task_id": 475
+      },
+      {
+        "id": 367,
+        "pred": "def prod_Square(n):\n    if n <= 0:\n        return False\n    s = int(n**0.5)\n    if s * s != n:\n        return False\n    if s == 1:\n        return False\n    for i in range(2, int(s**0.5) + 1):\n        if s % i == 0:\n            return True\n    return False",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 188
+      },
+      {
+        "id": 368,
+        "pred": "def combinations_list(lst):\n    combinations = [[]]\n    for item in lst:\n        combinations.extend([c + [item] for c in combinations])\n    return combinations",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 3609,
+        "task_id": 462
+      },
+      {
+        "id": 369,
+        "pred": "   def amicable_numbers_sum(limit):\n       total = 0\n       for i in range(1, limit + 1):\n           # Sum of proper divisors of i\n           div_sum = 1 if i > 1 else 0\n           for d in range(2, int(i**0.5) + 1):\n               if i % d == 0:\n                   div_sum += d\n                   if d != i // d:\n                       div_sum += i // d\n           # Check if i is part of an amicable pair\n           if div_sum <= limit and div_sum != i and div_sum > 1:\n               # Sum of proper divisors of div_sum\n               div_sum2 = 1 if div_sum > 1 else 0\n               for d in range(2, int(div_sum**0.5) + 1):\n                   if div_sum % d == 0:\n                       div_sum2 += d\n                   if d != div_sum // d:\n                       div_sum2 += div_sum // d\n               if div_sum2 == i:\n                   total += i\n       return total\n   ",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 123
+      },
+      {
+        "id": 370,
+        "pred": "def find_first_duplicate(arr):\n    seen = set()\n    for num in arr:\n        if num in seen:\n            return num\n        seen.add(num)\n    return -1",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1819,
+        "task_id": 22
+      },
+      {
+        "id": 371,
+        "pred": "def even_or_odd(hex_string):\n    decimal_value = int(hex_string, 16)\n    return \"Even\" if decimal_value % 2 == 0 else \"Odd\"",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1728,
+        "task_id": 387
+      },
+      {
+        "id": 372,
+        "pred": "def count_charac(s):\n    return len(s)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 842,
+        "task_id": 242
+      },
+      {
+        "id": 373,
+        "pred": "def find_Max_Len_Even(s):\n    words = s.split()\n    max_len = -1\n    result = \"-1\"\n    for word in words:\n        if len(word) % 2 == 0:\n            if len(word) > max_len:\n                max_len = len(word)\n                result = word\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2758,
+        "task_id": 315
+      },
+      {
+        "id": 374,
+        "pred": "def perimeter_triangle(a, b, c):\n    return a + b + c",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 441,
+        "task_id": 176
+      },
+      {
+        "id": 375,
+        "pred": "def check_monthnumber(month_name):\n    return month_name in {\"April\", \"June\", \"September\", \"November\"}",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1537,
+        "task_id": 191
+      },
+      {
+        "id": 376,
+        "pred": "def smallest_num(lst):\n    return min(lst)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 827,
+        "task_id": 62
+      },
+      {
+        "id": 377,
+        "pred": "def median_trapezium(a, b, c):\n    return (a + b) / 2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1816,
+        "task_id": 432
+      },
+      {
+        "id": 378,
+        "pred": "def count_Rectangles(r):\n    return r ** 3",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1564,
+        "task_id": 355
+      },
+      {
+        "id": 379,
+        "pred": "def ascii_value_string(string):\n    return ord(string[0])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1602,
+        "task_id": 146
+      },
+      {
+        "id": 380,
+        "pred": "def max_length(list_of_lists):\n    if not list_of_lists:\n        return (0, [])\n    best_list = max(list_of_lists, key=len)\n    return (len(best_list), best_list)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1942,
+        "task_id": 290
+      },
+      {
+        "id": 381,
+        "pred": "def find_Parity(n):\n    if n % 2 == 0:\n        return \"Even Parity\"\n    else:\n        return \"Odd Parity\"",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 425,
+        "task_id": 406
+      },
+      {
+        "id": 382,
+        "pred": "import heapq\n\ndef func(lists, k):\n    counts = {}\n    for lst in lists:\n        for num in lst:\n            counts[num] = counts.get(num, 0) + 1\n    h = []\n    for num, freq in counts.items():\n        heapq.heappush(h, (freq, num))\n        if len(h) > k:\n            heapq.heappop(h)\n    result = []\n    while h:\n        result.append(heapq.heappop(h)[1])\n    return result",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 31
+      },
+      {
+        "id": 383,
+        "pred": "def start_withp(words):\n    for s in words:\n        w = s.split()\n        if len(w) == 2 and w[0].lower().startswith('p') and w[1].lower().startswith('p'):\n            return (w[0], w[1])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3575,
+        "task_id": 305
+      },
+      {
+        "id": 384,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 239
+      },
+      {
+        "id": 385,
+        "pred": "def intersection_array(arr1, arr2):\n    return list(filter(lambda x: x in arr2, arr1))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2069,
+        "task_id": 249
+      },
+      {
+        "id": 386,
+        "pred": "def position_min(lst):\n    min_val = min(lst)\n    return [i for i, x in enumerate(lst) if x == min_val]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1280,
+        "task_id": 322
+      },
+      {
+        "id": 387,
+        "pred": "def square_Sum(n):\n    return sum((2 * i) ** 2 for i in range(1, n + 1))",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 287
+      },
+      {
+        "id": 388,
+        "pred": "import math\nfrom functools import reduce\n\ndef get_gcd(arr):\n    return reduce(math.gcd, arr)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1906,
+        "task_id": 45
+      },
+      {
+        "id": 389,
+        "pred": "def max_val(lst):\n    return max([x for x in lst if isinstance(x, (int, float))])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1959,
+        "task_id": 294
+      },
+      {
+        "id": 390,
+        "pred": "def index_on_inner_list(lst, index):\n    return sorted(lst, key=lambda x: x[index])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1280,
+        "task_id": 381
+      },
+      {
+        "id": 391,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 235
+      },
+      {
+        "id": 392,
+        "pred": "def is_Monotonic(arr):\n    if len(arr) <= 1:\n        return True\n    return all(x <= y for x, y in zip(arr, arr[1:])) or all(x >= y for x, y in zip(arr, arr[1:]))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1421,
+        "task_id": 68
+      },
+      {
+        "id": 393,
+        "pred": "def count_char_position(s):\n    count = 0\n    for i, char in enumerate(s):\n        if ord(char.lower()) - ord('a') == i:\n            count += 1\n    return count",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1898,
+        "task_id": 165
+      },
+      {
+        "id": 394,
+        "pred": "import re\n\ndef is_valid_URL(url):\n    pattern = r'^https?://[a-zA-Z0-9.-]+(/[a-zA-Z0-9.-]+)?$'\n    return bool(re.match(pattern, url))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2357,
+        "task_id": 403
+      },
+      {
+        "id": 395,
+        "pred": "def check_equilateral(a, b, c):\n    return a == b == c",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 427,
+        "task_id": 51
+      },
+      {
+        "id": 396,
+        "pred": "def round_num(num, multiple):\n    return round(num / multiple) * multiple",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 1689,
+        "task_id": 375
+      },
+      {
+        "id": 397,
+        "pred": "def first_Factorial_Divisible_Number(x):\n    n = 1\n    factorial = 1\n    while factorial % x != 0:\n        n += 1\n        factorial *= n\n    return n",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 2260,
+        "task_id": 483
+      },
+      {
+        "id": 398,
+        "pred": "import re\n\ndef check_literals(text, literals):\n    for pattern in literals:\n        if re.search(pattern, text):\n            return 'Matched!'\n    return 'Not Matched!'",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1464,
+        "task_id": 186
+      },
+      {
+        "id": 399,
+        "pred": "def check_type(t):\n    return len(set(type(x) for x in t)) == 1",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1466,
+        "task_id": 222
+      },
+      {
+        "id": 400,
+        "pred": "def decimal_To_Binary(n):\n    return int(bin(n)[2:])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1992,
+        "task_id": 33
+      },
+      {
+        "id": 401,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 286
+      },
+      {
+        "id": 402,
+        "pred": "def remove_words(words, exclude_words):\n    return [word for word in words if word not in exclude_words]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 920,
+        "task_id": 507
+      },
+      {
+        "id": 403,
+        "pred": "def max_Abs_Diff(arr, n):\n    return max(arr) - min(arr)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1422,
+        "task_id": 145
+      },
+      {
+        "id": 404,
+        "pred": "def Find_Min(sublists):\n    return min(sublists, key=len)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1198,
+        "task_id": 457
+      },
+      {
+        "id": 405,
+        "pred": "def search(arr, n):\n    low = 0\n    high = n - 1\n    while low <= high:\n        mid = (low + high) // 2\n        if mid % 2 == 0:\n            if mid + 1 < n and arr[mid] == arr[mid + 1]:\n                low = mid + 2\n            else:\n                high = mid\n        else:\n            if mid - 1 >= 0 and arr[mid] == arr[mid - 1]:\n                low = mid + 1\n            else:\n                high = mid - 1\n    return arr[low]",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 119
+      },
+      {
+        "id": 406,
+        "pred": "def Sort(lst):\n    return sorted(lst, key=lambda x: x[1])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1153,
+        "task_id": 333
+      },
+      {
+        "id": 407,
+        "pred": "def even_Power_Sum(n):\n    return sum((2 * i) ** 5 for i in range(1, n + 1))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2054,
+        "task_id": 271
+      },
+      {
+        "id": 408,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 4096,
+        "task_id": 228
+      },
+      {
+        "id": 409,
+        "pred": "def check_Consecutive(lst):\n    if len(lst) <= 1:\n        return True\n    for i in range(len(lst) - 1):\n        if lst[i + 1] - lst[i] != 1:\n            return False\n    return True",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2036,
+        "task_id": 472
+      },
+      {
+        "id": 410,
+        "pred": "def is_undulating(s):\n    if len(s) < 2:\n        return False\n    if s[0] != s[1]:\n        return all(s[i] == s[i+2] for i in range(len(s) - 2))\n    return False",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3742,
+        "task_id": 92
+      },
+      {
+        "id": 411,
+        "pred": "def len_log(words):\n    return max(len(w) for w in words)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1033,
+        "task_id": 90
+      },
+      {
+        "id": 412,
+        "pred": "def octal_To_Decimal(n):\n    decimal = 0\n    multiplier = 1\n    while n > 0:\n        decimal += (n % 10) * multiplier\n        n //= 10\n        multiplier *= 8\n    return decimal",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1466,
+        "task_id": 194
+      },
+      {
+        "id": 413,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 428
+      },
+      {
+        "id": 414,
+        "pred": "def remove_odd(lst):\n    return [x for x in lst if x % 2 == 0]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1133,
+        "task_id": 412
+      },
+      {
+        "id": 415,
+        "pred": "def count_X(t, x):\n    return t.count(x)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 827,
+        "task_id": 250
+      },
+      {
+        "id": 416,
+        "pred": "def unique_Characters(string):\n    return len(string) == len(set(string))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 804,
+        "task_id": 352
+      },
+      {
+        "id": 417,
+        "pred": "def remove_matching_tuple(t1, t2):\n    return tuple(t for t in t1 if t not in t2)",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 1337,
+        "task_id": 484
+      },
+      {
+        "id": 418,
+        "pred": "def find_Volume(a, b, c):\n    return (a * b * c) / 2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2159,
+        "task_id": 14
+      },
+      {
+        "id": 419,
+        "pred": "def permutation_coefficient(n, k):\n    if k > n:\n        return 0\n    result = 1\n    for i in range(k):\n        result *= (n - i)\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1752,
+        "task_id": 506
+      },
+      {
+        "id": 420,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 463
+      },
+      {
+        "id": 421,
+        "pred": "def specified_element(matrix, index):\n    return [row[index] for row in matrix]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 935,
+        "task_id": 154
+      },
+      {
+        "id": 422,
+        "pred": "def text_match_wordz(text):\n    words = text.split()\n    for word in words:\n        if 'z' in word:\n            return 'Found a match!'\n    return 'Not matched!'",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2055,
+        "task_id": 454
+      },
+      {
+        "id": 423,
+        "pred": "def count_element_in_list(sublists, element):\n    return sum(1 for sublist in sublists if element in sublist)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1154,
+        "task_id": 425
+      },
+      {
+        "id": 424,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 77
+      },
+      {
+        "id": 425,
+        "pred": "def group_keyvalue(pairs):\n    result = {}\n    for key, value in pairs:\n        if key not in result:\n            result[key] = []\n        result[key].append(value)\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1457,
+        "task_id": 174
+      },
+      {
+        "id": 426,
+        "pred": "def merge_dictionaries_three(d1, d2, d3):\n    return {**d1, **d2, **d3}",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 3254,
+        "task_id": 87
+      },
+      {
+        "id": 427,
+        "pred": "def harmonic_sum(n):\n    return sum(1 / i for i in range(1, n))",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 1733,
+        "task_id": 248
+      },
+      {
+        "id": 428,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 374
+      },
+      {
+        "id": 429,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 493
+      },
+      {
+        "id": 430,
+        "pred": "def next_Power_Of_2(n):\n    if n <= 0:\n        return 1\n    if (n & (n - 1)) == 0:\n        return n\n    return 1 << n.bit_length()",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2743,
+        "task_id": 167
+      },
+      {
+        "id": 431,
+        "pred": "def encode_list(data):\n    if not data:\n        return []\n    result = []\n    current = data[0]\n    count = 1\n    for item in data[1:]:\n        if item == current:\n            count += 1\n        else:\n            result.append([count, current])\n            current = item\n            count = 1\n    result.append([count, current])\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2035,
+        "task_id": 157
+      },
+      {
+        "id": 432,
+        "pred": "def add_nested_tuples(t1, t2):\n    return tuple((x1 + x2, y1 + y2) for (x1, y1), (x2, y2) in zip(t1, t2))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1792,
+        "task_id": 401
+      },
+      {
+        "id": 433,
+        "pred": "def check_Validity(a, b, c):\n    return (a + b > c) and (a + c > b) and (b + c > a)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1183,
+        "task_id": 334
+      },
+      {
+        "id": 434,
+        "pred": "def count(s, c):\n    return s.count(c)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 394,
+        "task_id": 204
+      },
+      {
+        "id": 435,
+        "pred": "def count_no_of_ways(n, k):\n    if n == 1:\n        return k\n    if n == 2:\n        return k * k\n    prev1 = k\n    prev2 = k * k\n    for _ in range(3, n + 1):\n        curr = (k - 1) * (prev2 + prev1)\n        prev1 = prev2\n        prev2 = curr\n    return prev2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3535,
+        "task_id": 291
+      },
+      {
+        "id": 436,
+        "pred": "def count_Primes_nums(n):\n    if n <= 1:\n        return 0\n    sieve = [True] * n\n    sieve[0] = sieve[1] = False\n    for p in range(2, int(n**0.5) + 1):\n        if sieve[p]:\n            for i in range(p * p, n, p):\n                sieve[i] = False\n    return sum(sieve)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2304,
+        "task_id": 256
+      },
+      {
+        "id": 437,
+        "pred": "def find_rect_num(n):\n    return n * (n + 1)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 495,
+        "task_id": 35
+      },
+      {
+        "id": 438,
+        "pred": "def is_lower(s):\n    return s.lower()",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 252,
+        "task_id": 477
+      },
+      {
+        "id": 439,
+        "pred": "def get_equal(tuples, length):\n    for t in tuples:\n        if len(t) != length:\n            return 'All tuples do not have same length'\n    return 'All tuples have same length'",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1336,
+        "task_id": 70
+      },
+      {
+        "id": 440,
+        "pred": "def max_Prime_Factors(n):\n    largest_prime = 1\n    d = 2\n    while d * d <= n:\n        if n % d == 0:\n            while n % d == 0:\n                n //= d\n                largest_prime = d\n        d += 1\n    if n > 1:\n        largest_prime = n\n    return largest_prime",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2736,
+        "task_id": 32
+      },
+      {
+        "id": 441,
+        "pred": "def neg_count(lst):\n    count = 0\n    for num in lst:\n        if num < 0:\n            count += 1\n    return count",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1260,
+        "task_id": 329
+      },
+      {
+        "id": 442,
+        "pred": "def sumofFactors(n):\n    total = 0\n    for i in range(1, n + 1):\n        if n % i == 0 and i % 2 == 0:\n            total += i\n    return total",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2103,
+        "task_id": 453
+      },
+      {
+        "id": 443,
+        "pred": "def highest_Power_of_2(n):\n    return 2**(n.bit_length() - 1)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1068,
+        "task_id": 199
+      },
+      {
+        "id": 444,
+        "pred": "def positive_count(arr):\n    count = sum(1 for x in arr if x > 0)\n    return round(count / len(arr), 2)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2351,
+        "task_id": 442
+      },
+      {
+        "id": 445,
+        "pred": "def first_non_repeating_character(s):\n    counts = {}\n    for char in s:\n        counts[char] = counts.get(char, 0) + 1\n    for char in s:\n        if counts[char] == 1:\n            return char\n    return None",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1608,
+        "task_id": 395
+      },
+      {
+        "id": 446,
+        "pred": "def check_monthnumb_number(month_num):\n    return month_num in [1, 3, 5, 7, 8, 10, 12]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1181,
+        "task_id": 455
+      },
+      {
+        "id": 447,
+        "pred": "import re\n\ndef multiple_split(s):\n    return re.split(r'[\\n*]', s)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1940,
+        "task_id": 73
+      },
+      {
+        "id": 448,
+        "pred": "import math\ndef volume_cone(r, h):\n    return (1/3) * math.pi * r**2 * h",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 2226,
+        "task_id": 312
+      },
+      {
+        "id": 449,
+        "pred": "def frequency_lists(list_of_lists):\n    freq = {}\n    for sublist in list_of_lists:\n        for item in sublist:\n            freq[item] = freq.get(item, 0) + 1\n    return freq",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1170,
+        "task_id": 97
+      },
+      {
+        "id": 450,
+        "pred": "import re\n\ndef find_char(text):\n    return re.findall(r'\\b[a-zA-Z]{3,5}\\b', text)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2393,
+        "task_id": 330
+      },
+      {
+        "id": 451,
+        "pred": "def cal_electbill(units):\n    if units <= 100:\n        return 2.5 + 3.25 * units\n    else:\n        return 327.5 + 6.75 * (units - 100)",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 3717,
+        "task_id": 136
+      },
+      {
+        "id": 452,
+        "pred": "def otherside_rightangle(a, b):\n    return (a**2 + b**2)**0.5",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1872,
+        "task_id": 293
+      },
+      {
+        "id": 453,
+        "pred": "def max_volume(s):\n    return int(s**3 / 27)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2202,
+        "task_id": 318
+      },
+      {
+        "id": 454,
+        "pred": "def perimeter(r, h):\n    return 2 * (r + h)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1874,
+        "task_id": 112
+      },
+      {
+        "id": 455,
+        "pred": "def insert_element(lst, element):\n    result = []\n    for item in lst:\n        result.append(element)\n        result.append(item)\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1967,
+        "task_id": 251
+      },
+      {
+        "id": 456,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 60
+      },
+      {
+        "id": 457,
+        "pred": "def is_sublist(main_list, sublist):\n    return any(main_list[i:i+len(sublist)] == sublist for i in range(len(main_list) - len(sublist) + 1))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2488,
+        "task_id": 69
+      },
+      {
+        "id": 458,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 198
+      },
+      {
+        "id": 459,
+        "pred": "   import math\n   def haversine(lat1, lon1, lat2, lon2):\n       R = 6371.0\n       dlat = math.radians(lat2 - lat1)\n       dlon = math.radians(lon2 - lon1)\n       a = math.sin(dlat/2)**2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon/2)**2\n       c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))\n       return R * c\n   ",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 180
+      },
+      {
+        "id": 460,
+        "pred": "def last_Digit(n):\n    return n % 10",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 863,
+        "task_id": 435
+      },
+      {
+        "id": 461,
+        "pred": "def add_K_element(tuples_list, k):\n    return [(x + k for x in tuple) for tuple in tuples_list]",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 363
+      },
+      {
+        "id": 462,
+        "pred": "def extract_symmetric(tuples_list):\n    tuple_set = set(tuples_list)\n    return {(a, b) for a, b in tuple_set if (b, a) in tuple_set and a < b}",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3781,
+        "task_id": 490
+      },
+      {
+        "id": 463,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 328
+      },
+      {
+        "id": 464,
+        "pred": "def is_num_decagonal(n):\n    return n * (4 * n - 3)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2231,
+        "task_id": 279
+      },
+      {
+        "id": 465,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 218
+      },
+      {
+        "id": 466,
+        "pred": "import cmath\n\ndef convert(z):\n    return cmath.polar(z)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1840,
+        "task_id": 252
+      },
+      {
+        "id": 467,
+        "pred": "def max_aggregate(tuples_list):\n    aggregates = {}\n    for name, value in tuples_list:\n        aggregates[name] = aggregates.get(name, 0) + value\n    max_name = max(aggregates, key=aggregates.get)\n    return (max_name, aggregates[max_name])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1885,
+        "task_id": 299
+      },
+      {
+        "id": 468,
+        "pred": "def bell_number(n):\n    if n == 0:\n        return 1\n    row = [1]\n    for i in range(1, n + 1):\n        new_row = [row[-1]]\n        for j in range(1, i + 1):\n            new_row.append(new_row[-1] + row[-1])\n        row = new_row\n    return row[0]",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 3962,
+        "task_id": 67
+      },
+      {
+        "id": 469,
+        "pred": "def pos_nos(lst):\n    return tuple(x for x in lst if x > 0)",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 1233,
+        "task_id": 313
+      },
+      {
+        "id": 470,
+        "pred": "def get_Min_Squares(n):\n    if int(n**0.5) ** 2 == n:\n        return 1\n    for i in range(int(n**0.5) + 1):\n        if int((n - i**2)**0.5) ** 2 == n - i**2:\n            return 2\n    temp = n\n    while temp % 4 == 0:\n        temp //= 4\n    if temp % 8 == 7:\n        return 4\n    return 3",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 325
+      },
+      {
+        "id": 471,
+        "pred": "def all_unique(lst):\n    return len(lst) == len(set(lst))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 935,
+        "task_id": 281
+      },
+      {
+        "id": 472,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 84
+      },
+      {
+        "id": 473,
+        "pred": "def check_greater(arr, num):\n    if num > max(arr):\n        return 'Yes, the entered number is greater than those in the array'\n    else:\n        return 'No, entered number is less than those in the array'",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1598,
+        "task_id": 433
+      },
+      {
+        "id": 474,
+        "pred": "def even_binomial_Coeff_Sum(n):\n    return 2**(n - 1)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1763,
+        "task_id": 274
+      },
+      {
+        "id": 475,
+        "pred": "def concatenate_elements(lst):\n    return '  ' + ' '.join(lst)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1830,
+        "task_id": 500
+      },
+      {
+        "id": 476,
+        "pred": "def sum(a, b):\n    import math\n    gcd = math.gcd(a, b)\n    total = 0\n    for i in range(1, gcd + 1):\n        if gcd % i == 0:\n            total += i\n    return total",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1805,
+        "task_id": 126
+      },
+      {
+        "id": 477,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": 298
+      },
+      {
+        "id": 478,
+        "pred": "def remove_even(s):\n    return s[::2]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1556,
+        "task_id": 202
+      },
+      {
+        "id": 479,
+        "pred": "def empty_dit(data):\n    if isinstance(data, list):\n        return all(len(item) == 0 for item in data)\n    else:\n        return len(data) == 0",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3149,
+        "task_id": 115
+      },
+      {
+        "id": 480,
+        "pred": "def longest_common_subsequence(seq1, seq2, len1, len2):\n    dp = [[0] * (len2 + 1) for _ in range(len1 + 1)]\n    for i in range(1, len1 + 1):\n        for j in range(1, len2 + 1):\n            if seq1[i - 1] == seq2[j - 1]:\n                dp[i][j] = dp[i - 1][j - 1] + 1\n            else:\n                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])\n    return dp[len1][len2]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2190,
+        "task_id": 187
+      },
+      {
+        "id": 481,
+        "pred": "import math\n\ndef count_Odd_Squares(start, end):\n    return math.isqrt(end) - math.isqrt(start - 1)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3765,
+        "task_id": 344
+      },
+      {
+        "id": 482,
+        "pred": "def dig_let(s):\n    return (sum(c.isalpha() for c in s), sum(c.isdigit() for c in s))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2243,
+        "task_id": 343
+      },
+      {
+        "id": 483,
+        "pred": "def remove_dirty_chars(s1, s2):\n    chars_to_remove = set(s2)\n    return ''.join(c for c in s1 if c not in chars_to_remove)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1471,
+        "task_id": 18
+      },
+      {
+        "id": 484,
+        "pred": "def rectangle_area(width, height):\n    return width * height",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 286,
+        "task_id": 458
+      },
+      {
+        "id": 485,
+        "pred": "def max_occurrences(lst):\n    counts = {}\n    for item in lst:\n        counts[item] = counts.get(item, 0) + 1\n    max_count = max(counts.values())\n    return tuple(item for item, count in counts.items() if count == max_count)",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 2532,
+        "task_id": 362
+      },
+      {
+        "id": 486,
+        "pred": "def tetrahedral_number(n):\n    return n * (n + 1) * (n + 2) / 6",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1372,
+        "task_id": 80
+      },
+      {
+        "id": 487,
+        "pred": "def multi_list(m, n):\n    return [[i * j for j in range(n)] for i in range(m)]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2552,
+        "task_id": 380
+      },
+      {
+        "id": 488,
+        "pred": "def is_Sum_Of_Powers_Of_Two(n):\n    return n % 2 == 0",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1350,
+        "task_id": 138
+      },
+      {
+        "id": 489,
+        "pred": "def highest_Power_of_2(n):\n    power = 1\n    while power * 2 <= n:\n        power *= 2\n    return power",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2258,
+        "task_id": 388
+      },
+      {
+        "id": 490,
+        "pred": "def closest_num(n):\n    return n - 1",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 441,
+        "task_id": 89
+      },
+      {
+        "id": 491,
+        "pred": "def reverse_vowels(s):\n    vowels = set('aeiouAEIOU')\n    vowel_list = [c for c in s if c in vowels]\n    reversed_vowels = vowel_list[::-1]\n    result = []\n    idx = 0\n    for c in s:\n        if c in vowels:\n            result.append(reversed_vowels[idx])\n            idx += 1\n        else:\n            result.append(c)\n    return ''.join(result)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2006,
+        "task_id": 131
+      },
+      {
+        "id": 492,
+        "pred": "def most_occurrences(strings):\n    word_counts = {}\n    for s in strings:\n        for word in s.split():\n            word_counts[word] = word_counts.get(word, 0) + 1\n    return max(word_counts, key=word_counts.get)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2105,
+        "task_id": 326
+      },
+      {
+        "id": 493,
+        "pred": "def check_Triangle(x1, y1, x2, y2, x3, y3):\n    area = abs(x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2))\n    return 'Yes' if area > 0 else 'No'",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2013,
+        "task_id": 449
+      },
+      {
+        "id": 494,
+        "pred": "from collections import Counter\n\ndef freq_element(list_of_lists):\n    return dict(Counter(item for sublist in list_of_lists for item in sublist))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1312,
+        "task_id": 40
+      },
+      {
+        "id": 495,
+        "pred": "def neg_nos(lst):\n    return tuple(x for x in lst if x < 0)",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 1266,
+        "task_id": 436
+      },
+      {
+        "id": 496,
+        "pred": "def first(arr, target, n):\n    left = 0\n    right = n - 1\n    while left <= right:\n        mid = (left + right) // 2\n        if arr[mid] == target:\n            right = mid - 1\n        elif arr[mid] < target:\n            left = mid + 1\n        else:\n            right = mid - 1\n    return left",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3278,
+        "task_id": 195
+      },
+      {
+        "id": 497,
+        "pred": "import math\n\ndef count_binary_seq(n):\n    return math.comb(2 * n, n)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2258,
+        "task_id": 300
+      },
+      {
+        "id": 498,
+        "pred": "def replace_char(string, old_char, new_char):\n    return string.replace(old_char, new_char)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1121,
+        "task_id": 474
+      },
+      {
+        "id": 499,
+        "pred": "def add_lists(lst, tup):\n    return tup + tuple(lst)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1222,
+        "task_id": 106
+      }
+    ]
+  }
+}

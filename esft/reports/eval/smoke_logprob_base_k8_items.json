@@ -1,0 +1,287 @@
+{
+  "_meta": {
+    "model": "base",
+    "model_path": "~/.cache/huggingface/hub/models--Qwen--Qwen3.6-35B-A3B/snapshots/995ad96eacd98c81ed38be0c5b274b04031597b0",
+    "patch": null,
+    "topk": 8,
+    "benchmarks": [
+      "mmlu",
+      "gsm8k"
+    ],
+    "n_per_benchmark": 16,
+    "batch_size": 4,
+    "max_new": 1024,
+    "seed": 0,
+    "shuffle": false,
+    "gpus": [
+      0,
+      1
+    ],
+    "no_think": true,
+    "choice_logprob": true,
+    "split": "first-N",
+    "note": "reasoning model; per-benchmark max_new may truncate <think>"
+  },
+  "items": {
+    "mmlu": [
+      {
+        "id": 0,
+        "pred": "C",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 1,
+        "pred": "A",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 2,
+        "pred": "A",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 3,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 4,
+        "pred": "C",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 5,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 6,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 7,
+        "pred": "C",
+        "gold": "D",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 8,
+        "pred": "B",
+        "gold": "B",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 9,
+        "pred": "B",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 10,
+        "pred": "A",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 11,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 12,
+        "pred": "A",
+        "gold": "A",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 13,
+        "pred": "B",
+        "gold": "C",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 14,
+        "pred": "C",
+        "gold": "C",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 0
+      },
+      {
+        "id": 15,
+        "pred": "C",
+        "gold": "B",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 0
+      }
+    ],
+    "gsm8k": [
+      {
+        "id": 0,
+        "pred": "18",
+        "gold": "18",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 246
+      },
+      {
+        "id": 1,
+        "pred": "3",
+        "gold": "3",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 144
+      },
+      {
+        "id": 2,
+        "pred": "70000",
+        "gold": "70000",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 624
+      },
+      {
+        "id": 3,
+        "pred": "540",
+        "gold": "540",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 166
+      },
+      {
+        "id": 4,
+        "pred": "20",
+        "gold": "20",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 303
+      },
+      {
+        "id": 5,
+        "pred": "16",
+        "gold": "64",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 437
+      },
+      {
+        "id": 6,
+        "pred": "260",
+        "gold": "260",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 222
+      },
+      {
+        "id": 7,
+        "pred": "40",
+        "gold": "160",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 544
+      },
+      {
+        "id": 8,
+        "pred": "45",
+        "gold": "45",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 692
+      },
+      {
+        "id": 9,
+        "pred": "460",
+        "gold": "460",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 410
+      },
+      {
+        "id": 10,
+        "pred": "366",
+        "gold": "366",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 408
+      },
+      {
+        "id": 11,
+        "pred": "694",
+        "gold": "694",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 316
+      },
+      {
+        "id": 12,
+        "pred": "12",
+        "gold": "13",
+        "correct": false,
+        "truncated": false,
+        "gen_len": 563
+      },
+      {
+        "id": 13,
+        "pred": "18",
+        "gold": "18",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 669
+      },
+      {
+        "id": 14,
+        "pred": "60",
+        "gold": "60",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 507
+      },
+      {
+        "id": 15,
+        "pred": "125",
+        "gold": "125",
+        "correct": true,
+        "truncated": false,
+        "gen_len": 371
+      }
+    ]
+  }
+}

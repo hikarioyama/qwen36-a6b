@@ -1,0 +1,39 @@
+{
+  "_meta": {
+    "model": "patched",
+    "model_path": "~/.cache/huggingface/hub/models--Qwen--Qwen3.6-35B-A3B/snapshots/995ad96eacd98c81ed38be0c5b274b04031597b0",
+    "patch": "~/esft-patches/expert_patch.safetensors",
+    "topk": 32,
+    "benchmarks": [
+      "mmlu"
+    ],
+    "n_per_benchmark": 16,
+    "batch_size": 4,
+    "max_new": 6144,
+    "seed": 0,
+    "shuffle": false,
+    "gpus": [
+      0,
+      1
+    ],
+    "split": "first-N",
+    "note": "reasoning model; per-benchmark max_new may truncate <think>"
+  },
+  "results": {
+    "mmlu": {
+      "model": "patched",
+      "topk": 32,
+      "benchmark": "mmlu",
+      "n": 16,
+      "acc": 0.625,
+      "ci95": 0.2372,
+      "correct": 10,
+      "truncated_n": 9,
+      "gen_tokens": 79823,
+      "tok_s": 44.7,
+      "tok_s_parallel": 86.72,
+      "gen_time_sum_s": 1785.7,
+      "max_new": 6144
+    }
+  }
+}

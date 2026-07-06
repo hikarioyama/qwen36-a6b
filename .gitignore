@@ -1,0 +1,12 @@
+# 訓練データ・生成物(大容量、記録は DEVLOG とレポートで残す)
+esft/data/
+esft/rl/data/
+esft/rl/probe_out/
+esft/rl/rollouts/
+esft/vendor/
+__pycache__/
+*.pyc
+*.safetensors
+*.pt
+*.gguf
+*.log
