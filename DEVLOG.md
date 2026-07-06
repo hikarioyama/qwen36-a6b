@@ -82,7 +82,15 @@
 - 裁可: system_prompt 非注入(Llama-Nemotron 制御トークンは Qwen に異物)/ reasoning on-off 両保持 + `<think>` verbatim / 加算 merge(415.9M→427.9M)。
 - **honest note**: knowledge レーンは MMLU-style 科学多肢選択。decontam は exact/13gram/containment のみで **paraphrase レベルの近似は構造上スコープ外**(コーパス全体に共通の既知限界)。embedding-sim 硬化を追加するかはユーザ裁定待ち。
 
-### 走行中(2026-07-07 06:00 JST)
-- aux-host: mixed_v1 訓練 step ~560/3150(78.8s/it、loss 0.462、eval_loss 0.4877@300)
-- ローカル: k sweep(base@k16/k24 intel)起動 — k vs 賢さカーブで「k=32 は最適か / 文献の 2-3× スイートスポットが存在するか」を検証
-- aux-host CPU: mixed_v2 merge(corpusv2 agent、pack 前で停止)
+### gpu-host 8-GPU: mixed_v2 p0.2 本走 起動(2026-07-07 07:00 JST)
+- **probe8 で p0.2(833 experts、trainable 2.62B)が 96GB/GPU に収まることを実測**(aux-host では幽霊リークで不可だった)。8-rank NCCL 正常、**21.6 s/step**(aux-host 2-GPU 78.8 の 3.65倍)。
+- **転送の壁と大技**: aux-host→どこでも 0.9 MB/s(borrowed 機の住宅回線 上り≈7Mbps、tailscale は direct で relay ではない=物理限界)。mixed_v2 生 4.2GB を送ると 78分。**回避 = mixed_v2 の 99%(v1 部分)は既に gpu-host に packed cache で存在**。新規は replay 2レーン 54MB だけ → それだけ zstd 転送(31秒)→ gpu-host で pack(7929rec→1440 blocks、6秒)→ 既存 v1 cache と torch.cat → mixed_v2 cache(59468 blocks、supervised 62.3%、manifest 整合)。**4.15GB の転送を回避**。
+- 起動: 8-GPU DDP、seq7168 / fused-CE(FLCE)/ Adafactor / ga2 / p0.2 config / 3150 step / save300。全GPU 94-100%・90.5GB。ETA ~19h。runs/mixed_v2_esft_k32_p02。
+- **これで aux-host(p0.18/v1、55h)と gpu-host(p0.2/v2、19h)の2本が並走** = expert 予算(0.18 vs 0.2)× corpus(replay 有無)の best-shot アーム。build-the-best 方針で、最終は base@k8 比で判定。
+- 運用教訓: 転送チェーンを2本同時に走らせて aux-host 回線を食い合い共倒れ + audit 起動 ssh の `&` が返らずスクリプトがハング → 両方 kill して単一目的の綺麗な転送に。**細い共有リンクでは転送は直列化・単一責務に**。
+
+### 走行中(2026-07-07 07:00 JST)
+- gpu-host: mixed_v2 p0.2 本走 8-GPU(上記、step 0→、ETA 19h)
+- aux-host: mixed_v1 p0.18 本走 step ~600/3150(corpusv2 解放で CPU 競合解消、78s/it に復帰見込み)
+- ローカル: k sweep(k24 測定中、k16=MMLU 0.828 確認済)
+- 保留: layer1 domain別 NLL(ckpt300/600、転送競合で中断→gpu-host 本走後に再開)
