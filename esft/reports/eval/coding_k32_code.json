@@ -37,6 +37,21 @@
       "tok_s_parallel": 72.51,
       "gen_time_sum_s": 874.1,
       "max_new": 4096
+    },
+    "mbpp": {
+      "model": "patched",
+      "topk": 32,
+      "benchmark": "mbpp",
+      "n": 500,
+      "acc": 0.718,
+      "ci95": 0.0394,
+      "correct": 359,
+      "truncated_n": 0,
+      "gen_tokens": 137177,
+      "tok_s": 34.03,
+      "tok_s_parallel": 64.26,
+      "gen_time_sum_s": 4030.8,
+      "max_new": 4096
     }
   }
 }

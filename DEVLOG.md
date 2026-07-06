@@ -49,14 +49,19 @@
 
 ## 2026-07-07 — eval matrix 完成間近・k8>k32 問題・coding patch の死・文献検証
 
-### eval matrix(n=600 intel / 164 HE / 500 MBPP、paired McNemar)
+### eval matrix 完成(n=600 intel / 164 HE / 500 MBPP、paired McNemar)
 
 | アーム | MMLU | GSM8K | HumanEval | MBPP |
 |---|---|---|---|---|
-| base@k8 | **0.8433** | **0.8933** | 0.866 | (走行中) |
-| base@k32 | 0.8067 | 0.8650 | 0.841 | 0.798 |
-| patch(agentic)@k32 | 0.8133 | 0.8850 | **0.9024** | 0.828 |
-| coding特化@k32 | 0.805 | 0.820 | 0.762 | (走行中) |
+| base@k8 | **0.843** | **0.893** | 0.866 | 0.866 |
+| base@k32 | 0.807 | 0.865 | 0.841 | 0.792 |
+| patch(agentic)@k32 | 0.813 | 0.885 | **0.902** | 0.828 |
+| coding特化@k32 | 0.805 | 0.820 | 0.762 | 0.718 |
+
+**base@k8 比 paired McNemar(北極星は「base@k8 に有意勝ち」)**:
+- patch@k32 vs base@k8: MMLU −3.0(p=.010 **負け**)/ GSM8K −0.8(p=.49 **引分**)/ HumanEval +3.7(p=.31 **引分**)/ MBPP −3.8(p=.027 **負け**)
+- **正直な現在地: agentic patch はまだ base@k8 に有意勝ちしたベンチが1つも無い**(2引分・2負け)。これまでの「勝ち」は全て vs base@k32(naive)相手。base@k8 超えは混合訓練(走行中)+ INC-0/GRPO の宿題。
+- coding特化@k32 は全ベンチで base@k8 に有意負け(MBPP −14.8pt)。ドメイン特化 patch 路線の死を再確認。
 
 - **発見1: naive k32 は知識系を実劣化させる**(MMLU −3.7pt / GSM8K −2.8pt vs k8)。agentic patch は部分回復(GSM8K p=.029 有意、vs base@k32)+ HumanEval で有意勝ち(p=.041 vs base@k32)。**複雑タスクほど転移**。
 - **発見2: coding 特化 patch は全面失敗**。GSM8K 0.820(base@k32 にすら p=.002 有意負け)、HumanEval 0.762(agentic patch に p=.0001 大敗)。**機構 = 生成長の転写**: median 186 tok(base 2588 / agentic patch 1064)で reasoning が焼き殺された。静的コード 111k の「問題→即答」形式がスタイルごと転写された。**教訓: SFT は能力より先に振る舞いを書き換える。ドメイン特化 patch 路線は死、混合+agentic が本線。**
@@ -71,7 +76,13 @@
 
 選択基準(上から順に): ①律速工程に最強リソース、律速外に gpu-host を使わない ②役割表を破る時は理由を DEVLOG に書く ③重い run の前に必ず安いゲート(INC-0 原則)④1 GPU 1 ジョブ・訓練同居禁止・**空き GPU を埋めるための仕事は作らない**(遊休には安く独立な保険仕事のみ)⑤同格なら「早く次の判断をくれる」実験を優先 ⑥起動権限 main 一本化・借り物の作法。
 
+### corpus v2 replay レーン(2026-07-07、検証合格)
+- Nemotron-Post-Training の chat/science split から replay レーン2本: general 8.0M tok(5,790 recs)+ knowledge 4.0M tok(2,139 recs)= mixed_v1 の 2.89%。文献の 1-5% band 内。
+- **Fable 独立検証**(agent 自己申告を裏取り): decontam.py audit 再走で両レーン residual 0、JP≥10=0、スキーマ純度 100%。生成長 median general 4.5k / knowledge 5.2k 字 = coding patch を焼き殺した即答186tok の真逆で、reasoning-heavy な振る舞いを補強する側。
+- 裁可: system_prompt 非注入(Llama-Nemotron 制御トークンは Qwen に異物)/ reasoning on-off 両保持 + `<think>` verbatim / 加算 merge(415.9M→427.9M)。
+- **honest note**: knowledge レーンは MMLU-style 科学多肢選択。decontam は exact/13gram/containment のみで **paraphrase レベルの近似は構造上スコープ外**(コーパス全体に共通の既知限界)。embedding-sim 硬化を追加するかはユーザ裁定待ち。
+
 ### 走行中(2026-07-07 06:00 JST)
 - aux-host: mixed_v1 訓練 step ~560/3150(78.8s/it、loss 0.462、eval_loss 0.4877@300)
-- ローカル: eval matrix 最終アーム(coding_k32 MBPP)
-- corpus v2 replay レーン構築(Opus agent、merge 前に Fable 検証で停止)
+- ローカル: k sweep(base@k16/k24 intel)起動 — k vs 賢さカーブで「k=32 は最適か / 文献の 2-3× スイートスポットが存在するか」を検証
+- aux-host CPU: mixed_v2 merge(corpusv2 agent、pack 前で停止)
