@@ -89,6 +89,15 @@
 - **これで aux-host(p0.18/v1、55h)と gpu-host(p0.2/v2、19h)の2本が並走** = expert 予算(0.18 vs 0.2)× corpus(replay 有無)の best-shot アーム。build-the-best 方針で、最終は base@k8 比で判定。
 - 運用教訓: 転送チェーンを2本同時に走らせて aux-host 回線を食い合い共倒れ + audit 起動 ssh の `&` が返らずスクリプトがハング → 両方 kill して単一目的の綺麗な転送に。**細い共有リンクでは転送は直列化・単一責務に**。
 
+### Terminal-Bench 北極星ベースラインのハーネス修理(2026-07-07)
+前セッションの base_k8 TB run が「0/24 solved + 12 error」で放置されていたが、解剖したら**有効な測定ですらなかった**。系統的にバグを剥がした:
+1. **12「エラー」= SIGTERM キャンセル**(exception.txt が `_handle_sigterm→KeyboardInterrupt`)。前回セッションが run を kill しただけ、`finished_at: null` の未完。0/24 は幻。
+2. **port 18000 = 前セッションの死んだ SSH トンネル**(aux-host:8000 宛、今は訓練中で無応答)。ローカル serve は 8001 → ハーネスを 8001 直叩きに変更。
+3. **NotFoundError = モデル名不一致**(local serve `qwen36a3b` vs ハーネス `Qwen3.6-35B-A3B`)。serve を `--served-model-name Qwen3.6-35B-A3B` に統一。
+4. **RuntimeError = Docker イメージ pull の transient reset**(IPv6 経路で大レイヤが `connection reset`)。ubuntu:22.04 が retry で通ることを確認 → transient と判定、再走で通過。
+5. **AgentTimeoutError = モデルが遅いだけ**。trajectory 精査で **base@k8 は実際に賢く駆動していた**(llm-inference タスクで 174 step / 20 コマンドバッチ、ファイル読み→Python 実行→baseline_packer 解析まで到達)。reasoning 重めで default timeout に間に合わず。→ `--agent-timeout-multiplier 3.0` で完全ベースライン起動。
+**教訓: 「0/24」を「モデルが弱い」と読まず解剖したのが正解**(memory の「壊れると『モデル弱い』と誤読」警告どおり)。ハーネスは生きていた。runs: base_k8_full(89タスク、n_conc4、timeout 3x、夜間)。serve=serve_bf16.sh 8(TP2、8001、Qwen3.6-35B-A3B)。
+
 ### 走行中(2026-07-07 07:00 JST)
 - gpu-host: mixed_v2 p0.2 本走 8-GPU(上記、step 0→、ETA 19h)
 - aux-host: mixed_v1 p0.18 本走 step ~600/3150(corpusv2 解放で CPU 競合解消、78s/it に復帰見込み)
