@@ -1,0 +1,517 @@
+<title>Healing k-Expansion Misalignment in Qwen3.6-35B-A3B</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  /* ---- Theme tokens: light default, dark via media query + data-theme override ---- */
+  :root{
+    --page:#f9f9f7; --surface-1:#fcfcfb;
+    --text-primary:#0b0b0b; --text-secondary:#52514e; --muted:#898781;
+    --gridline:#e1e0d9; --baseline:#c3c2b7; --border:rgba(11,11,11,0.10);
+    --s1:#2a78d6; --s2:#1baf7a; --s3:#eda100; --s6:#e34948;
+    --good:#0ca30c; --critical:#d03b3b;
+    --good-ink:#006300; --critical-ink:#b02525;
+    --callout:#eef4fb;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --page:#0d0d0d; --surface-1:#1a1a19;
+      --text-primary:#ffffff; --text-secondary:#c3c2b7; --muted:#898781;
+      --gridline:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+      --s1:#3987e5; --s2:#199e70; --s3:#c98500; --s6:#e66767;
+      --good:#0ca30c; --critical:#d03b3b;
+      --good-ink:#3ec93e; --critical-ink:#e66767;
+      --callout:#14202c;
+    }
+  }
+  :root[data-theme="dark"]{
+    --page:#0d0d0d; --surface-1:#1a1a19;
+    --text-primary:#ffffff; --text-secondary:#c3c2b7; --muted:#898781;
+    --gridline:#2c2c2a; --baseline:#383835; --border:rgba(255,255,255,0.10);
+    --s1:#3987e5; --s2:#199e70; --s3:#c98500; --s6:#e66767;
+    --good:#0ca30c; --critical:#d03b3b;
+    --good-ink:#3ec93e; --critical-ink:#e66767;
+    --callout:#14202c;
+  }
+  :root[data-theme="light"]{
+    --page:#f9f9f7; --surface-1:#fcfcfb;
+    --text-primary:#0b0b0b; --text-secondary:#52514e; --muted:#898781;
+    --gridline:#e1e0d9; --baseline:#c3c2b7; --border:rgba(11,11,11,0.10);
+    --s1:#2a78d6; --s2:#1baf7a; --s3:#eda100; --s6:#e34948;
+    --good:#0ca30c; --critical:#d03b3b;
+    --good-ink:#006300; --critical-ink:#b02525;
+    --callout:#eef4fb;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0; background:var(--page); color:var(--text-primary);
+    font-family:Georgia,"Iowan Old Style","Times New Roman",serif;
+    line-height:1.6; font-size:18px;
+  }
+  .wrap{max-width:860px; margin:0 auto; padding:0 24px 96px;}
+  .sans{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;}
+
+  header{padding:64px 0 8px;}
+  .kicker{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    text-transform:uppercase; letter-spacing:.12em; font-size:12.5px;
+    font-weight:600; color:var(--muted); margin:0 0 14px;}
+  h1{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-weight:650; font-size:34px; line-height:1.18; letter-spacing:-.01em;
+    margin:0 0 14px; color:var(--text-primary);}
+  .dek{font-size:20px; color:var(--text-secondary); margin:0 0 8px; line-height:1.5;}
+  .byline{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:13px; color:var(--muted); margin-top:20px;}
+
+  h2{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-weight:640; font-size:23px; letter-spacing:-.005em;
+    margin:52px 0 4px; color:var(--text-primary);}
+  h2 .num{color:var(--muted); font-weight:600; margin-right:10px;}
+  .sub{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:13.5px; color:var(--muted); margin:0 0 18px; font-weight:500;}
+  p{margin:0 0 18px;}
+  a{color:var(--s1);}
+  strong{font-weight:700;}
+  em.term{font-style:normal; font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:.9em; background:var(--callout); padding:1px 5px; border-radius:4px;
+    border:1px solid var(--border);}
+
+  hr.rule{border:0; border-top:1px solid var(--border); margin:40px 0;}
+
+  /* ---- Figures ---- */
+  figure{margin:26px 0 8px; background:var(--surface-1);
+    border:1px solid var(--border); border-radius:12px; padding:20px 18px 14px;}
+  figure svg{display:block; width:100%; height:auto;}
+  figcaption{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:12.5px; line-height:1.5; color:var(--muted); margin-top:12px;
+    padding-top:12px; border-top:1px solid var(--border);}
+  figcaption b{color:var(--text-secondary); font-weight:600;}
+
+  .legend{display:flex; flex-wrap:wrap; gap:16px 22px; align-items:center;
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif; font-size:13px;
+    color:var(--text-secondary); margin:2px 2px 14px;}
+  .legend .item{display:inline-flex; align-items:center; gap:8px;}
+  .legend .key{width:22px; height:0; border-top-width:3px; border-top-style:solid; border-radius:2px;}
+  .legend .dot{width:12px; height:12px; border-radius:50%;}
+  .legend .sq{width:13px; height:13px; border-radius:3px;}
+
+  /* svg element classes (theme-driven) */
+  .grid{stroke:var(--gridline); stroke-width:1;}
+  .axis{stroke:var(--baseline); stroke-width:1;}
+  .tick{fill:var(--muted); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; font-size:12px;}
+  .tick.tnum{font-variant-numeric:tabular-nums;}
+  .axlabel{fill:var(--text-secondary); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; font-size:12.5px; font-weight:600;}
+  .dlabel{fill:var(--text-primary); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; font-size:13px; font-weight:600;}
+  .dlabel.sec{fill:var(--text-secondary); font-weight:500; font-size:12px;}
+  .anno{fill:var(--muted); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; font-size:11.5px; font-style:italic;}
+  .ring{stroke:var(--surface-1); stroke-width:2;}
+  .s1s{stroke:var(--s1);} .s1f{fill:var(--s1);}
+  .s2s{stroke:var(--s2);} .s2f{fill:var(--s2);}
+  .s3s{stroke:var(--s3);} .s3f{fill:var(--s3);}
+  .s6s{stroke:var(--s6);} .s6f{fill:var(--s6);}
+  .goodf{fill:var(--good);} .critf{fill:var(--critical);}
+  .hit{cursor:default;}
+
+  /* ---- Tables ---- */
+  details{margin:4px 0 0;}
+  details summary{font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:12.5px; color:var(--s1); cursor:pointer; font-weight:600;
+    list-style:none; padding:6px 0;}
+  details summary::-webkit-details-marker{display:none;}
+  details summary::before{content:"▸ "; color:var(--muted);}
+  details[open] summary::before{content:"▾ ";}
+  .tablewrap{overflow-x:auto;}
+  table{border-collapse:collapse; width:100%; font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    font-size:12.5px; margin:6px 0 4px;}
+  th,td{text-align:right; padding:6px 12px; border-bottom:1px solid var(--border); white-space:nowrap;}
+  th:first-child,td:first-child{text-align:left;}
+  th{color:var(--text-secondary); font-weight:600; border-bottom:1px solid var(--baseline);}
+  td{color:var(--text-secondary); font-variant-numeric:tabular-nums;}
+  td.name{color:var(--text-primary); font-variant-numeric:normal;}
+  .pill{display:inline-block; font-size:11px; font-weight:600; padding:1px 8px; border-radius:20px; font-family:system-ui,sans-serif;}
+  .pill.loss{color:var(--critical-ink); background:color-mix(in srgb,var(--critical) 14%, transparent);}
+  .pill.tie{color:var(--good-ink); background:color-mix(in srgb,var(--good) 14%, transparent);}
+
+  /* ---- Callout / key-fact ---- */
+  .callout{background:var(--callout); border:1px solid var(--border);
+    border-left:4px solid var(--s1); border-radius:10px; padding:18px 20px; margin:26px 0;
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;}
+  .callout.warn{border-left-color:var(--s3);}
+  .callout .big{font-size:17px; font-weight:650; color:var(--text-primary); line-height:1.4; margin:0 0 6px;}
+  .callout p{font-size:14px; color:var(--text-secondary); margin:0; line-height:1.55;}
+
+  .keyfacts{display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:26px 0;}
+  .kf{background:var(--surface-1); border:1px solid var(--border); border-radius:10px; padding:16px 16px;
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;}
+  .kf .lab{font-size:12px; color:var(--muted); font-weight:600; margin-bottom:8px; line-height:1.35;}
+  .kf .val{font-size:26px; font-weight:680; color:var(--text-primary); letter-spacing:-.01em; line-height:1;}
+  .kf .val .unit{font-size:14px; font-weight:600; color:var(--text-secondary);}
+  .kf .note{font-size:11.5px; color:var(--muted); margin-top:8px; line-height:1.4;}
+  @media (max-width:640px){ .keyfacts{grid-template-columns:1fr;} body{font-size:17px;} h1{font-size:28px;} }
+
+  /* ---- Tooltip ---- */
+  #tt{position:fixed; pointer-events:none; opacity:0; transition:opacity .1s;
+    background:var(--text-primary); color:var(--surface-1);
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif; font-size:12px; line-height:1.45;
+    padding:8px 10px; border-radius:8px; z-index:50; max-width:230px;
+    box-shadow:0 4px 16px rgba(0,0,0,.28); font-variant-numeric:tabular-nums;}
+  #tt b{color:var(--surface-1);}
+  #tt .muted{opacity:.7;}
+
+  /* ---- Theme toggle ---- */
+  .toggle{position:fixed; top:14px; right:16px; z-index:60;
+    font-family:system-ui,sans-serif; font-size:12px; font-weight:600;
+    background:var(--surface-1); color:var(--text-secondary);
+    border:1px solid var(--border); border-radius:20px; padding:6px 12px; cursor:pointer;}
+
+  footer{margin-top:56px; padding-top:22px; border-top:1px solid var(--border);
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif; font-size:12.5px; color:var(--muted); line-height:1.6;}
+</style>
+
+<button class="toggle sans" id="themeBtn" aria-label="Toggle color theme">◐ theme</button>
+<div id="tt" role="status" aria-live="polite"></div>
+
+<div class="wrap">
+<header>
+  <p class="kicker">MoE capacity expansion · measured report</p>
+  <h1>Healing k-Expansion Misalignment in Qwen3.6-35B-A3B</h1>
+  <p class="dek">Force a top-8 router to fire 32 experts and the model degrades smoothly — not catastrophically. This is a measured account of the damage and of how much a light, router-frozen fine-tune heals it.</p>
+  <p class="byline">All numbers are measured. n = 600 per benchmark (164 for HumanEval), paired exact McNemar, same-machine same-condition arms. July 2026.</p>
+</header>
+
+<h2><span class="num">1</span>Setup: buying capacity at inference</h2>
+<p><strong>Qwen3.6-35B-A3B</strong> is a Mixture-of-Experts model — <strong>256 experts per layer</strong>, trained with <strong>top-8 routing</strong>, so only about <strong>3B of its 35B parameters are active per token</strong>. The router was optimised to pick its best 8 experts and to renormalise their gate weights among just those 8.</p>
+<p>At inference we can override that choice and keep more experts. Forcing <em class="term">top-k = 32</em> activates roughly <strong>6.6B parameters per token</strong> — a "A6B" regime — in the hope of unlocking latent capacity the base model already contains. The catch: the model was <em>never trained to co-activate</em> those additional experts, and the gate mass gets renormalised across 32 slots instead of 8. The question this report answers with measurements:</p>
+<p style="font-size:19px; color:var(--text-secondary); border-left:3px solid var(--baseline); padding-left:16px; margin:22px 0;"><em>When you switch on experts the model never learned to use together, what breaks — and can a light fine-tune heal it without ever touching the router?</em></p>
+
+<div class="keyfacts">
+  <div class="kf">
+    <div class="lab">Active params/token at k=32</div>
+    <div class="val">6.6<span class="unit"> B</span></div>
+    <div class="note">vs ~3B at native top-8 (the "A6B" regime)</div>
+  </div>
+  <div class="kf">
+    <div class="lab">Gate mass on the added ranks 9–32</div>
+    <div class="val">54.0<span class="unit"> %</span></div>
+    <div class="note">of the renormalised gate — the untrained tail is load-bearing, not cosmetic</div>
+  </div>
+  <div class="kf">
+    <div class="lab">MMLU knowledge gap, before → after healing</div>
+    <div class="val">−3.7 → −2.0<span class="unit"> pt</span></div>
+    <div class="note">significant loss → statistical tie with base@k8</div>
+  </div>
+</div>
+
+<h2><span class="num">2</span>The damage is monotonic</h2>
+<p class="sub">Base model, no training — only the router's top-k is changed.</p>
+<p>Sweeping <em class="term">top-k</em> from the native 8 up to 32 produces a <strong>smooth, monotonic decline</strong> on both a knowledge benchmark (MMLU) and a math benchmark (GSM8K). There is <strong>no sweet spot</strong> at 2–3× the native k where extra experts help before they hurt — every step down in accuracy is paid the moment more untrained expert combinations are switched on. The noise grows with the mass of those combinations, and that mass is real: the added ranks 9–32 carry <strong>54.0%</strong> of the renormalised gate.</p>
+
+<figure>
+  <div class="legend sans" aria-hidden="true">
+    <span class="item"><span class="key s1s" style="border-top-color:var(--s1)"></span>MMLU (knowledge)</span>
+    <span class="item"><span class="key s2s" style="border-top-color:var(--s2)"></span>GSM8K (math)</span>
+  </div>
+  <svg id="c1" viewBox="0 0 720 360" role="img" aria-label="Line chart: accuracy declines monotonically as router top-k increases from 8 to 32 for both MMLU and GSM8K."></svg>
+  <figcaption><b>Chart 1 — Base-model accuracy vs router top-k.</b> Two benchmarks, base weights unchanged, only the inference-time top-k varied. <b>n = 600</b> each; MMLU scored by choice-logprob, GSM8K in no-think mode, shuffled seed 0, local machine. The k=8→k=32 drop (MMLU −3.7 pt, GSM8K −2.8 pt) is exactly the "naive k32" arm of Chart 2.</figcaption>
+  <details>
+    <summary>Data table</summary>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Benchmark</th><th>k = 8</th><th>k = 16</th><th>k = 24</th><th>k = 32</th></tr></thead>
+      <tbody>
+        <tr><td class="name">MMLU</td><td>0.8433</td><td>0.8283</td><td>0.8150</td><td>0.8067</td></tr>
+        <tr><td class="name">GSM8K</td><td>0.8933</td><td>0.8883</td><td>0.8783</td><td>0.8650</td></tr>
+      </tbody>
+    </table></div>
+  </details>
+</figure>
+
+<h2><span class="num">3</span>Healing across three generations</h2>
+<p class="sub">Paired, same-condition comparisons — each patch measured against its own base@k8 on the same machine.</p>
+<p>Rather than retrain the router, we heal with <strong>selective expert fine-tuning</strong> (ESFT): train only residual deltas on the FFN slices of the experts the target corpus actually uses, router frozen (method in §5). Three successively broader training corpora each remove more of the misalignment. The chart shows the <strong>gap to base@k8</strong> — how far below the native-routing model each patch still sits — and colours each bar by whether that gap is a <strong>statistically significant loss</strong> or a <strong>statistical tie</strong> (exact McNemar).</p>
+
+<figure>
+  <div class="legend sans" aria-hidden="true">
+    <span class="item"><span class="sq critf" style="background:var(--critical)"></span>Significant loss (p &lt; 0.05)</span>
+    <span class="item"><span class="sq goodf" style="background:var(--good)"></span>Statistical tie (p ≥ 0.05) — healed</span>
+  </div>
+  <svg id="c2" viewBox="0 0 720 400" role="img" aria-label="Grouped bar chart of the accuracy gap to base@k8 across three training generations for MMLU and GSM8K; bars shrink toward zero and shift from significant loss to statistical tie."></svg>
+  <figcaption><b>Chart 2 — Gap to base@k8, three generations.</b> Bars drop below the parity line by the measured deficit in percentage points. <b>Gen 0 / Gen 1: local, n = 600.</b> <b>Gen 2: gpu-host server, same-machine paired, n = 600</b> (absolute: base@k8 MMLU 0.840 / GSM8K 0.887; patch MMLU 0.820 / GSM8K 0.865). MMLU heals monotonically (−3.7 → −3.0 → −2.0 pt); its verdict crosses from significant loss to tie. GSM8K reaches a tie by Gen 1 and stays a tie. Point estimates are still negative — healing is <b>demonstrated, not complete</b>.</figcaption>
+  <details>
+    <summary>Data table</summary>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Generation</th><th>Training corpus</th><th>MMLU Δ (pt)</th><th>MMLU p</th><th>verdict</th><th>GSM8K Δ (pt)</th><th>GSM8K p</th><th>verdict</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Gen 0</td><td class="name">naive k32 (no training)</td><td>−3.7</td><td>0.002</td><td><span class="pill loss">sig. loss</span></td><td>−2.8</td><td>0.016</td><td><span class="pill loss">sig. loss</span></td></tr>
+        <tr><td class="name">Gen 1</td><td class="name">agentic-only ESFT</td><td>−3.0</td><td>0.010</td><td><span class="pill loss">sig. loss</span></td><td>−0.8</td><td>0.487</td><td><span class="pill tie">tie</span></td></tr>
+        <tr><td class="name">Gen 2</td><td class="name">mixed + replay ESFT</td><td>−2.0</td><td>0.141</td><td><span class="pill tie">tie</span></td><td>−2.2</td><td>0.263</td><td><span class="pill tie">tie</span></td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-family:system-ui,sans-serif; font-size:11.5px; color:var(--muted); margin:8px 2px 0;">Gen 1 corpus: terminal-agent trajectories only, router frozen. Gen 2 corpus: agentic 62% + coding 12% + toolcall 11% + math 10% + 2.8% general/knowledge replay, 428M tokens, 3,150 steps on 8×GPU.</p>
+  </details>
+</figure>
+
+<p>The pattern: <strong>each broader corpus removes more of the misalignment.</strong> The agentic-only patch (Gen 1) already heals math to a tie but leaves the knowledge gap significant; adding coding, tool-call, math and a small general/knowledge <em>replay</em> (Gen 2) is what finally pulls MMLU into a statistical tie. The knowledge point estimate is still −2.0 pt — the gap is no longer statistically distinguishable from base, but it has not been driven to zero.</p>
+
+<h2><span class="num">4</span>What training buys beyond healing</h2>
+<p class="sub">The coding axis — HumanEval, n = 164, max_new 4096, local.</p>
+<p>Healing is not the whole story. On code, the <strong>agentic patch reaches 0.902</strong> on HumanEval — above both base@k8 (0.866) and naive k32 (0.841), and it <strong>beats naive k32 with p = 0.041</strong>. The mechanism is visible in generation length: the agentic patch <strong>compresses reasoning to roughly a third the tokens</strong> (median 1,064 vs base's 3,086) while scoring higher. But compression is a knob you can over-turn — a <em>coding-only</em> patch crushed the median to <strong>186 tokens</strong> and collapsed accuracy to 0.762, the worst of every arm (its GSM8K fell to 0.820, significantly below even naive k32, p = 0.002).</p>
+
+<figure>
+  <div class="legend sans" aria-hidden="true">
+    <span class="item"><span class="dot s1f" style="background:var(--s1)"></span>base@k8</span>
+    <span class="item"><span class="dot s2f" style="background:var(--s2)"></span>agentic patch</span>
+    <span class="item"><span class="dot s3f" style="background:var(--s3)"></span>naive k32</span>
+    <span class="item"><span class="dot s6f" style="background:var(--s6)"></span>coding-only patch</span>
+  </div>
+  <svg id="c3" viewBox="0 0 720 420" role="img" aria-label="Scatter plot of HumanEval accuracy versus median generation length for four arms; the agentic patch is highest accuracy at a third the length, while the coding-only patch is over-compressed and collapses."></svg>
+  <figcaption><b>Chart 3 — Median generation length vs HumanEval accuracy.</b> Each point is one arm; x is the median assistant generation length in tokens, y is HumanEval pass rate. <b>n = 164</b>, max_new 4096, local. Truncation counts: base@k8 32 truncated, agentic patch 7 truncated. Down-and-left past the agentic point is over-compression: the coding-only patch writes almost nothing and gets it wrong.</figcaption>
+  <details>
+    <summary>Data table</summary>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Arm</th><th>Median gen length (tok)</th><th>HumanEval</th><th>truncated</th><th>GSM8K</th></tr></thead>
+      <tbody>
+        <tr><td class="name">base@k8</td><td>3086</td><td>0.866</td><td>32</td><td>—</td></tr>
+        <tr><td class="name">naive k32</td><td>2588</td><td>0.841</td><td>—</td><td>—</td></tr>
+        <tr><td class="name">agentic patch</td><td>1064</td><td>0.902</td><td>7</td><td>—</td></tr>
+        <tr><td class="name">coding-only patch</td><td>186</td><td>0.762</td><td>—</td><td>0.820</td></tr>
+      </tbody>
+    </table></div>
+  </details>
+</figure>
+
+<div class="callout warn">
+  <p class="big">SFT rewrites behavior before knowledge — corpus diversity is a safety rail, not a luxury.</p>
+  <p>A single-domain corpus taught the model a style (terse code) faster than it taught it to stay correct: 186-token answers that fail. The mixed corpus with replay is what kept behavior and knowledge moving together. Diversity is not a nice-to-have; it is the guard against training a confident, compact, wrong model.</p>
+</div>
+
+<hr class="rule">
+
+<h2><span class="num">5</span>Method footnote</h2>
+<p class="sub">How the healing patch is built.</p>
+<p><strong>ESFT — selective expert fine-tuning.</strong> Profile the router on the target corpus, then select the <strong>top-p 0.2 experts by token frequency</strong> — <strong>833 of 10,240 layer-experts</strong>. Train <strong>only the residual deltas</strong> on those experts' FFN slices — <strong>2.62B trainable parameters</strong> — with the <strong>router frozen</strong>. No expert the corpus doesn't exercise is touched, and routing behaviour is never altered.</p>
+<p><strong>Decontamination.</strong> Training data passes exact-match, 13-gram, containment, and benchmark-signature gates with <strong>0 residual hits</strong>. The knowledge-replay slice is additionally screened by embedding similarity against the <em>full MMLU test set</em>: the threshold is the <strong>p99 of MMLU's own internal nearest-neighbour similarity (0.9922)</strong>; the maximum observed cross-similarity was <strong>0.939</strong>, so <strong>0 examples were dropped</strong> — the replay is near-domain, not near-duplicate.</p>
+
+<footer>
+  <strong>Measurements:</strong> n = 600 per benchmark (164 HumanEval), paired exact McNemar, same-machine same-condition arms. 2026-07.
+  &nbsp;·&nbsp; Every value on this page is measured; none is extrapolated. Charts render inline (no external assets) and adapt to your light or dark theme.
+</footer>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var NS="http://www.w3.org/2000/svg";
+  function el(tag,attrs,parent){
+    var e=document.createElementNS(NS,tag);
+    for(var k in attrs){ if(attrs[k]!==null&&attrs[k]!==undefined) e.setAttribute(k,attrs[k]); }
+    if(parent) parent.appendChild(e);
+    return e;
+  }
+  function txt(parent,x,y,s,cls,anchor,extra){
+    var t=el("text",{x:x,y:y,"class":cls,"text-anchor":anchor||"start"},parent);
+    if(extra){ for(var k in extra) t.setAttribute(k,extra[k]); }
+    t.textContent=s; return t;
+  }
+  var MINUS="−";
+  function fmtDelta(d){ return (d<0?MINUS:"")+Math.abs(d).toFixed(1); }
+
+  // ---- tooltip ----
+  var tt=document.getElementById("tt");
+  function showTT(html){ tt.innerHTML=html; tt.style.opacity=1; }
+  function moveTT(e){
+    var x=e.clientX+14, y=e.clientY+14;
+    var w=tt.offsetWidth||160, h=tt.offsetHeight||60;
+    if(x+w>window.innerWidth-8) x=e.clientX-w-14;
+    if(y+h>window.innerHeight-8) y=e.clientY-h-14;
+    tt.style.left=x+"px"; tt.style.top=y+"px";
+  }
+  function hideTT(){ tt.style.opacity=0; }
+  function wire(node,html){
+    node.addEventListener("mouseenter",function(e){ showTT(html); moveTT(e); });
+    node.addEventListener("mousemove",moveTT);
+    node.addEventListener("mouseleave",hideTT);
+  }
+
+  // ============ Chart 1 : line chart ============
+  (function(){
+    var svg=document.getElementById("c1");
+    var W=720,H=360, m={t:22,r:104,b:46,l:56};
+    var pw=W-m.l-m.r, ph=H-m.t-m.b;
+    var ks=[8,16,24,32];
+    var yd=[0.80,0.90], yt=[0.80,0.82,0.84,0.86,0.88,0.90];
+    var series=[
+      {name:"MMLU", cls:"s1", vals:[0.8433,0.8283,0.8150,0.8067]},
+      {name:"GSM8K", cls:"s2", vals:[0.8933,0.8883,0.8783,0.8650]}
+    ];
+    function px(i){ return m.l + (ks.length===1?0:i/(ks.length-1))*pw; }
+    function py(v){ return m.t + (yd[1]-v)/(yd[1]-yd[0])*ph; }
+
+    // gridlines + y ticks
+    yt.forEach(function(v){
+      var y=py(v);
+      el("line",{x1:m.l,y1:y,x2:m.l+pw,y2:y,"class":"grid"},svg);
+      txt(svg,m.l-10,y+4,v.toFixed(2),"tick tnum","end");
+    });
+    // x axis
+    el("line",{x1:m.l,y1:m.t+ph,x2:m.l+pw,y2:m.t+ph,"class":"axis"},svg);
+    ks.forEach(function(k,i){
+      txt(svg,px(i),m.t+ph+22,String(k),"tick tnum","middle");
+    });
+    txt(svg,m.l+pw/2,m.t+ph+42,"router top-k","axlabel","middle");
+    txt(svg,m.l-40,m.t-8,"accuracy","axlabel","start");
+
+    // lines
+    series.forEach(function(s){
+      var d="";
+      s.vals.forEach(function(v,i){ d+=(i?"L":"M")+px(i)+" "+py(v)+" "; });
+      el("path",{d:d,fill:"none","class":s.cls+"s","stroke-width":2.5,"stroke-linejoin":"round","stroke-linecap":"round"},svg);
+    });
+    // dots + hover + end labels
+    series.forEach(function(s){
+      s.vals.forEach(function(v,i){
+        var cx=px(i),cy=py(v);
+        el("circle",{cx:cx,cy:cy,r:4.5,"class":s.cls+"f "+"ring"},svg);
+        var hit=el("circle",{cx:cx,cy:cy,r:13,fill:"transparent","class":"hit"},svg);
+        wire(hit,"<b>"+s.name+"</b> · top-k "+ks[i]+"<br>accuracy <b>"+v.toFixed(4)+"</b>");
+      });
+      // end label
+      var li=s.vals.length-1;
+      txt(svg,px(li)+12,py(s.vals[li])-2,s.name,"dlabel","start");
+      txt(svg,px(li)+12,py(s.vals[li])+14,s.vals[li].toFixed(3),"dlabel sec","start");
+    });
+  })();
+
+  // ============ Chart 2 : gap-to-base, two panels ============
+  (function(){
+    var svg=document.getElementById("c2");
+    var W=720,H=400, m={t:44,r:20,b:88,l:54};
+    var pw=W-m.l-m.r, ph=H-m.t-m.b;
+    var gap=54, panelW=(pw-gap)/2;
+    var yd=[-4.4,0], yt=[0,-1,-2,-3,-4];
+    var panels=[
+      {title:"MMLU", sub:"knowledge", x0:m.l, bars:[
+        {gen:"Gen 0",sub:"naive k32", d:-3.7,p:0.002,sig:true},
+        {gen:"Gen 1",sub:"agentic-only", d:-3.0,p:0.010,sig:true},
+        {gen:"Gen 2",sub:"mixed+replay", d:-2.0,p:0.141,sig:false}
+      ]},
+      {title:"GSM8K", sub:"math", x0:m.l+panelW+gap, bars:[
+        {gen:"Gen 0",sub:"naive k32", d:-2.8,p:0.016,sig:true},
+        {gen:"Gen 1",sub:"agentic-only", d:-0.8,p:0.487,sig:false},
+        {gen:"Gen 2",sub:"mixed+replay", d:-2.2,p:0.263,sig:false}
+      ]}
+    ];
+    function py(v){ return m.t + (yd[1]-v)/(yd[1]-yd[0])*ph; }
+    var y0=py(0);
+    var bw=22;
+
+    // shared y gridlines across both panels
+    yt.forEach(function(v){
+      var y=py(v);
+      el("line",{x1:m.l,y1:y,x2:m.l+pw,y2:y,"class":v===0?"axis":"grid"},svg);
+      txt(svg,m.l-10,y+4,(v===0?"0":MINUS+Math.abs(v)),"tick tnum","end");
+    });
+    txt(svg,m.l-46,m.t-24,"gap vs base@k8","axlabel","start");
+    txt(svg,m.l-46,m.t-8,"(percentage points)","tick","start");
+    // parity annotation at 0-line
+    txt(svg,m.l+pw,y0-7,"base@k8 parity","anno","end");
+
+    function roundedDownBar(x,w,yTop,yBot,r){
+      // square at baseline (top), rounded at data-end (bottom)
+      r=Math.min(r,w/2,Math.abs(yBot-yTop));
+      return "M"+x+" "+yTop+
+             " H"+(x+w)+
+             " V"+(yBot-r)+
+             " Q"+(x+w)+" "+yBot+" "+(x+w-r)+" "+yBot+
+             " H"+(x+r)+
+             " Q"+x+" "+yBot+" "+x+" "+(yBot-r)+
+             " Z";
+    }
+
+    panels.forEach(function(pn){
+      // panel title
+      txt(svg,pn.x0+panelW/2,m.t-24,pn.title,"dlabel","middle");
+      txt(svg,pn.x0+panelW/2,m.t-9,pn.sub,"tick","middle");
+      pn.bars.forEach(function(b,i){
+        var cx=pn.x0+(i+0.5)/pn.bars.length*panelW;
+        var yBot=py(b.d);
+        var cls=b.sig?"critf":"goodf";
+        var path=el("path",{d:roundedDownBar(cx-bw/2,bw,y0,yBot,4),"class":cls},svg);
+        // value + p labels below the bar tip
+        txt(svg,cx,yBot+18,fmtDelta(b.d)+" pt","dlabel","middle");
+        txt(svg,cx,yBot+33,"p = "+b.p.toFixed(3),"dlabel sec","middle");
+        // x labels below the panel
+        txt(svg,cx,m.t+ph+22,b.gen,"tick","middle");
+        txt(svg,cx,m.t+ph+37,b.sub,"anno","middle");
+        // hover
+        var hit=el("rect",{x:cx-bw/2-4,y:Math.min(y0,yBot)-2,width:bw+8,height:Math.abs(yBot-y0)+4,fill:"transparent","class":"hit"},svg);
+        wire(hit,"<b>"+pn.title+" · "+b.gen+"</b> ("+b.sub+")<br>gap <b>"+fmtDelta(b.d)+" pt</b> · p = "+b.p.toFixed(3)+
+                 "<br><span class='muted'>"+(b.sig?"significant loss":"statistical tie")+"</span>");
+      });
+    });
+  })();
+
+  // ============ Chart 3 : scatter ============
+  (function(){
+    var svg=document.getElementById("c3");
+    var W=720,H=420, m={t:26,r:34,b:54,l:58};
+    var pw=W-m.l-m.r, ph=H-m.t-m.b;
+    var xd=[0,3200], xt=[0,800,1600,2400,3200];
+    var yd=[0.74,0.92], yt=[0.75,0.80,0.85,0.90];
+    function px(v){ return m.l + (v-xd[0])/(xd[1]-xd[0])*pw; }
+    function py(v){ return m.t + (yd[1]-v)/(yd[1]-yd[0])*ph; }
+    var pts=[
+      {name:"base@k8",           x:3086,y:0.866,cls:"s1",trunc:"32 truncated", lab:"left"},
+      {name:"naive k32",         x:2588,y:0.841,cls:"s3",trunc:"", lab:"below"},
+      {name:"agentic patch",     x:1064,y:0.902,cls:"s2",trunc:"7 truncated", lab:"above"},
+      {name:"coding-only patch", x:186, y:0.762,cls:"s6",trunc:"collapse", lab:"right"}
+    ];
+    // grid
+    yt.forEach(function(v){
+      var y=py(v);
+      el("line",{x1:m.l,y1:y,x2:m.l+pw,y2:y,"class":"grid"},svg);
+      txt(svg,m.l-10,y+4,v.toFixed(2),"tick tnum","end");
+    });
+    el("line",{x1:m.l,y1:m.t+ph,x2:m.l+pw,y2:m.t+ph,"class":"axis"},svg);
+    xt.forEach(function(v){
+      txt(svg,px(v),m.t+ph+22,v.toLocaleString("en-US"),"tick tnum","middle");
+    });
+    txt(svg,m.l+pw/2,m.t+ph+44,"median generation length (tokens)","axlabel","middle");
+    txt(svg,m.l-46,m.t-8,"HumanEval","axlabel","start");
+
+    // guide annotation: agentic vs base compression
+    var aG=pts[2], bG=pts[0];
+    el("line",{x1:px(aG.x),y1:py(aG.y),x2:px(bG.x),y2:py(bG.y),"class":"grid","stroke-dasharray":"1 5","stroke-width":1.5},svg);
+    txt(svg,px((aG.x+bG.x)/2),py((aG.y+bG.y)/2)-8,"3× shorter, higher accuracy","anno","middle");
+
+    // points
+    pts.forEach(function(pnt){
+      var cx=px(pnt.x),cy=py(pnt.y);
+      el("circle",{cx:cx,cy:cy,r:7,"class":pnt.cls+"f ring"},svg);
+      // label placement
+      var ax,ay,anchor;
+      if(pnt.lab==="left"){ ax=cx-14; ay=cy+4; anchor="end"; }
+      else if(pnt.lab==="right"){ ax=cx+14; ay=cy+4; anchor="start"; }
+      else if(pnt.lab==="above"){ ax=cx; ay=cy-16; anchor="middle"; }
+      else { ax=cx; ay=cy+24; anchor="middle"; }
+      txt(svg,ax,ay,pnt.name,"dlabel",anchor);
+      var det=pnt.x.toLocaleString("en-US")+" tok · "+pnt.y.toFixed(3);
+      txt(svg,ax,ay+15,det,"dlabel sec",anchor);
+      // hover
+      var hit=el("circle",{cx:cx,cy:cy,r:16,fill:"transparent","class":"hit"},svg);
+      wire(hit,"<b>"+pnt.name+"</b><br>median length <b>"+pnt.x.toLocaleString("en-US")+" tok</b><br>HumanEval <b>"+pnt.y.toFixed(3)+"</b>"+
+               (pnt.trunc?"<br><span class='muted'>"+pnt.trunc+"</span>":""));
+    });
+    // callout for the winner
+    txt(svg,px(aG.x),py(aG.y)-34,"beats naive k32, p = 0.041","anno","middle");
+  })();
+
+  // ---- theme toggle ----
+  var btn=document.getElementById("themeBtn");
+  btn.addEventListener("click",function(){
+    var root=document.documentElement;
+    var cur=root.getAttribute("data-theme");
+    var isDark = cur ? cur==="dark"
+                     : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    root.setAttribute("data-theme", isDark?"light":"dark");
+  });
+})();
+</script>

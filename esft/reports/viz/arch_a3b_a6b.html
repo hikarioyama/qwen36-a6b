@@ -1,0 +1,952 @@
+<title>Qwen3.6-35B-A3B → A6B: Architecture and Tuning</title>
+<style>
+  :root {
+    --bg:#f5f6f8; --surface:#ffffff; --surface-2:#fafbfc;
+    --ink:#1a1e24; --ink-soft:#5a6470; --line:#e0e4ea;
+    --accent:#2f6feb; --accent-soft:#dce8fd;
+    --warn:#c9781a; --warn-soft:#f6e6cd;
+    --good:#1f9d6b; --good-soft:#d6f0e4;
+    --c2:#0f9aa8; --c3:#7a5cf0; --mute:#8a94a1;
+    --cell-off:#ccd2db; --shadow:0 1px 2px rgba(20,30,50,.06),0 6px 20px rgba(20,30,50,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#0d1117; --surface:#161b22; --surface-2:#12161d;
+      --ink:#e6ebf2; --ink-soft:#9aa5b1; --line:#262d38;
+      --accent:#5b9bff; --accent-soft:#182a4c;
+      --warn:#f0a54a; --warn-soft:#3a2e18;
+      --good:#45c98d; --good-soft:#12352a;
+      --c2:#33bcc9; --c3:#9d86f7; --mute:#7d8896;
+      --cell-off:#303845; --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 22px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"] {
+    --bg:#f5f6f8; --surface:#ffffff; --surface-2:#fafbfc;
+    --ink:#1a1e24; --ink-soft:#5a6470; --line:#e0e4ea;
+    --accent:#2f6feb; --accent-soft:#dce8fd;
+    --warn:#c9781a; --warn-soft:#f6e6cd;
+    --good:#1f9d6b; --good-soft:#d6f0e4;
+    --c2:#0f9aa8; --c3:#7a5cf0; --mute:#8a94a1;
+    --cell-off:#ccd2db; --shadow:0 1px 2px rgba(20,30,50,.06),0 6px 20px rgba(20,30,50,.05);
+  }
+  :root[data-theme="dark"] {
+    --bg:#0d1117; --surface:#161b22; --surface-2:#12161d;
+    --ink:#e6ebf2; --ink-soft:#9aa5b1; --line:#262d38;
+    --accent:#5b9bff; --accent-soft:#182a4c;
+    --warn:#f0a54a; --warn-soft:#3a2e18;
+    --good:#45c98d; --good-soft:#12352a;
+    --c2:#33bcc9; --c3:#9d86f7; --mute:#7d8896;
+    --cell-off:#303845; --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 22px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing:border-box; }
+  html,body { margin:0; padding:0; }
+  body {
+    background:var(--bg); color:var(--ink); overflow-x:hidden;
+    font:15px/1.62 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap { max-width:920px; margin:0 auto; padding:34px 22px 80px; }
+  h1 { font-size:26px; line-height:1.25; margin:0 0 6px; letter-spacing:-.01em; }
+  .sub { color:var(--ink-soft); font-size:15px; margin:0 0 14px; max-width:66ch; }
+  .meta { color:var(--ink-soft); font-size:12.5px; margin:0; }
+  .meta code { background:var(--surface); border:1px solid var(--line); border-radius:4px; padding:1px 5px; }
+
+  section { margin-top:38px; }
+  h2 { font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent);
+        margin:0 0 4px; font-weight:700; }
+  h2 + .lead { font-size:19px; font-weight:650; margin:0 0 14px; letter-spacing:-.01em; }
+  p { margin:0 0 12px; }
+  p.note { color:var(--ink-soft); font-size:13.5px; }
+  b, strong { font-weight:650; }
+
+  .card { background:var(--surface); border:1px solid var(--line); border-radius:14px;
+           box-shadow:var(--shadow); padding:18px 20px; }
+  .figwrap { overflow-x:auto; }
+  .figwrap svg { display:block; width:100%; min-width:660px; height:auto; }
+
+  /* SVG theming */
+  .s-header { fill:var(--accent-soft); stroke:var(--accent); stroke-width:1; }
+  .s-box { fill:var(--surface-2); stroke:var(--line); stroke-width:1.2; }
+  .s-router { fill:var(--surface-2); stroke:var(--accent); stroke-width:1.4; }
+  .s-sum { fill:var(--surface-2); stroke:var(--ink-soft); stroke-width:1.2; }
+  .s-shared { fill:var(--good-soft); stroke:var(--good); stroke-width:1.2; }
+  .s-arrow { stroke:var(--ink-soft); stroke-width:1.4; }
+  .s-arrowhead { fill:var(--ink-soft); }
+  .s-divider { stroke:var(--line); stroke-width:1.2; stroke-dasharray:4 5; }
+  .s-annot-bg { fill:var(--bg); }
+  .cell-off { fill:var(--cell-off); }
+  .cell-top8 { fill:var(--accent); }
+  .cell-add { fill:var(--warn); }
+  .t-hdr { fill:var(--ink); font-size:13.5px; font-weight:700; }
+  .t-ttl { fill:var(--ink); font-size:12.5px; font-weight:600; }
+  .t-lbl { fill:var(--ink-soft); font-size:12px; }
+  .t-cap { fill:var(--ink-soft); font-size:11.5px; }
+  .t-shared { fill:var(--good); font-size:11.5px; font-weight:600; }
+  .t-annot { fill:var(--ink-soft); font-size:11.5px; letter-spacing:.02em; }
+  .t-big-a { fill:var(--accent); font-size:21px; font-weight:750; }
+  .t-big-b { fill:var(--warn); font-size:21px; font-weight:750; }
+  text { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; }
+
+  /* legend */
+  .legend { list-style:none; margin:14px 0 0; padding:0; display:flex; flex-wrap:wrap; gap:8px 20px; font-size:13px; }
+  .legend li { display:flex; align-items:center; gap:8px; color:var(--ink-soft); }
+  .legend li b { color:var(--ink); font-weight:600; }
+  .sw { width:14px; height:14px; border-radius:3px; flex:none; border:1px solid rgba(120,130,145,.35); }
+  .sw.top8 { background:var(--accent); }
+  .sw.add { background:var(--warn); }
+  .sw.off { background:var(--cell-off); }
+  .sw.shared { background:var(--good-soft); border-color:var(--good); }
+
+  /* stat tiles */
+  .tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin:16px 0 6px; }
+  .tile { background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px 15px; box-shadow:var(--shadow); }
+  .tile .k { font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); margin:0 0 6px; }
+  .tile .v { font-size:22px; font-weight:700; letter-spacing:-.01em; margin:0; }
+  .tile .d { font-size:12px; color:var(--ink-soft); margin:4px 0 0; }
+  .tile.up .v { color:var(--good); }
+  .tile.watch .v { color:var(--warn); }
+  .tile.neu .v { color:var(--accent); }
+  @media (max-width:620px) { .tiles { grid-template-columns:1fr; } }
+
+  /* pipeline */
+  .pipe { margin-top:6px; }
+  .stage { display:grid; grid-template-columns:44px 1fr; gap:14px; }
+  .stage .rail { display:flex; flex-direction:column; align-items:center; }
+  .badge { width:32px; height:32px; border-radius:50%; background:var(--accent); color:#fff;
+            display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; flex:none; }
+  .stage .conn { flex:1 1 auto; width:2px; background:var(--line); margin:6px 0; min-height:14px; }
+  .stage:last-child .conn { display:none; }
+  .stage .body { padding-bottom:20px; }
+  .stage h3 { font-size:15px; margin:5px 0 4px; }
+  .stage p { font-size:13.5px; color:var(--ink-soft); margin:0 0 6px; }
+  .stage .kv { font-size:12.5px; }
+  .stage .kv b { color:var(--ink); }
+  .pill { display:inline-block; background:var(--accent-soft); color:var(--accent); border-radius:20px;
+           padding:1px 9px; font-size:12px; font-weight:600; margin:2px 4px 2px 0; }
+  .pill.good { background:var(--good-soft); color:var(--good); }
+  .pill.warn { background:var(--warn-soft); color:var(--warn); }
+
+  /* stacked data bar */
+  .bar { display:flex; height:20px; border-radius:6px; overflow:hidden; margin:8px 0 10px; border:1px solid var(--line); }
+  .bar .seg { height:100%; }
+  .mix-legend { list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:4px 16px; font-size:12.5px; color:var(--ink-soft); }
+  .mix-legend li { display:flex; align-items:center; gap:7px; }
+  .mix-legend b { color:var(--ink); font-weight:600; }
+  .dot { width:10px; height:10px; border-radius:3px; flex:none; }
+  .c-accent { background:var(--accent); } .dot.c-accent { background:var(--accent); }
+  .c-c2 { background:var(--c2); } .dot.c-c2 { background:var(--c2); }
+  .c-c3 { background:var(--c3); } .dot.c-c3 { background:var(--c3); }
+  .c-good { background:var(--good); } .dot.c-good { background:var(--good); }
+  .c-warn { background:var(--warn); } .dot.c-warn { background:var(--warn); }
+  .c-mute { background:var(--mute); } .dot.c-mute { background:var(--mute); }
+
+  /* frozen-router callout */
+  .frozen { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-top:4px; }
+  .frozen .f { background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--accent);
+               border-radius:10px; padding:13px 15px; box-shadow:var(--shadow); }
+  .frozen .f h4 { margin:0 0 4px; font-size:13.5px; }
+  .frozen .f p { margin:0; font-size:12.5px; color:var(--ink-soft); }
+  @media (max-width:680px) { .frozen { grid-template-columns:1fr; } }
+
+  /* roadmap strip */
+  .road { display:flex; flex-wrap:wrap; align-items:stretch; gap:10px; margin-top:4px; }
+  .road .step { flex:1 1 190px; background:var(--surface); border:1px solid var(--line); border-radius:11px;
+                 padding:12px 14px; box-shadow:var(--shadow); position:relative; }
+  .road .step .st { font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; font-weight:700; margin:0 0 4px; }
+  .road .step h4 { margin:0 0 3px; font-size:14px; }
+  .road .step p { margin:0; font-size:12px; color:var(--ink-soft); }
+  .road .step.done { border-color:var(--good); } .road .step.done .st { color:var(--good); }
+  .road .step.next { border-color:var(--accent); } .road .step.next .st { color:var(--accent); }
+  .road .step.later .st { color:var(--ink-soft); }
+  .road .step.target { border-color:var(--warn); background:var(--warn-soft); }
+  .road .step.target .st { color:var(--warn); }
+  .road .arrow { align-self:center; color:var(--ink-soft); font-size:18px; flex:0 0 auto; }
+  @media (max-width:680px) { .road .arrow { display:none; } .road .step { flex:1 1 100%; } }
+
+  footer { margin-top:44px; padding-top:16px; border-top:1px solid var(--line);
+            color:var(--ink-soft); font-size:12.5px; }
+
+  /* theme toggle */
+  .toggle { position:fixed; top:14px; right:14px; z-index:9; background:var(--surface);
+             border:1px solid var(--line); color:var(--ink-soft); border-radius:20px;
+             padding:5px 12px; font-size:12px; cursor:pointer; box-shadow:var(--shadow); }
+  .toggle:hover { color:var(--ink); }
+</style>
+
+<button class="toggle" id="tt" aria-label="Toggle color theme">theme</button>
+<div class="wrap">
+
+  <header>
+    <h1>Qwen3.6-35B-A3B &rarr; A6B: Architecture and Tuning</h1>
+    <p class="sub">Doubling the active experts on a frozen 35B checkpoint, then healing the resulting
+       mixture with a residual-delta expert fine-tune. Same weights, wider router.</p>
+    <p class="meta">Base model <code>Qwen3.6-35B-A3B</code> &#183; 40 transformer layers &#183;
+       256 routed experts + 1 shared expert per MoE layer &#183; measured 2026-07</p>
+  </header>
+
+  <!-- ========================= 1. CENTERPIECE ========================= -->
+  <section>
+    <h2>1 &#183; What changes</h2>
+    <p class="lead">The only structural edit is the router's top-k. Everything downstream reacts to it.</p>
+    <div class="card">
+      <div class="figwrap">
+        <svg viewBox="0 0 900 636" role="img" aria-label="Side-by-side MoE routing: stock A3B top-8 versus A6B top-32" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path class="s-arrowhead" d="M0,0 L10,5 L0,10 z"/>
+    </marker>
+  </defs>
+  <rect class="s-header" x="30" y="16" width="380" height="30" rx="8"/>
+<text class="t-hdr" x="220" y="36" text-anchor="middle">Stock A3B — router top-k = 8</text>
+<rect class="s-box" x="145" y="58" width="150" height="28" rx="6"/>
+<text class="t-lbl" x="220" y="76" text-anchor="middle">token hidden state</text>
+<line class="s-arrow" x1="220" y1="86" x2="220" y2="104" marker-end="url(#ah)"/>
+<rect class="s-router" x="50" y="106" width="340" height="48" rx="8"/>
+<text class="t-ttl" x="220" y="126" text-anchor="middle">Router — softmax over 256 experts (fp32)</text>
+<text class="t-lbl" x="220" y="144" text-anchor="middle">→ keep top-8 → renormalize</text>
+<line class="s-arrow" x1="220" y1="154" x2="220" y2="172" marker-end="url(#ah)"/>
+<rect class="cell-off" x="77" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="95" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="113" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="131" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="149" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="167" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="185" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="203" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="221" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="239" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="257" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="275" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="293" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="311" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="329" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="347" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="77" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="95" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="113" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-top8" x="131" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="149" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="167" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="185" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="203" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="221" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="239" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="257" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="275" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="293" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="311" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="329" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="347" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="77" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="95" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="113" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="131" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="149" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="167" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="185" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="203" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="221" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-top8" x="239" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="257" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="275" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="293" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="311" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="329" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="347" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="77" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="95" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="113" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="131" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="149" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="167" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="185" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="203" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="221" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="239" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="257" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="275" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="293" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="311" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="329" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-top8" x="347" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="77" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="95" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="113" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="131" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="149" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="167" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="185" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="203" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="221" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="239" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="257" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="275" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="293" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="311" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="329" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="347" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="77" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="95" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="113" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="131" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="149" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="167" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="185" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="203" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-top8" x="221" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="239" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="257" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="275" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="293" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="311" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="329" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="347" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="77" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="95" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="113" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="131" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="149" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="167" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="185" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="203" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="221" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="239" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-top8" x="257" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="275" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="293" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="311" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="329" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="347" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="77" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="95" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="113" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="131" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="149" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="167" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="185" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="203" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="221" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="239" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="257" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="275" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="293" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="311" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="329" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="347" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="77" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="95" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="113" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="131" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="149" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="167" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="185" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="203" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="221" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="239" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="257" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="275" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="293" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="311" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="329" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="347" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="77" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="95" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="113" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="131" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-top8" x="149" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="167" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="185" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="203" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="221" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="239" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="257" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="275" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="293" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="311" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="329" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="347" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="77" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="95" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="113" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="131" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="149" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="167" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="185" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="203" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="221" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="239" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="257" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="275" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="293" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="311" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="329" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="347" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="77" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="95" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="113" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="131" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="149" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="167" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="185" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="203" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="221" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="239" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="257" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-top8" x="275" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="293" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="311" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="329" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="347" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="77" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="95" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="113" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="131" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="149" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="167" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="185" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="203" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="221" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="239" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="257" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="275" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="293" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="311" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="329" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="347" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="77" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="95" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="113" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="131" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="149" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="167" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="185" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="203" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="221" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="239" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="257" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="275" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="293" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="311" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="329" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="347" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="77" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="95" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-top8" x="113" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="131" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="149" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="167" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="185" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="203" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="221" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="239" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="257" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="275" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="293" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="311" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="329" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="347" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="77" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="95" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="113" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="131" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="149" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="167" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="185" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="203" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="221" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="239" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="257" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="275" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="293" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="311" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="329" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="347" y="444" width="16" height="16" rx="2"/>
+<text class="t-cap" x="220" y="476" text-anchor="middle">256 routed experts &#183; 8 activated per token</text>
+<line class="s-arrow" x1="220" y1="482" x2="220" y2="498" marker-end="url(#ah)"/>
+<rect class="s-sum" x="150" y="498" width="140" height="30" rx="8"/>
+<text class="t-ttl" x="220" y="517" text-anchor="middle">Σ combine (renorm)</text>
+<rect class="s-shared" x="312" y="498" width="96" height="30" rx="8"/>
+<text class="t-shared" x="360" y="517" text-anchor="middle">shared expert</text>
+<line class="s-arrow" x1="312" y1="513" x2="292" y2="513" marker-end="url(#ah)"/>
+<line class="s-arrow" x1="220" y1="528" x2="220" y2="544" marker-end="url(#ah)"/>
+<rect class="s-box" x="135" y="546" width="170" height="30" rx="6"/>
+<text class="t-lbl" x="220" y="565" text-anchor="middle">block output → next layer</text>
+<text class="t-big-a" x="220" y="614" text-anchor="middle">≈3B active / token</text>
+  <rect class="s-header" x="490" y="16" width="380" height="30" rx="8"/>
+<text class="t-hdr" x="680" y="36" text-anchor="middle">Our A6B — router top-k = 32</text>
+<rect class="s-box" x="605" y="58" width="150" height="28" rx="6"/>
+<text class="t-lbl" x="680" y="76" text-anchor="middle">token hidden state</text>
+<line class="s-arrow" x1="680" y1="86" x2="680" y2="104" marker-end="url(#ah)"/>
+<rect class="s-router" x="510" y="106" width="340" height="48" rx="8"/>
+<text class="t-ttl" x="680" y="126" text-anchor="middle">Router — softmax over 256 experts (fp32)</text>
+<text class="t-lbl" x="680" y="144" text-anchor="middle">→ keep top-32 → renormalize</text>
+<line class="s-arrow" x1="680" y1="154" x2="680" y2="172" marker-end="url(#ah)"/>
+<rect class="cell-off" x="537" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="555" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="573" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="591" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="609" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="627" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="645" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="663" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="681" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="699" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="717" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="735" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="753" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="771" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="789" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="807" y="174" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="537" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="555" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="573" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-top8" x="591" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="609" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="627" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="645" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="663" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="681" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="699" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="717" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="735" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="753" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="771" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="789" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="807" y="192" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="537" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="555" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="573" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="591" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="609" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="627" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="645" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="663" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="681" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-top8" x="699" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="717" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="735" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="753" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="771" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="789" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="807" y="210" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="537" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="555" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="573" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="591" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="609" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="627" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="645" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="663" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="681" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="699" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="717" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="735" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="753" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="771" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="789" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-top8" x="807" y="228" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="537" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="555" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="573" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="591" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="609" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="627" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="645" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="663" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="681" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="699" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="717" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="735" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="753" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="771" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="789" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="807" y="246" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="537" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="555" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="573" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="591" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="609" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="627" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="645" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="663" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-top8" x="681" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="699" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="717" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="735" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="753" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="771" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="789" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="807" y="264" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="537" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="555" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="573" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="591" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="609" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="627" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="645" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="663" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="681" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="699" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-top8" x="717" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="735" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="753" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="771" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="789" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="807" y="282" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="537" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="555" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="573" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="591" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="609" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="627" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="645" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="663" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="681" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="699" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="717" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="735" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="753" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="771" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="789" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="807" y="300" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="537" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="555" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="573" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="591" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="609" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="627" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="645" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="663" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="681" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="699" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="717" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="735" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="753" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="771" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="789" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="807" y="318" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="537" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="555" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="573" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="591" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-top8" x="609" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="627" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="645" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="663" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="681" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="699" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="717" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="735" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="753" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="771" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="789" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="807" y="336" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="537" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="555" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="573" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="591" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="609" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="627" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="645" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="663" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="681" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="699" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="717" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="735" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="753" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="771" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="789" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="807" y="354" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="537" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="555" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="573" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="591" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="609" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="627" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="645" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="663" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="681" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="699" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="717" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-top8" x="735" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="753" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="771" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="789" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="807" y="372" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="537" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="555" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="573" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="591" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="609" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="627" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="645" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="663" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="681" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="699" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="717" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="735" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="753" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="771" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="789" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="807" y="390" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="537" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="555" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="573" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="591" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="609" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="627" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="645" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="663" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="681" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="699" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="717" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="735" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="753" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="771" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="789" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="807" y="408" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="537" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="555" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-top8" x="573" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="591" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="609" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="627" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="645" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="663" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="681" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="699" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="717" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="735" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="753" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="771" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="789" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="807" y="426" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="537" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="555" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="573" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="591" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="609" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="627" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="645" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="663" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="681" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-add" x="699" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="717" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="735" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="753" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="771" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="789" y="444" width="16" height="16" rx="2"/>
+<rect class="cell-off" x="807" y="444" width="16" height="16" rx="2"/>
+<text class="t-cap" x="680" y="476" text-anchor="middle">256 routed experts &#183; 32 activated per token</text>
+<line class="s-arrow" x1="680" y1="482" x2="680" y2="498" marker-end="url(#ah)"/>
+<rect class="s-sum" x="610" y="498" width="140" height="30" rx="8"/>
+<text class="t-ttl" x="680" y="517" text-anchor="middle">Σ combine (renorm)</text>
+<rect class="s-shared" x="772" y="498" width="96" height="30" rx="8"/>
+<text class="t-shared" x="820" y="517" text-anchor="middle">shared expert</text>
+<line class="s-arrow" x1="772" y1="513" x2="752" y2="513" marker-end="url(#ah)"/>
+<line class="s-arrow" x1="680" y1="528" x2="680" y2="544" marker-end="url(#ah)"/>
+<rect class="s-box" x="595" y="546" width="170" height="30" rx="6"/>
+<text class="t-lbl" x="680" y="565" text-anchor="middle">block output → next layer</text>
+<text class="t-big-b" x="680" y="614" text-anchor="middle">≈6.6B active / token</text>
+  <!-- shared-checkpoint annotation between panels -->
+  <line class="s-divider" x1="450" y1="60" x2="450" y2="576"/>
+  <rect class="s-annot-bg" x="435" y="250" width="30" height="140" rx="3"/>
+  <text class="t-annot" x="450" y="320" text-anchor="middle" transform="rotate(-90 450 320)">identical weights · only top-k changes</text>
+</svg>
+      </div>
+      <ul class="legend">
+        <li><span class="sw top8"></span><b>Top-8 routed experts</b> &mdash; stock selection (46% of gate mass)</li>
+        <li><span class="sw add"></span><b>Added ranks 9&ndash;32</b> &mdash; untrained mixture members, <b>54% of gate mass</b></li>
+        <li><span class="sw off"></span>Inactive experts (weights present, not activated)</li>
+        <li><span class="sw shared"></span>Shared expert (always active)</li>
+      </ul>
+    </div>
+    <p class="note" style="margin-top:12px">
+      The router computes a softmax over all 256 experts in fp32, keeps the top-k, and
+      <b>renormalizes the selected weights unconditionally</b> &mdash; renormalization is baked into the
+      architecture, so going from k=8 to k=32 silently redistributes the entire gate mass across
+      four times as many experts. Because the added ranks 9&ndash;32 carry <b>54.0%</b> of that
+      renormalized mass, they are load-bearing, not tail noise. Experts are stored as packed 3D tensors
+      (<code>gate_up_proj [256, 1024, 2048]</code>, <code>down_proj [256, 2048, 512]</code> per layer),
+      so widening k adds compute but <b>zero new parameters</b>.
+    </p>
+    <div class="card" style="border-color:var(--warn); background:var(--warn-soft)">
+      <p style="margin:0; font-size:13.5px">
+        <b>Measured risk &mdash; naive k=32 without retraining.</b> Flipping top-k alone degrades
+        knowledge benchmarks: <b>MMLU 0.843&nbsp;&rarr;&nbsp;0.807</b> and
+        <b>GSM8K 0.893&nbsp;&rarr;&nbsp;0.865</b> (n=600). The 24 added experts per token were never
+        trained to collaborate inside the mix &mdash; an <b>uncalibrated mixture</b>. That is exactly what
+        the tuning recipe below repairs.
+      </p>
+    </div>
+  </section>
+
+  <!-- ========================= 2. WHY EXPAND K ========================= -->
+  <section>
+    <h2>2 &#183; Why expand k</h2>
+    <p class="lead">Roughly 2&times; active compute per token, at zero weight cost.</p>
+    <p>
+      Widening the router turns latent capacity that already lives in the checkpoint into active
+      compute: <b>&asymp;3B &rarr; &asymp;6.6B active parameters</b> per token with no new weights to store
+      or serve. The working hypothesis is a <b>complexity gradient</b> &mdash; complex, multi-step work
+      (agentic terminal use, hard coding) should benefit most from the extra mixture capacity, while
+      simple factual recall benefits least. So the payoff and the risk sit on different axes: reasoning
+      throughput goes up, and knowledge is the axis we must actively protect.
+    </p>
+    <div class="tiles">
+      <div class="tile up">
+        <p class="k">Coding (post-train)</p>
+        <p class="v">0.902</p>
+        <p class="d">HumanEval vs stock-k8 <b>0.866</b> &#183; n=164, trend</p>
+      </div>
+      <div class="tile watch">
+        <p class="k">Knowledge (to heal)</p>
+        <p class="v">&minus;2.0 pt</p>
+        <p class="d">MMLU vs stock &#183; statistical tie, <b>p=0.14</b></p>
+      </div>
+      <div class="tile neu">
+        <p class="k">Active compute</p>
+        <p class="v">&asymp;2&times;</p>
+        <p class="d">&asymp;6.6B active/token &#183; <b>+0 weights</b></p>
+      </div>
+    </div>
+    <p class="note">
+      Gains grow with task complexity; the knowledge gap is currently a statistical tie rather than a
+      clean win, so MMLU is the axis being actively healed rather than a settled result.
+    </p>
+  </section>
+
+  <!-- ========================= 3. TUNING RECIPE ========================= -->
+  <section>
+    <h2>3 &#183; The tuning recipe</h2>
+    <p class="lead">Profile the wider router, then teach only the experts it leans on to collaborate.</p>
+    <div class="card pipe">
+
+      <div class="stage">
+        <div class="rail"><div class="badge">a</div><div class="conn"></div></div>
+        <div class="body">
+          <h3>Router profiling</h3>
+          <p>Run the target corpus through the model at k=32 and count token-level routing frequency for every expert.</p>
+          <div class="kv"><span class="pill">output: per-expert routing histogram, all 40 layers</span></div>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="rail"><div class="badge">b</div><div class="conn"></div></div>
+        <div class="body">
+          <h3>Expert selection</h3>
+          <p>Keep experts by cumulative routing frequency up to top-p 0.2 &mdash; the experts that actually do the work.</p>
+          <div class="kv"><span class="pill">833 of 10,240 layer-experts</span><span class="pill">40 layers &times; 256</span></div>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="rail"><div class="badge">c</div><div class="conn"></div></div>
+        <div class="body">
+          <h3>Residual-delta ESFT</h3>
+          <p>Train <b>only</b> delta tensors added to the selected experts' FFN slices. The router and every other
+             weight stay frozen. Deltas are toggleable &mdash; patched on or off at load time.</p>
+          <div class="kv">
+            <span class="pill">2.62B trainable of 35B (7.5%)</span>
+            <span class="pill good">delta on/off = same file</span>
+            <span class="pill">5.2 GB artifact</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="rail"><div class="badge">d</div><div class="conn"></div></div>
+        <div class="body">
+          <h3>Data</h3>
+          <p>Mixed corpus, <b>428M tokens</b>, contamination-gated to <b>zero residual hits</b> against every eval benchmark.
+             A small general + knowledge replay slice is deliberate forgetting insurance.</p>
+          <div class="bar"><div class="seg c-accent" style="flex:62.0 0 0" title="Agentic terminal trajectories 62.0%"></div><div class="seg c-c2" style="flex:12.0 0 0" title="Coding 12.0%"></div><div class="seg c-c3" style="flex:11.0 0 0" title="Tool-calling 11.0%"></div><div class="seg c-good" style="flex:10.0 0 0" title="Math 10.0%"></div><div class="seg c-warn" style="flex:2.2 0 0" title="SWE-RL format envelope 2.2%"></div><div class="seg c-mute" style="flex:2.8 0 0" title="General + knowledge replay 2.8%"></div></div>
+          <ul class="mix-legend"><li><span class="dot c-accent"></span>Agentic terminal trajectories <b>62%</b></li><li><span class="dot c-c2"></span>Coding <b>12%</b></li><li><span class="dot c-c3"></span>Tool-calling <b>11%</b></li><li><span class="dot c-good"></span>Math <b>10%</b></li><li><span class="dot c-warn"></span>SWE-RL format envelope <b>2.2%</b></li><li><span class="dot c-mute"></span>General + knowledge replay <b>2.8%</b></li></ul>
+        </div>
+      </div>
+
+      <div class="stage">
+        <div class="rail"><div class="badge">e</div></div>
+        <div class="body">
+          <h3>Training</h3>
+          <p>8&times;GPU DDP at sequence length 7168, with fused linear cross-entropy (no logits materialization) and Adafactor.</p>
+          <div class="kv"><span class="pill">8&times;GPU DDP</span><span class="pill">seq 7168</span><span class="pill">fused linear CE</span><span class="pill">Adafactor</span><span class="pill">&asymp;19h</span></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================= 4. WHY ROUTER FROZEN ========================= -->
+  <section>
+    <h2>4 &#183; Why the router stays frozen</h2>
+    <p class="lead">The routing distribution is the coordinate system the deltas are trained in.</p>
+    <div class="frozen">
+      <div class="f">
+        <h4>Fixed coordinate system</h4>
+        <p>The deltas are learned relative to a specific routing distribution. Freeze it and every delta
+           keeps meaning the same thing at inference; move it and the ground shifts underneath them.</p>
+      </div>
+      <div class="f">
+        <h4>No routing collapse</h4>
+        <p>Letting the router move under SFT/RL is the classic path to routing collapse, where a few
+           experts capture all traffic. A frozen router removes that failure mode entirely.</p>
+      </div>
+      <div class="f">
+        <h4>Exactly recoverable</h4>
+        <p>Because nothing but the deltas changed, turning the delta off returns the <b>exact stock model</b>.
+           The base checkpoint is never at risk.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================= 5. ROADMAP ========================= -->
+  <section>
+    <h2>5 &#183; Roadmap</h2>
+    <p class="lead">From supervised mixture-healing toward Terminal-Bench.</p>
+    <div class="road">
+      <div class="step done">
+        <p class="st">Done</p><h4>Mixed SFT</h4>
+        <p>Residual-delta ESFT on the 428M mixed corpus.</p>
+      </div>
+      <div class="arrow">&rarr;</div>
+      <div class="step next">
+        <p class="st">Next</p><h4>Rejection fine-tuning</h4>
+        <p>Retrain on self-generated, verified solutions.</p>
+      </div>
+      <div class="arrow">&rarr;</div>
+      <div class="step later">
+        <p class="st">Then</p><h4>GRPO RL</h4>
+        <p>Rule-based patch-similarity reward.</p>
+      </div>
+      <div class="arrow">&rarr;</div>
+      <div class="step target">
+        <p class="st">Target</p><h4>Terminal-Bench</h4>
+        <p>The north-star agentic benchmark.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    All numbers measured on Qwen3.6-35B-A3B, n=600 (164 HumanEval), paired McNemar, 2026-07.
+  </footer>
+</div>
+
+<script>
+  (function () {
+    var b = document.getElementById('tt');
+    function cur() {
+      var e = document.documentElement.getAttribute('data-theme');
+      if (e) return e;
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    function paint() { b.textContent = cur() === 'dark' ? 'light mode' : 'dark mode'; }
+    b.addEventListener('click', function () {
+      var next = cur() === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      paint();
+    });
+    paint();
+  })();
+</script>
