@@ -98,6 +98,16 @@
 5. **AgentTimeoutError = モデルが遅いだけ**。trajectory 精査で **base@k8 は実際に賢く駆動していた**(llm-inference タスクで 174 step / 20 コマンドバッチ、ファイル読み→Python 実行→baseline_packer 解析まで到達)。reasoning 重めで default timeout に間に合わず。→ `--agent-timeout-multiplier 3.0` で完全ベースライン起動。
 **教訓: 「0/24」を「モデルが弱い」と読まず解剖したのが正解**(memory の「壊れると『モデル弱い』と誤読」警告どおり)。ハーネスは生きていた。runs: base_k8_full(89タスク、n_conc4、timeout 3x、夜間)。serve=serve_bf16.sh 8(TP2、8001、Qwen3.6-35B-A3B)。
 
+## 2026-07-08 — gpu-host v2/p0.2 完走・知識系初判定
+
+- **訓練完走**: 3150 step / 18h20m / rc=0 / peak 91.55GiB(probe 予測どおり)/ 20.96 s/it。patch 5.2GB(1666 tensors = 833 experts)。best step 3100 の ckpt は save 間隔の狭間 → 最終 3150 の重みを patch 化(eval_loss ほぼ同値)。
+- **知識系判定(gpu-host 同一マシン paired、n=600、choice-logprob)**:
+  - MMLU: base@k8 0.840 vs **v2patch@k32 0.820**(−2.0pt、p=0.14 **引き分け**)
+  - GSM8K: base@k8 0.887 vs **v2patch@k32 0.865**(−2.2pt、p=0.26 **引き分け**)
+- **解釈(honest)**: naive k32 は MMLU で有意負け(p=.002)だったのが、v2 混合+replay で**統計的引き分けまで回復**。ただし「勝ち」ではなく、点推定は依然 −2pt。GOAL の非劣化ゲート(MMLU −1pt 以内)は点推定で未達(CI [−4.4, +0.4] で判定保留)。GSM8K は v1 agentic patch(local 0.885)から数値上の上積みなし — **replay 1-5% では知識ギャップを閉じ切れない可能性**が濃くなった。次の診断 = ckpt 軌道(900/1800/2700)で「まだ伸びてる途中」か「頭打ち」かを判定 → 頭打ちなら full-FFN エスカレーション条件に接近。
+- 並走中: v2patch と base@k8 の code 系(HE/MBPP)を gpu-host GPU4-7 で測定中。TB base@k8 は 54+/89(solved 0 継続)。
+- cross-machine 注記: base@k8 は gpu-host で MMLU 0.840 / GSM8K 0.887(local 0.843/0.893)— マシン間で −0.3〜−0.6pt ずれる実測。**同一マシン paired の再測定は正解だった**。
+
 ### 走行中(2026-07-07 07:00 JST)
 - gpu-host: mixed_v2 p0.2 本走 8-GPU(上記、step 0→、ETA 19h)
 - aux-host: mixed_v1 p0.18 本走 step ~600/3150(corpusv2 解放で CPU 競合解消、78s/it に復帰見込み)
