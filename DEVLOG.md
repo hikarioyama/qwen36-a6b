@@ -113,3 +113,10 @@
 - aux-host: mixed_v1 p0.18 本走 step ~600/3150(corpusv2 解放で CPU 競合解消、78s/it に復帰見込み)
 - ローカル: k sweep(k24 測定中、k16=MMLU 0.828 確認済)
 - 保留: layer1 domain別 NLL(ckpt300/600、転送競合で中断→gpu-host 本走後に再開)
+
+## 2026-07-08 (2) — TB 北極星ベースライン確定・serve 環境の壁
+
+- **TB2.0 base@k8 = 0/89 (0.0%)**(timeout 3x、n_conc4、ローカル TP2 serve)。内訳: 時間切れ49(55%)/検証不合格37/その他3。素の base は長考癖(数千tok/問)が多ターン端末対話で複利になり時間の壁に溺れる。NVIDIA の素 Qwen3-32B=3.4%→特化後27.4% と整合する「伸び代最大」の出発点。
+- **測定設計の修正**: 時間切れ支配のベンチでは serve 速度が混入 → ペア比較は両アーム gpu-host(同一 serve 構成)で再走する。ローカル run はハーネス実証+死因分析として役割完了。
+- **gpu-host vLLM serve の壁(pip wheel × SM120 × flashinfer JIT)を解体中**: ①nvcc 無し→venv 同梱 cu13 tree を CUDA_HOME に ②ninja→venv bin を PATH に ③cccl の判定式(nvcc 版 == cudart ヘッダ版)を実物で読解 ④sm_120f 要求→ **nvcc/crt/runtime を 13.3 で完全統一 + JIT cache 空から**。教訓: 版当てゲームでなく判定式を読む。
+- v2 の最終判定確定: ckpt1200 ≈ final(タイ)、HE は base@k8 と完全同点(12:12)。MBPP スタイル転写は step1200 で焼付き済み=SFT では直らない → INC-0/GRPO(on-policy)の領分と確定。serve 候補 ckpt1200、merged 済み。
