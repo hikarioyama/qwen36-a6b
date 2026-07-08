@@ -120,3 +120,15 @@
 - **測定設計の修正**: 時間切れ支配のベンチでは serve 速度が混入 → ペア比較は両アーム gpu-host(同一 serve 構成)で再走する。ローカル run はハーネス実証+死因分析として役割完了。
 - **gpu-host vLLM serve の壁(pip wheel × SM120 × flashinfer JIT)を解体中**: ①nvcc 無し→venv 同梱 cu13 tree を CUDA_HOME に ②ninja→venv bin を PATH に ③cccl の判定式(nvcc 版 == cudart ヘッダ版)を実物で読解 ④sm_120f 要求→ **nvcc/crt/runtime を 13.3 で完全統一 + JIT cache 空から**。教訓: 版当てゲームでなく判定式を読む。
 - v2 の最終判定確定: ckpt1200 ≈ final(タイ)、HE は base@k8 と完全同点(12:12)。MBPP スタイル転写は step1200 で焼付き済み=SFT では直らない → INC-0/GRPO(on-policy)の領分と確定。serve 候補 ckpt1200、merged 済み。
+
+## 2026-07-08 (3) — GRPO 実装完了 + RL 文献検証(Opus3体、幻覚ID 0/22)
+
+### GRPO 更新ループ([T]フェーズ)実装・検証済み
+- rl/grpo_train.py(Opus実装、Fable が test_grpo.py 14/14 を独立実走で緑確認)。group advantage、completion logp、**KL参照=delta-toggle-off(70GB複製不要)**、loss=-(adv·logp_sum)+β·KL、on-policy 1-step(GSPO系列比は拡張点)。**勾配が router/非選択expertに流れないことをテストで確定**(MoE-RL崩壊の構造回避)。prefill再結合 byte一致。
+
+### Grok RL リサーチの敵対検証(3体、全22論文 CONFIRMED、幻覚ID=0)。設計への判定:
+- **router 凍結 = 維持でOK(文献的に劣位でない)**。「freeze劣位」は RSPO(2510.23027、MSRA)単一論文の self-claim で R3と未比較。決定的反証: **GSPO(2507.18071)自身が「token-level MoE RL には Routing Replay(≈router固定)が収束に必須」と明言**=凍結類似の安定化が必要が共通認識。我々は router を動かす意図がない(ESFT)ので「adaptability犠牲」は非該当。安い保険=multi-epoch時のみ GSPO系列比に切替(実装済拡張点)。
+- **⚠️実装変更: Dr.GRPO(2503.20783)の「std正規化=difficulty bias」は査読付き・再現済みの本物**。我々の adv=(r-mean)/std は該当。→ **--adv-norm {std,mean} を追加**(default std維持、mean=Dr.GRPO は opt-in、同一条件A/Bで測る。無条件レバーとして盛らない=主効果はtoken効率/gradient bias除去であり勝率↑保証でない)。commit済。
+- **🔴仮説の修正(重要): 「RL で増えた容量を活性化し SFT の頭打ちを超える」は文献がほぼ全会一致で否定**。(a)MoE-GRPO(2603.24984)の「dormant expert活性化」=Grokの盛り(実物は1B VLM/8expert、entropy 1.05→1.82は本物だが"眠り起こし"は論文に無い)。(b)Yue(2504.13837 CONFIRMED): RLはbaseのpass@kを超えない=**天井はRLで動かない**。(c)Jin(2509.12235 CONFIRMED): RLはSFT後期のOOD忘却をhealするだけ、**SFT初期ピークを超えない**。(d)「active増→RL伸びしろ大」の定量文献=NOT_FOUND。→ **設計原則を組替: 容量(24-expert表現力)はSFTで獲得、RLはそれをelicit/heal/安定化する装置**。−2pt頭打ちを本気で削るなら文献の含意はRLでなくSFT側(full-FFN/蒸留)。ユーザ仮説「アクティブ増やすほどRL重要」は否定でなく精密化(RLが引き出せるのは既にある容量なので拡張は前提条件、ただし天井押上げは期待するな)。
+- 使える確定知見: SWE-RL(2502.18449)報酬設計は直接参照(41% Verified、OOD数字 HumanEval+ 79.9 vs base76.2/SFT73.2、MMLU 86.82維持=真)。Xiong(2504.11343): rejection-FTのentropy collapse実証(GRPOの主利点は「全誤りprompt implicit filtering」)→INC-0は1反復+多様性制御。DAPO/AVSPO(2605.21125実在)は collapse対策の予備。SSR(2512.18552実在、self-play +10.4)は将来。
+- report=reports/GROK_RL_RESEARCH_REPORT.md、検証はsession subagents。
