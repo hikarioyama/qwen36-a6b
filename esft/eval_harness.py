@@ -37,7 +37,11 @@ Benchmarks (``--benchmark``, comma-separated; pluggable)
 - ``mbpp``      : MBPP (``google-research-datasets/mbpp`` test), greedy pass@1; the
               extracted function is run against the row's ``test_list`` asserts in the
               same sandbox (the prompt shows the tests, pinning the function name).
-- ``jmmlu`` / ``bfcl`` : registered stubs; ``.load()`` raises ``NotImplementedError``.
+- ``jmmlu`` : ``nlp-waseda/JMMLU`` (Japanese MMLU), 4-way MC. Same protocol as
+              ``mmlu`` -- inherits its prompt / letter-extraction / ``--choice-logprob``
+              path unchanged, only the data source differs. The Japanese-side
+              non-regression / k-expansion check.
+- ``bfcl``  : registered stub; ``.load()`` raises ``NotImplementedError``.
 
 A benchmark is a class implementing ``load / format_prompt / extract_answer /
 score`` (see :class:`Benchmark`). Raw items produced by ``load`` are picklable
@@ -270,6 +274,64 @@ class Mmlu(Benchmark):
         return ids
 
 
+# -------------------------------- JMMLU -------------------------------------
+
+class Jmmlu(Mmlu):
+    """JMMLU (``nlp-waseda/JMMLU``): the Japanese-translated + Japanese-native
+    counterpart to MMLU. 7,536 four-way MC questions over 56 subjects, same
+    ``question, A, B, C, D, answer`` shape as MMLU (``answer`` is the gold LETTER).
+
+    Only the data source differs from :class:`Mmlu`; ``format_prompt`` /
+    ``extract_answer`` / ``score`` and the whole ``--choice-logprob`` path
+    (``format_prompt_logprob`` / ``logprob_choice_ids`` / ``LOGPROB_CUE``) are
+    inherited byte-for-byte, so a JMMLU arm is measured identically to the English
+    MMLU side check -- A/B/C/D labels, the Japanese question inserted verbatim.
+
+    The canonical repo ships a datasets *loading script* (unsupported on current
+    ``datasets``), so rows are read straight from its ``JMMLU.zip`` -- BOM-encoded
+    per-subject CSVs -- through the packaged ``csv`` builder. That yields the same
+    HF ``Dataset`` type ``Mmlu.load`` gets from ``cais/mmlu``, hence identical
+    ``.shuffle(seed)`` and deterministic first-N ``.select`` semantics.
+    """
+
+    name = "jmmlu"
+
+    def load(self, n, seed, shuffle):
+        import zipfile
+        from huggingface_hub import hf_hub_download
+        from datasets import load_dataset
+
+        zp = hf_hub_download("nlp-waseda/JMMLU", "JMMLU.zip", repo_type="dataset")
+        extract_dir = zp + ".extracted"
+        with zipfile.ZipFile(zp) as z:
+            # test-split subject CSVs only; drop the __MACOSX/ resource forks and
+            # the ._-prefixed AppleDouble sidecars the archive also carries.
+            members = [m for m in z.namelist()
+                       if m.startswith("JMMLU/test/") and m.endswith(".csv")
+                       and not os.path.basename(m).startswith("._")]
+            todo = [m for m in members
+                    if not os.path.exists(os.path.join(extract_dir, m))]
+            if todo:
+                z.extractall(extract_dir, members=todo)
+        # sorted() pins the subject concatenation order, so the deterministic
+        # first-N subset (and any --seed shuffle) is reproducible run-to-run,
+        # exactly like cais/mmlu's fixed row order.
+        paths = sorted(os.path.join(extract_dir, m) for m in members)
+        d = load_dataset("csv", data_files=paths, split="train",
+                         encoding="utf-8-sig")   # utf-8-sig: strip the CSV BOM
+        if shuffle:
+            d = d.shuffle(seed=seed)
+        d = d.select(range(min(n, len(d))))
+        items = []
+        for r in d:
+            items.append({
+                "question": r["question"],
+                "choices": [r["A"], r["B"], r["C"], r["D"]],
+                "gold": str(r["answer"]).strip().upper(),
+            })
+        return items
+
+
 # ------------------------ coding (HumanEval / MBPP) -------------------------
 #
 # pass@1: greedy-decode a solution, take the ```python block that follows the
@@ -499,10 +561,6 @@ class _Stub(Benchmark):
 
     def score(self, pred, item):
         raise NotImplementedError(self.name)
-
-
-class Jmmlu(_Stub):
-    name = "jmmlu"
 
 
 class Bfcl(_Stub):
@@ -914,7 +972,7 @@ def main():
     ap.add_argument("--verdict-key", default="correct",
                     help="per-item boolean field --paired-verdict compares on")
     ap.add_argument("--benchmark", default="gsm8k",
-                    help="comma-separated: gsm8k,mmlu,humaneval,mbpp (stubs: jmmlu,bfcl)")
+                    help="comma-separated: gsm8k,mmlu,jmmlu,humaneval,mbpp (stub: bfcl)")
     ap.add_argument("--n", type=int, default=600, help="items per benchmark")
     ap.add_argument("--topk", type=int, default=TOP_K_DEFAULT,
                     help="gate.top_k override (ignored for dense). Patched/nvfp4: use K*")
