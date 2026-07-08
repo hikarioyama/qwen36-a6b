@@ -132,3 +132,27 @@
 - **🔴仮説の修正(重要): 「RL で増えた容量を活性化し SFT の頭打ちを超える」は文献がほぼ全会一致で否定**。(a)MoE-GRPO(2603.24984)の「dormant expert活性化」=Grokの盛り(実物は1B VLM/8expert、entropy 1.05→1.82は本物だが"眠り起こし"は論文に無い)。(b)Yue(2504.13837 CONFIRMED): RLはbaseのpass@kを超えない=**天井はRLで動かない**。(c)Jin(2509.12235 CONFIRMED): RLはSFT後期のOOD忘却をhealするだけ、**SFT初期ピークを超えない**。(d)「active増→RL伸びしろ大」の定量文献=NOT_FOUND。→ **設計原則を組替: 容量(24-expert表現力)はSFTで獲得、RLはそれをelicit/heal/安定化する装置**。−2pt頭打ちを本気で削るなら文献の含意はRLでなくSFT側(full-FFN/蒸留)。ユーザ仮説「アクティブ増やすほどRL重要」は否定でなく精密化(RLが引き出せるのは既にある容量なので拡張は前提条件、ただし天井押上げは期待するな)。
 - 使える確定知見: SWE-RL(2502.18449)報酬設計は直接参照(41% Verified、OOD数字 HumanEval+ 79.9 vs base76.2/SFT73.2、MMLU 86.82維持=真)。Xiong(2504.11343): rejection-FTのentropy collapse実証(GRPOの主利点は「全誤りprompt implicit filtering」)→INC-0は1反復+多様性制御。DAPO/AVSPO(2605.21125実在)は collapse対策の予備。SSR(2512.18552実在、self-play +10.4)は将来。
 - report=reports/GROK_RL_RESEARCH_REPORT.md、検証はsession subagents。
+
+## 2026-07-08 (4) — 順番の再定義(router可動 joint)+ ワークフロー図
+
+### Grok(grok-4.3)3往復相談 → 天井診断の順番が変わった
+- **診断**: 選抜delta+router凍結の MMLU 0.820 頭打ちは、**容量天井でなく router 較正(協調)問題の可能性**。追加24 expert の gate 質量54%を制御するのは router だけで、凍結中は tail を再重み付けできない。∴ 今の安いゲート(router凍結+kランダム)は**交絡**していて診断に使えない。
+- **順番の再定義**: ①癒やしSFTの中で router を expert と**同時(joint)**に動かす(先でも後でもない)。我々は「凍結routerに対しexpert最適化」= 間違った丘を登っていた。0.820平坦はその天井であって真の天井でない。②**full-FFN は「router可動でもなお容量不足なら」の後段エスカレーションに降格**(旧「選抜delta vs full-FFN」フォークは誤り、Grok Q2: full-FFN+凍結routerは最弱)。③RLは router を固めた最後(GSPO Routing-Replay 安定性)。
+- **安さの鍵**: router logits は top-k 選択の *前* に softmax されるので **k非依存**。「k=8アンカー」= router 分布全体を base に近く保つ、を**毎ステップ1回**で計算でき二重forward不要。
+
+### 実装: router可動 joint モード(flag-gated、Opus実装 / ローカル実走テスト5/5 PASS)
+- `--train-router` / `--router-lr-mult 0.08` / `--router-anchor-weight 0.15`。router(gate)解凍 + 低LR独立param group + base-anchor KL(F.linear(x,gate.weight) vs 凍結snapshot、grad-checkpoint安全にx再計算)。既存の凍結/delta/FLCE/kランダム経路は全て非破壊。router クラス実測: `Qwen3_5MoeTopKRouter` weight(E,H) bias無、softmax over 256 → top-k。**未配備**(gpu-host TB完走→grad-gate直前に配備)。
+- **hypothesized(未実測)**: LR 0.08× / λ=0.2 / anchor=0.15 / 期待0.828–0.835 は Grok の転移値。probe で 100step sweep、鵜呑み禁止。arXiv ID群も未検証。
+
+### kill基準(1200step 1発の決定的 probe)
+| k=32 MMLU | k=8劣化 | 分岐 |
+|---|---|---|
+| ≥0.832 | ≤0.008 | 4a: 協調確定→full-FFN不要、RL直行 |
+| 0.825–0.831 | ≤0.008 | Elastic補助lossで延長 |
+| <0.825 | — | 4b: full-FFN(router可動, 2-3日) |
+| any | >0.015 | 中止・router再凍結(RL安定性優先) |
+
+### ワークフロー図(3マシン時系列)
+![A6B 3-Machine Workflow](esft/reports/viz/workflow_timeline.png)
+
+インタラクティブ版: `esft/workflow_timeline.html`(日) / `esft/workflow_timeline_en.html`(英)。左→右=時間、横レーン= gpu-host(Blackwell主砲8×96GB)/ aux-host(安定炉2GPU)/ ローカル(計測室・eval)。曲線矢印で依存(暖色=主系列/ティール=横断供給)。T2 の eval判定は gpu-host レーン(高速)。

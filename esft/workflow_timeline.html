@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A6B 3マシン ワークフロー</title>
+<style>
+:root{
+  --bg:#f5f6f8; --panel:#ffffff; --ink:#1c2330; --muted:#5b6675;
+  --grid:#e3e7ee; --line:#9aa5b5; --now:#e0245e;
+  --gpu-host:#e8703a; --gpu-host-bg:#fdeee6; --gpu-host-ink:#8a3c12;
+  --aux-host:#2f7fb5; --aux-host-bg:#e7f1f8; --aux-host-ink:#164866;
+  --local:#7a6bb0; --local-bg:#efecf7; --local-ink:#3f356b;
+  --branch-a:#2c9d6b; --branch-b:#c8452f;
+  --shadow:0 1px 3px rgba(20,30,50,.10),0 1px 2px rgba(20,30,50,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0f1319; --panel:#171d27; --ink:#e6ebf2; --muted:#93a0b2;
+    --grid:#28313d; --line:#4a5666; --now:#ff5c85;
+    --gpu-host:#ef8a5c; --gpu-host-bg:#2e2016; --gpu-host-ink:#f4b48f;
+    --aux-host:#4fa6da; --aux-host-bg:#122530; --aux-host-ink:#9fd0ee;
+    --local:#a394d6; --local-bg:#221d33; --local-ink:#c9bdf0;
+    --branch-a:#43c489; --branch-b:#e56a52;
+    --shadow:0 1px 3px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="light"]{
+  --bg:#f5f6f8; --panel:#ffffff; --ink:#1c2330; --muted:#5b6675;
+  --grid:#e3e7ee; --line:#9aa5b5; --now:#e0245e;
+  --gpu-host:#e8703a; --gpu-host-bg:#fdeee6; --gpu-host-ink:#8a3c12;
+  --aux-host:#2f7fb5; --aux-host-bg:#e7f1f8; --aux-host-ink:#164866;
+  --local:#7a6bb0; --local-bg:#efecf7; --local-ink:#3f356b;
+  --branch-a:#2c9d6b; --branch-b:#c8452f;
+  --shadow:0 1px 3px rgba(20,30,50,.10),0 1px 2px rgba(20,30,50,.06);
+}
+:root[data-theme="dark"]{
+  --bg:#0f1319; --panel:#171d27; --ink:#e6ebf2; --muted:#93a0b2;
+  --grid:#28313d; --line:#4a5666; --now:#ff5c85;
+  --gpu-host:#ef8a5c; --gpu-host-bg:#2e2016; --gpu-host-ink:#f4b48f;
+  --aux-host:#4fa6da; --aux-host-bg:#122530; --aux-host-ink:#9fd0ee;
+  --local:#a394d6; --local-bg:#221d33; --local-ink:#c9bdf0;
+  --branch-a:#43c489; --branch-b:#e56a52;
+  --shadow:0 1px 3px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;overflow-x:hidden;max-width:100%}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Noto Sans JP","Segoe UI",Meiryo,sans-serif;
+  line-height:1.5; padding:22px 20px 40px;
+}
+.wrap{max-width:1280px;margin:0 auto}
+header.hd{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 16px;margin-bottom:4px}
+h1{font-size:22px;margin:0;letter-spacing:.02em}
+.sub{color:var(--muted);font-size:13px}
+.toggle{margin-left:auto;font-size:12px;color:var(--muted);border:1px solid var(--grid);
+  background:var(--panel);border-radius:6px;padding:5px 10px;cursor:pointer}
+.toggle:hover{border-color:var(--line)}
+
+/* legend */
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin:14px 0 18px;font-size:12px;color:var(--muted)}
+.legend .item{display:flex;align-items:center;gap:6px}
+.sw{width:26px;height:14px;border-radius:3px;display:inline-block}
+.sw.solid{background:var(--aux-host)}
+.sw.dotted{background:transparent;border:1.6px dashed var(--line)}
+.sw.gpu-host{background:var(--gpu-host)} .sw.aux-host{background:var(--aux-host)} .sw.local{background:var(--local)}
+.sw.now{width:3px;height:15px;background:var(--now);border-radius:2px}
+
+/* phase header row */
+.scroll{overflow-x:auto;padding-bottom:6px}
+.board{min-width:940px}
+.phases{display:grid;grid-template-columns:118px repeat(5,1fr);gap:0;
+  border-bottom:1px solid var(--grid);margin-bottom:2px}
+.phases .ph{padding:6px 10px;font-size:11.5px;color:var(--muted);text-align:center;
+  border-left:1px dashed var(--grid);position:relative}
+.phases .corner{border-left:none}
+.phases .ph b{display:block;color:var(--ink);font-size:12.5px;letter-spacing:.03em}
+.phases .ph.now b{color:var(--now)}
+
+/* swimlanes */
+.lane{display:grid;grid-template-columns:118px repeat(5,1fr);
+  border-bottom:1px solid var(--grid);position:relative;min-height:96px}
+.lanehead{display:flex;flex-direction:column;justify-content:center;gap:2px;
+  padding:10px 12px;border-right:1px solid var(--grid)}
+.lanehead .nm{font-weight:700;font-size:14px}
+.lanehead .rl{font-size:11px;color:var(--muted);line-height:1.35}
+.lanehead .spec{font-size:10.5px;color:var(--muted);opacity:.85;margin-top:2px}
+.lane.gpu-host .lanehead{background:var(--gpu-host-bg)} .lane.gpu-host .nm{color:var(--gpu-host-ink)}
+.lane.aux-host .lanehead{background:var(--aux-host-bg)} .lane.aux-host .nm{color:var(--aux-host-ink)}
+.lane.local .lanehead{background:var(--local-bg)} .lane.local .nm{color:var(--local-ink)}
+.lane .track{position:relative;padding:9px 8px;border-left:1px dashed var(--grid);
+  display:flex;flex-direction:column;gap:7px;justify-content:center}
+
+/* blocks */
+.blk{border-radius:7px;padding:7px 9px;font-size:11.5px;line-height:1.32;
+  box-shadow:var(--shadow);position:relative}
+.blk .t{font-weight:600;display:block}
+.blk .m{color:var(--muted);font-size:10.5px;margin-top:2px;display:block}
+.blk.run{color:#fff}
+.lane.gpu-host .blk.run{background:var(--gpu-host)} .lane.gpu-host .blk.run .m{color:#fff;opacity:.85}
+.lane.aux-host .blk.run{background:var(--aux-host)} .lane.aux-host .blk.run .m{color:#fff;opacity:.85}
+.lane.local .blk.run{background:var(--local)} .lane.local .blk.run .m{color:#fff;opacity:.85}
+.blk.plan{background:var(--panel);border:1.6px dashed var(--line)}
+.lane.gpu-host .blk.plan{border-color:var(--gpu-host)} .lane.gpu-host .blk.plan .t{color:var(--gpu-host-ink)}
+.lane.aux-host .blk.plan{border-color:var(--aux-host)} .lane.aux-host .blk.plan .t{color:var(--aux-host-ink)}
+.lane.local .blk.plan{border-color:var(--local)} .lane.local .blk.plan .t{color:var(--local-ink)}
+.blk .pill{position:absolute;top:-8px;right:6px;font-size:9px;font-weight:700;
+  padding:1px 6px;border-radius:8px;letter-spacing:.04em}
+.pill.live{background:var(--now);color:#fff}
+
+/* NOW line */
+.nowline{position:absolute;top:0;bottom:0;left:calc(118px + (100% - 118px)/5*0.5);
+  width:2px;background:var(--now);z-index:5;pointer-events:none}
+.nowline::before{content:"NOW";position:absolute;top:-1px;left:50%;transform:translateX(-50%);
+  background:var(--now);color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;white-space:nowrap}
+
+/* branch callout under T2 */
+.branchbox{display:grid;grid-template-columns:118px repeat(5,1fr);margin-top:2px}
+.branchbox .spacer{grid-column:1 / 4}
+.branch{grid-column:4 / 5;border-left:1px dashed var(--grid);padding:10px 8px;display:flex;flex-direction:column;gap:8px}
+.brcard{border-radius:7px;padding:8px 10px;font-size:11px;box-shadow:var(--shadow);position:relative}
+.brcard .lab{font-weight:700;font-size:11.5px;display:flex;align-items:center;gap:6px}
+.brcard.a{background:var(--panel);border-left:4px solid var(--branch-a)}
+.brcard.b{background:var(--panel);border-left:4px solid var(--branch-b)}
+.brcard .cond{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;color:var(--muted)}
+.brcard .arrow-to{font-size:10px;color:var(--muted);margin-top:3px}
+.dot-a{width:9px;height:9px;border-radius:50%;background:var(--branch-a);display:inline-block}
+.dot-b{width:9px;height:9px;border-radius:50%;background:var(--branch-b);display:inline-block}
+.forkhint{grid-column:4/5;text-align:center;font-size:10.5px;color:var(--muted);padding:2px 0 6px;border-left:1px dashed var(--grid)}
+
+/* arrows / dependency notes */
+.deps{display:grid;grid-template-columns:118px repeat(5,1fr);font-size:10px;color:var(--muted);margin:6px 0 0}
+.deps .d{border-left:1px dashed var(--grid);padding:4px 8px;display:flex;align-items:center;gap:4px}
+.deps .d.corner{border-left:none}
+.arw{color:var(--line);font-weight:700}
+
+/* kill table */
+.kill{margin-top:26px;background:var(--panel);border:1px solid var(--grid);border-radius:10px;
+  padding:14px 16px;box-shadow:var(--shadow)}
+.kill h2{font-size:14px;margin:0 0 10px;display:flex;align-items:center;gap:8px}
+.kill h2 .tag{font-size:10px;font-weight:700;background:var(--now);color:#fff;padding:2px 7px;border-radius:8px}
+.kwrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:420px;font-size:12px}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--grid)}
+th{color:var(--muted);font-weight:600;font-size:11px;letter-spacing:.03em}
+td code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px}
+tr td:last-child{font-weight:600}
+.tag-a{color:var(--branch-a)} .tag-b{color:var(--branch-b)} .tag-x{color:var(--now)}
+.foot{margin-top:16px;font-size:11px;color:var(--muted);text-align:center}
+
+/* dependency overlay */
+:root{--dep-main:#ef5f3c;--dep-cross:#0fa79b}
+@media (prefers-color-scheme:dark){:root{--dep-main:#ff7a5c;--dep-cross:#35d3c6}}
+:root[data-theme="light"]{--dep-main:#ef5f3c;--dep-cross:#0fa79b}
+:root[data-theme="dark"]{--dep-main:#ff7a5c;--dep-cross:#35d3c6}
+.board{position:relative}
+.depsvg{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:6;overflow:visible}
+.depsvg path.edge{fill:none;stroke-width:1.8px;opacity:.62;stroke-linecap:round;stroke-linejoin:round}
+.depsvg path.e-main{stroke:var(--dep-main)}
+.depsvg path.e-cross{stroke:var(--dep-cross)}
+.legend .sw.depmain{background:var(--dep-main)}
+.legend .sw.depcross{background:var(--dep-cross)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hd">
+    <h1>A6B 3マシン ワークフロー</h1>
+    <span class="sub">Qwen3.6-35B-A6B / ESFT k=32 → 分岐 → RL → Terminal-Bench</span>
+    <button class="toggle" id="tg">◐ テーマ切替</button>
+  </header>
+
+  <!-- legend -->
+  <div class="legend">
+    <span class="item"><span class="sw solid"></span>走行中(実線塗り)</span>
+    <span class="item"><span class="sw dotted"></span>予定(点線枠)</span>
+    <span class="item"><span class="sw gpu-host"></span>gpu-host 主砲</span>
+    <span class="item"><span class="sw aux-host"></span>aux-host 安定炉</span>
+    <span class="item"><span class="sw local"></span>ローカル 計測室</span>
+    <span class="item"><span class="sw now"></span>NOW 現在地</span>
+    <span class="item"><span class="dot-a"></span>分岐4a</span>
+    <span class="item"><span class="dot-b"></span>分岐4b</span>
+    <span class="item"><span class="sw depmain"></span>→ 主系列(依存)</span>
+    <span class="item"><span class="sw depcross"></span>→ 横断供給(レーン跨ぎ)</span>
+  </div>
+
+  <div class="scroll">
+  <div class="board">
+
+    <svg class="depsvg" id="depsvg" aria-hidden="true">
+      <defs>
+        <marker id="ah-main" markerWidth="7" markerHeight="7" refX="5" refY="2.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L5.5,2.5 L0,5 Z" fill="var(--dep-main)"/></marker>
+        <marker id="ah-cross" markerWidth="7" markerHeight="7" refX="5" refY="2.5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L5.5,2.5 L0,5 Z" fill="var(--dep-cross)"/></marker>
+      </defs>
+    </svg>
+
+    <!-- phase headers -->
+    <div class="phases">
+      <div class="ph corner"></div>
+      <div class="ph now"><b>T0 · NOW</b>並行走行</div>
+      <div class="ph"><b>T1</b>TB完走→gpu-host空き</div>
+      <div class="ph"><b>T2 · 分岐点</b>probe評価</div>
+      <div class="ph"><b>T3</b>RL(GRPO)</div>
+      <div class="ph"><b>T4 · 北極星</b>Terminal-Bench</div>
+    </div>
+
+    <!-- lane: gpu-host -->
+    <div class="lane gpu-host">
+      <div class="nowline"></div>
+      <div class="lanehead">
+        <span class="nm">gpu-host</span>
+        <span class="rl">主砲 · 最大実ジョブ常駐</span>
+        <span class="spec">Blackwell 8×96GB</span>
+      </div>
+      <div class="track">
+        <div class="blk run" id="n-tbpair">実技試験ペア走行<span class="pill live">LIVE</span>
+          <span class="m">base vs A6B-patch</span></div>
+      </div>
+      <div class="track">
+        <div class="blk plan" id="n-gradgate">grad-gate 検証<span class="m">--max-steps 5</span></div>
+        <div class="blk plan" id="n-probe">決定的 probe<span class="m">1200 step / router可動 joint</span></div>
+      </div>
+      <div class="track">
+        <div class="blk plan" id="n-evaldecision">MMLU@k32 / k=8非劣化<span class="m">paired McNemar 判定</span></div>
+      </div>
+      <div class="track">
+        <div class="blk plan" id="n-rl">router 凍結 → RL(GRPO)<span class="m">4b経由なら +2〜3日後</span></div>
+      </div>
+      <div class="track"></div>
+    </div>
+
+    <!-- lane: aux-host -->
+    <div class="lane aux-host">
+      <div class="lanehead">
+        <span class="nm">aux-host</span>
+        <span class="rl">安定炉 · 訓練/CPU前処理</span>
+        <span class="spec">2 GPU</span>
+      </div>
+      <div class="track">
+        <div class="blk run" id="n-control">対照訓練 p0.18 / v1<span class="pill live">LIVE</span>
+          <span class="m">2427 / 3150 step</span></div>
+      </div>
+      <div class="track">
+        <div class="blk plan">対照訓練 完了<span class="m">→ 後段へ引き渡し</span></div>
+        <div class="blk plan" id="n-corpus">v3 知識コーパス<span class="m">CPU 前処理</span></div>
+      </div>
+      <div class="track"></div>
+      <div class="track"></div>
+      <div class="track"></div>
+    </div>
+
+    <!-- lane: local -->
+    <div class="lane local">
+      <div class="lanehead">
+        <span class="nm">ローカル</span>
+        <span class="rl">計測室 · eval/レビュー/データ</span>
+        <span class="spec">16GB級 · eval固定</span>
+      </div>
+      <div class="track">
+        <div class="blk run">データセット・ミラー<span class="m">commit 固定</span></div>
+        <div class="blk run" id="n-implreview">router可動 joint 実装レビュー<span class="m">Opus</span></div>
+      </div>
+      <div class="track">
+        <div class="blk plan" id="n-evalprep">probe用 eval 準備<span class="m">harness → gpu-host判定へ供給</span></div>
+      </div>
+      <div class="track"></div>
+      <div class="track">
+        <div class="blk plan">汚染ゼロ監視 + reward検証</div>
+      </div>
+      <div class="track">
+        <div class="blk plan" id="n-tbeval">Terminal-Bench eval<span class="m">base@k8 超え判定</span></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- dependency arrow strip -->
+  <div class="deps">
+    <div class="d corner"></div>
+    <div class="d"><span class="arw">└▶</span> TB完走で gpu-host 解放</div>
+    <div class="d"><span class="arw">grad-gate ▶ probe</span></div>
+    <div class="d"><span class="arw">probe ▶ 判定</span></div>
+    <div class="d"><span class="arw">分岐 ▶ RL</span></div>
+    <div class="d"><span class="arw">RL ▶ 北極星</span></div>
+  </div>
+
+  <!-- branch callout under T2 -->
+  <div class="forkhint" id="n-fork">▼ T2 で 2 本に分岐（probe 評価結果で確定）</div>
+  <div class="branchbox">
+    <div class="spacer"></div>
+    <div class="branch">
+      <div class="brcard a" id="n-branch-a">
+        <span class="lab"><span class="dot-a"></span>4a · RL 直行</span>
+        <span class="cond">k=32 MMLU ≥ 0.832</span>
+        <div>協調問題確定 → <b>full-FFN 不要</b></div>
+        <span class="arrow-to">▶ そのまま T3 RL へ</span>
+      </div>
+      <div class="brcard b" id="n-branch-b">
+        <span class="lab"><span class="dot-b"></span>4b · full-FFN</span>
+        <span class="cond">k=32 MMLU &lt; 0.825</span>
+        <div>容量律速 → <b>full-FFN(router可動)</b></div>
+        <span class="arrow-to">▶ gpu-host を 2〜3日拘束 → その後 RL</span>
+      </div>
+    </div>
+  </div>
+  </div><!-- /board -->
+  </div><!-- /scroll -->
+
+  <!-- kill table -->
+  <div class="kill">
+    <h2>kill 判定表 <span class="tag">T2 分岐ルール</span></h2>
+    <div class="kwrap">
+    <table>
+      <thead><tr><th>k=32 MMLU</th><th>k=8 劣化</th><th>分岐</th></tr></thead>
+      <tbody>
+        <tr><td><code>≥ 0.832</code></td><td><code>≤ 0.008</code></td><td class="tag-a">4a · RL 直行</td></tr>
+        <tr><td><code>0.825–0.831</code></td><td><code>≤ 0.008</code></td><td>Elastic 補助loss で延長</td></tr>
+        <tr><td><code>&lt; 0.825</code></td><td><code>—</code></td><td class="tag-b">4b · full-FFN</td></tr>
+        <tr><td><code>any</code></td><td><code>&gt; 0.015</code></td><td class="tag-x">中止 · router 再凍結</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <div class="foot">時間は左→右 · 走行中は実線塗り / 予定は点線枠 · eval はローカル固定 · 北極星 = Terminal-Bench で base@k8 超え</div>
+</div>
+
+<script>
+(function(){
+  var b=document.getElementById('tg');
+  b.addEventListener('click',function(){
+    var r=document.documentElement;
+    var cur=r.getAttribute('data-theme');
+    if(!cur){cur=window.matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';}
+    r.setAttribute('data-theme',cur==='dark'?'light':'dark');
+  });
+})();
+(function(){
+  var SVGNS="http://www.w3.org/2000/svg";
+  var svg=document.getElementById('depsvg');
+  var board=document.querySelector('.board');
+  var paths=[];
+
+  // --- geometry helpers -------------------------------------------------
+  // Orthogonal routing: same-lane neighbours get short near-straight elbows;
+  // cross-lane supply runs vertically through empty column corridors and
+  // horizontally along lane-boundary channels. Rails/channels are offset so
+  // parallel runs never overlap and open-space crossings are kept minimal.
+  function A(id,base){
+    var el=document.getElementById(id); if(!el) return null;
+    var r=el.getBoundingClientRect();
+    return { l:r.left-base.left, r:r.right-base.left, t:r.top-base.top,
+             b:r.bottom-base.top, cx:r.left+r.width/2-base.left,
+             cy:r.top+r.height/2-base.top };
+  }
+  function laneY(el,base){ var r=el.getBoundingClientRect();
+    return { t:r.top-base.top, b:r.bottom-base.top }; }
+
+  // Build an orthogonal path from a list of [x,y] points with rounded corners.
+  function roundPath(pts,r){
+    var p=[]; for(var i=0;i<pts.length;i++){ var q=pts[i];
+      if(!p.length || Math.abs(p[p.length-1][0]-q[0])>0.5 || Math.abs(p[p.length-1][1]-q[1])>0.5) p.push(q); }
+    if(p.length<2) return '';
+    var d='M'+p[0][0].toFixed(1)+','+p[0][1].toFixed(1);
+    for(var j=1;j<p.length-1;j++){
+      var a=p[j-1],b=p[j],c=p[j+1];
+      var v1x=b[0]-a[0],v1y=b[1]-a[1],v2x=c[0]-b[0],v2y=c[1]-b[1];
+      var l1=Math.hypot(v1x,v1y)||1,l2=Math.hypot(v2x,v2y)||1;
+      var rr=Math.min(r,l1/2,l2/2);
+      var e1x=b[0]-v1x/l1*rr,e1y=b[1]-v1y/l1*rr;
+      var e2x=b[0]+v2x/l2*rr,e2y=b[1]+v2y/l2*rr;
+      d+=' L'+e1x.toFixed(1)+','+e1y.toFixed(1);
+      d+=' Q'+b[0].toFixed(1)+','+b[1].toFixed(1)+' '+e2x.toFixed(1)+','+e2y.toFixed(1);
+    }
+    var last=p[p.length-1];
+    d+=' L'+last[0].toFixed(1)+','+last[1].toFixed(1);
+    return d;
+  }
+  function build(){
+    for(var i=0;i<paths.length;i++){svg.removeChild(paths[i]);}
+    paths=[];
+    var base=board.getBoundingClientRect();
+    svg.setAttribute('viewBox','0 0 '+base.width+' '+base.height);
+
+    var N={};
+    ['n-tbpair','n-gradgate','n-probe','n-evaldecision','n-rl','n-tbeval',
+     'n-control','n-corpus','n-evalprep','n-implreview','n-fork',
+     'n-branch-a','n-branch-b'].forEach(function(id){N[id]=A(id,base);});
+
+    var lanes=document.querySelectorAll('.lane');
+    if(lanes.length<3) return;
+    var Lt=laneY(lanes[0],base), Lg=laneY(lanes[1],base), Ll=laneY(lanes[2],base);
+    var CH_tg=(Lt.b+Lg.t)/2;   // gpu-host | aux-host boundary channel
+    var CH_gl=(Lg.b+Ll.t)/2;   // aux-host | local boundary channel
+
+    var edges=[]; // {pts, cls}
+    function addE(pts,cls){ if(pts) edges.push({pts:pts,cls:cls}); }
+    function hElbow(a,b){ // right edge of a -> left edge of b, near-horizontal
+      var mx=(a.r+b.l)/2;
+      return [[a.r,a.cy],[mx,a.cy],[mx,b.cy],[b.l,b.cy]];
+    }
+
+    var g=N['n-gradgate'],p=N['n-probe'],ev=N['n-evaldecision'],rl=N['n-rl'],
+        tb=N['n-tbpair'],tbe=N['n-tbeval'],ctl=N['n-control'],cor=N['n-corpus'],
+        epr=N['n-evalprep'],impl=N['n-implreview'],fk=N['n-fork'],
+        ba=N['n-branch-a'],bb=N['n-branch-b'];
+
+    // ---- main spine (mostly inside gpu-host lane, short horizontals) --------
+    if(tb&&g) addE(hElbow(tb,g),'main');                // TB pair -> grad-gate
+    if(g&&p){ var xv=(g.cx+p.cx)/2;                      // grad-gate -> probe (vertical)
+              addE([[xv,g.b],[xv,p.t]],'main'); }
+    if(p&&ev) addE(hElbow(p,ev),'main');                // probe -> eval decision
+    if(ev&&fk){ var x4=ev.cx+12;                         // eval decision -> fork (drop)
+                addE([[x4,ev.b],[x4,fk.t]],'main'); }
+    if(ba&&rl){ var xa=ba.r-6;                           // branch 4a -> RL
+                addE([[xa,ba.t],[xa,rl.cy-5],[rl.l,rl.cy-5]],'main'); }
+    if(bb&&rl){ var xb=bb.r+4;                           // branch 4b -> RL
+                addE([[bb.r,bb.cy],[xb,bb.cy],[xb,rl.cy+5],[rl.l,rl.cy+5]],'main'); }
+    if(rl&&tbe){ var xr=(rl.r+tbe.l)/2;                  // RL -> Terminal-Bench eval
+                 addE([[rl.r,rl.cy],[xr,rl.cy],[xr,tbe.cy],[tbe.l,tbe.cy]],'cross'); }
+
+    // ---- cross-lane supply (orthogonal, corridors + boundary channels) --
+    if(impl&&g){ // impl review (local) -> grad-gate (gpu-host). Rise in T0|T1 gap.
+      var xr1=g.l-14; if(ctl&&xr1<ctl.r+5) xr1=ctl.r+5;
+      addE([[impl.r,impl.cy],[xr1,impl.cy],[xr1,CH_tg],[g.cx,CH_tg],[g.cx,g.b]],'cross');
+    }
+    if(epr&&ev){ // eval prep (local) -> eval decision (gpu-host). Rise through empty T2.
+      var xu=ev.cx-16;
+      addE([[epr.r,epr.cy],[xu,epr.cy],[xu,ev.b]],'cross');
+    }
+    if(ctl&&cor){ // control -> corpus (compact elbow inside aux-host lane)
+      var mx2=cor.l-4;
+      addE([[ctl.r,ctl.cy],[mx2,ctl.cy],[mx2,cor.cy],[cor.l,cor.cy]],'cross');
+    }
+    if(cor&&bb&&ev){ // corpus (aux-host) -> branch 4b. Drop via channel + empty T2.
+      var xd=bb.cx; if(xd>=ev.cx+8) xd=ev.cx+2;
+      addE([[cor.cx,cor.b],[cor.cx,CH_gl],[xd,CH_gl],[xd,bb.t]],'cross');
+    }
+
+    // ---- render ---------------------------------------------------------
+    edges.forEach(function(e){
+      var d=roundPath(e.pts,9); if(!d) return;
+      var path=document.createElementNS(SVGNS,'path');
+      path.setAttribute('d',d);
+      path.setAttribute('class','edge '+(e.cls==='main'?'e-main':'e-cross'));
+      path.setAttribute('marker-end','url(#'+(e.cls==='main'?'ah-main':'ah-cross')+')');
+      svg.appendChild(path);
+      paths.push(path);
+    });
+  }
+  function schedule(){ requestAnimationFrame(build); }
+  window.addEventListener('load',function(){build();setTimeout(build,250);});
+  window.addEventListener('resize',schedule);
+  if(document.fonts&&document.fonts.ready){document.fonts.ready.then(build);}
+  document.addEventListener('DOMContentLoaded',build);
+})();
+</script>
+</body>
+</html>
