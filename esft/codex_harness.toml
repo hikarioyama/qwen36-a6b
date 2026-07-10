@@ -1,0 +1,52 @@
+schema_version = 1
+
+[runtime]
+python = "/usr/bin/python3"
+gpus = "0,1"
+cuda_device_order = "PCI_BUS_ID"
+pytorch_cuda_alloc_conf = "expandable_segments:True"
+gpu_max_used_mib = 1024
+gpu_max_utilization_percent = 5
+run_root = "reports/eval/codex_runs"
+
+[stock]
+path = "/mnt/data/hf_cache/huggingface/hub/models--Qwen--Qwen3.6-35B-A3B/snapshots/995ad96eacd98c81ed38be0c5b274b04031597b0"
+revision = "995ad96eacd98c81ed38be0c5b274b04031597b0"
+shard_count = 26
+fingerprint_key_suffix = "layers.3.mlp.experts.gate_up_proj"
+fingerprint_expert = 6
+fingerprint_sha256 = "3a1ca2a61e9a86af44c5114d72a9033504d3a20e27c3c6838f4162b87e3aa315"
+forbidden_path = "/mnt/data/models/Qwen3.6-35B-A3B-agentic-k32"
+
+[patches.b2]
+path = "/mnt/data/probe_ckpt_eval/g1B2_patch.safetensors"
+sha256 = "3a35b3c8aa291c2d81afd1164b6e1e28da27a5705c1d832a86d2d01c1ec34f87"
+tensor_count = 1666
+router_tensor_count = 0
+
+[protocols.mmlu]
+n = 600
+seed = 0
+shuffle = true
+batch_size = 16
+max_new = 0
+no_think = true
+choice_logprob = true
+
+[protocols.gsm8k]
+n = 600
+seed = 0
+shuffle = true
+batch_size = 16
+max_new = 2048
+no_think = true
+choice_logprob = false
+
+[protocols.humaneval]
+n = 164
+seed = 0
+shuffle = true
+batch_size = 8
+max_new = 4096
+no_think = false
+choice_logprob = false

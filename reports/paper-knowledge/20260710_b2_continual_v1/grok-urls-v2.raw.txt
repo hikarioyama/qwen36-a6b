@@ -1,0 +1,21 @@
+Verifying paper IDs from partial search results before returning URLs.
+https://arxiv.org/abs/2101.03961
+https://arxiv.org/abs/2006.16668
+https://arxiv.org/abs/2202.08908
+https://arxiv.org/abs/2206.14365
+https://arxiv.org/abs/2401.04088
+https://arxiv.org/abs/2212.05055
+https://arxiv.org/abs/2110.01786
+https://arxiv.org/abs/2403.07816
+https://arxiv.org/abs/2302.03241
+https://arxiv.org/abs/2308.04014
+https://arxiv.org/abs/2308.08747
+https://arxiv.org/abs/2401.03129
+https://arxiv.org/abs/2403.08763
+https://aclanthology.org/2020.acl-main.674
+https://arxiv.org/abs/1503.02531
+https://arxiv.org/abs/2306.08543
+https://arxiv.org/abs/2404.02657
+https://arxiv.org/abs/2106.09685
+https://arxiv.org/abs/2310.14152
+https://arxiv.org/abs/2312.10793

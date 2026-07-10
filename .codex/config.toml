@@ -1,0 +1,7 @@
+model = "gpt-5.6-sol"
+model_reasoning_effort = "ultra"
+personality = "pragmatic"
+
+[features]
+multi_agent = true
+unified_exec = true

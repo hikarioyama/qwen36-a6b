@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "poll_interval_seconds": 30,
+  "terminal_confirmations": 2,
+  "events_root": "./reports/job-events",
+  "jobs": [
+    {
+      "id": "example-local-run-v1",
+      "label": "Example local evaluation",
+      "kind": "local_manifest",
+      "pid": 12345,
+      "cmd_contains": "evaluation-command --run-id example-local-run-v1",
+      "manifest_path": "./manifest.json"
+    },
+    {
+      "id": "example-remote-run-v1",
+      "label": "Example remote training run",
+      "kind": "ssh_process",
+      "host": "training-node",
+      "pid": 23456,
+      "cmd_contains": "train.py --run-id example-remote-run-v1",
+      "remote_python": "python3",
+      "log_path": "./train.log",
+      "success_pattern": "training complete",
+      "success_files": [
+        "./model.safetensors"
+      ]
+    }
+  ]
+}

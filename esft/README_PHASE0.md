@@ -23,7 +23,7 @@ data/train/{domain}.jsonl       ESFT-format {"messages": [...]} (built)
 vendor/ESFT/                deepseek-ai/ESFT reference clone
 ```
 
-Interpreter: `~/quant-env/bin/python` (transformers 5.7.0). Always run with
+Interpreter: set `$VENV` to a Python environment with transformers 5.7.0. Always run with
 `CUDA_VISIBLE_DEVICES=""` for the CPU steps.
 
 ## Status
@@ -42,7 +42,7 @@ Interpreter: `~/quant-env/bin/python` (transformers 5.7.0). Always run with
 ## Reproduce the CPU work
 
 ```bash
-VENV=~/quant-env/bin/python
+: "${VENV:?Set VENV to the Python interpreter}"
 cd ~/projects/qwen36-a6b/esft
 
 # 1. Data (already built; re-run to regenerate)
@@ -59,7 +59,7 @@ Use a local snapshot path for `--model` to avoid any download. `MODEL` below can
 BF16 checkpoint once its weights are local, or any Qwen3.6-35B-A3B weights.
 
 ```bash
-VENV=~/quant-env/bin/python
+: "${VENV:?Set VENV to the Python interpreter}"
 MODEL=Qwen/Qwen3.6-35B-A3B          # or a local snapshot dir with weights
 
 # 3. Collect router stats per domain (top-8 default; --top-k N to override)

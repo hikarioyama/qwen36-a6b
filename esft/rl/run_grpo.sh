@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# GRPO [T]-phase launch (aux-host 2×RTX PRO 6000, torchrun DDP).
+# GRPO [T]-phase launch (remote 2×RTX PRO 6000, torchrun DDP).
 #
 # Prereq: a rollouts jsonl from the [G] phase (rollout_gen.py / inc0_gen.py) and the
 # SFT starting patch (esft-qwen-patch-v1, trained_as=residual-delta). The starting
@@ -7,13 +7,14 @@
 # true base with the delta disabled.
 #
 # GPU note: DO NOT run while the Japanese training tmux (jptrain) holds GPUs 0,1.
-# This script assumes the aux-host box is free.
+# This script assumes the remote training node is free.
 set -euo pipefail
 
-VENV=~/vllm-env/bin
-ESFT=~/projects/qwen36-a6b/esft
+: "${VENV:?Set VENV to the virtual-environment bin directory}"
+: "${PATCH:?Set PATCH to the starting patch file}"
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+ESFT=${ESFT:-$(cd -- "$SCRIPT_DIR/.." && pwd)}
 MODEL=${MODEL:-Qwen/Qwen3.6-35B-A3B}
-PATCH=${PATCH:-~/esft-patches/expert_patch.safetensors}
 ROLLOUTS=${ROLLOUTS:-$ESFT/rl/rollouts/inc0_prefill.jsonl}
 PROMPTS=${PROMPTS:-$ESFT/rl/data/grpo_prompts.jsonl}
 OUT=${OUT:-$ESFT/rl/runs/grpo_c1}

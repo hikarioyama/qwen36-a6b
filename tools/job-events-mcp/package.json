@@ -1,0 +1,14 @@
+{
+  "name": "qwen36-a6b-job-events-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun build server.ts --target=node --outfile=dist/server.js",
+    "server": "node dist/server.js",
+    "smoke": "bun run build && python3 smoke.py && python3 watcher_smoke.py"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.27.1"
+  }
+}

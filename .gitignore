@@ -10,5 +10,10 @@ __pycache__/
 *.pt
 *.gguf
 *.log
+esft/reports/eval/codex_runs/
+reports/compact_handoff_*.md
+reports/grok-gpu-preflight/
+reports/launch-bundles/
+reports/job-events/
 CONCEPT.md
 ESFT_PLAN.md
