@@ -1,0 +1,245 @@
+<title>35B-A6B キャンペーン現状報告 — 2026-07-10 未明</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root{
+    --bg:#f6f7f6; --surface:#ffffff; --ink:#1c2126; --ink-soft:#5d6873;
+    --line:#dfe4e8; --accent:#3d5a80; --accent-soft:#e7edf4;
+    --good:#2e7d4f; --good-soft:#e3f0e8; --bad:#b3453a; --bad-soft:#f7e8e6;
+    --warn:#9a6b1f; --warn-soft:#f6eeDD; --dead:#8a939b;
+    --mono:ui-monospace,"SF Mono","Cascadia Mono",Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#12161a; --surface:#1a2027; --ink:#e8ecef; --ink-soft:#97a3ad;
+      --line:#2a323b; --accent:#7da7cf; --accent-soft:#22303f;
+      --good:#66bb8a; --good-soft:#1c2f24; --bad:#e08578; --bad-soft:#39221f;
+      --warn:#d9a856; --warn-soft:#332a18; --dead:#6b757e; }
+  }
+  :root[data-theme="light"]{ --bg:#f6f7f6; --surface:#ffffff; --ink:#1c2126; --ink-soft:#5d6873;
+    --line:#dfe4e8; --accent:#3d5a80; --accent-soft:#e7edf4;
+    --good:#2e7d4f; --good-soft:#e3f0e8; --bad:#b3453a; --bad-soft:#f7e8e6;
+    --warn:#9a6b1f; --warn-soft:#f6eedd; --dead:#8a939b; }
+  :root[data-theme="dark"]{ --bg:#12161a; --surface:#1a2027; --ink:#e8ecef; --ink-soft:#97a3ad;
+    --line:#2a323b; --accent:#7da7cf; --accent-soft:#22303f;
+    --good:#66bb8a; --good-soft:#1c2f24; --bad:#e08578; --bad-soft:#39221f;
+    --warn:#d9a856; --warn-soft:#332a18; --dead:#6b757e; }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);
+    font:15px/1.75 "Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP","Yu Gothic UI",sans-serif;
+    -webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  .wrap{max-width:880px;margin:0 auto;padding:48px 22px 100px;}
+
+  header{border-bottom:2px solid var(--accent);padding-bottom:22px;margin-bottom:34px;}
+  .eyebrow{font-size:12px;letter-spacing:.14em;color:var(--accent);font-weight:700;margin:0 0 10px;}
+  h1{font-size:25px;line-height:1.4;margin:0 0 10px;font-weight:700;text-wrap:balance;}
+  .lede{color:var(--ink-soft);font-size:14.5px;margin:0;max-width:70ch;}
+  .stamp{font-family:var(--mono);font-size:12px;color:var(--ink-soft);margin-top:12px;}
+
+  h2{font-size:18px;margin:44px 0 6px;font-weight:700;display:flex;align-items:baseline;gap:10px;}
+  h2 .no{font-family:var(--mono);font-size:13px;color:var(--accent);font-weight:600;}
+  h3{font-size:15px;margin:26px 0 4px;font-weight:700;}
+  p{margin:10px 0;max-width:74ch;}
+  .soft{color:var(--ink-soft);}
+  small{color:var(--ink-soft);}
+  ul{margin:8px 0;padding-left:22px;}
+  li{margin:5px 0;}
+  strong{font-weight:700;}
+  code{font-family:var(--mono);font-size:.86em;background:var(--accent-soft);
+    border-radius:4px;padding:1px 5px;}
+
+  .chip{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.05em;
+    border-radius:3px;padding:2px 8px;vertical-align:2px;}
+  .chip.m{background:var(--good-soft);color:var(--good);}
+  .chip.p{background:var(--warn-soft);color:var(--warn);}
+  .chip.d{background:var(--bad-soft);color:var(--bad);}
+  .chip.x{background:var(--accent-soft);color:var(--accent);}
+
+  .callout{border:1px solid var(--line);border-left:4px solid var(--accent);
+    background:var(--surface);border-radius:6px;padding:14px 18px;margin:16px 0;}
+  .callout.good{border-left-color:var(--good);}
+  .callout.bad{border-left-color:var(--bad);}
+  .callout.warn{border-left-color:var(--warn);}
+  .callout p{margin:6px 0;}
+
+  .tablewrap{overflow-x:auto;margin:14px 0;}
+  table{border-collapse:collapse;width:100%;background:var(--surface);
+    border:1px solid var(--line);border-radius:6px;overflow:hidden;font-size:13.5px;}
+  th{background:var(--accent-soft);color:var(--ink);text-align:left;
+    padding:8px 12px;font-weight:700;white-space:nowrap;border-bottom:1px solid var(--line);}
+  td{padding:7px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  td.num,th.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;}
+  td.pos{color:var(--good);font-weight:700;}
+  td.neg{color:var(--bad);font-weight:700;}
+  td.mut{color:var(--dead);}
+  tr.hl td{background:var(--accent-soft);}
+
+  .flow{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;font-size:13px;}
+  .flow .node{background:var(--surface);border:1px solid var(--line);border-radius:6px;
+    padding:8px 12px;flex:1 1 150px;min-width:150px;}
+  .flow .node b{display:block;font-size:12.5px;}
+  .flow .node span{color:var(--ink-soft);font-size:12px;line-height:1.5;display:block;margin-top:2px;}
+  .flow .node.win{border-color:var(--good);}
+  .flow .node.dead{opacity:.62;}
+
+  .meta-note{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
+  footer{margin-top:52px;padding-top:16px;border-top:1px solid var(--line);
+    color:var(--ink-soft);font-size:12.5px;}
+  .toggle{position:fixed;top:14px;right:14px;z-index:9;background:var(--surface);
+    border:1px solid var(--line);color:var(--ink-soft);border-radius:20px;
+    padding:5px 12px;font-size:12px;cursor:pointer;}
+</style>
+
+<button class="toggle" id="tt" aria-label="テーマ切替">theme</button>
+<div class="wrap">
+
+<header>
+  <p class="eyebrow">35B-A6B キャンペーン 現状報告</p>
+  <h1>knowledge tax の正体は「重みの容量」ではなく「gate 質量の未較正」だった — 訓練(KL 蒸留)と推論(gate 整形)の 2 レバーが実証された夜</h1>
+  <p class="lede">Qwen3.6-35B-A3B の推論 top-k を 8→32 に拡張(〜6.6B active、重み追加ゼロ)した際の知識劣化(MMLU −3.2pt)について、2026-07-09〜10 未明に走らせたゲート列実験の完全な記録。すべての数字は n=600・同一マシン同一ハーネス・paired exact McNemar。</p>
+  <p class="stamp">2026-07-10 04:30 JST 時点 / 測定基盤: local 真stock 再アンカー済み / <span class="chip m">実測</span> <span class="chip p">走行中・未測</span> <span class="chip d">反証済</span></p>
+</header>
+
+<h2><span class="no">TL;DR</span>今夜確定した4つの事実</h2>
+<div class="callout good">
+<ul style="margin:4px 0">
+  <li><strong>① KL 蒸留(G1)が本命として立った。</strong> k8 教師の出力分布に合わせる訓練(β=0.5、500 step)で MMLU@k32 = <strong>0.8417</strong> — base@k8(0.8467)と統計同着(p=0.74)。β 0→0.1→0.5 の単調用量反応で mechanism 確定。</li>
+  <li><strong>② gate 整形(G0)は訓練ゼロで +2.67pt(有意)</strong>を戻す — ただし <strong>math を −3.67pt 壊す</strong>(有意)ため、静的な一律適用は不成立。ドメイン依存レバーとして保留。</li>
+  <li><strong>③ 「容量不足だから full-FFN(32B 訓練、2-3日)」は棄却寸前まで後退。</strong> データ(v3 知識厚め)と目的関数(KL)の修正だけで天井にほぼ到達したため。</li>
+  <li><strong>④ eval 基盤の重大事故 2 件を検出・修復。</strong> 測定土台は真 stock で再アンカー済み、今夜の結論はすべて修復後の数字。</li>
+</ul>
+</div>
+
+<h2><span class="no">01</span>ここまでの経緯(なぜゲート列になったか)</h2>
+<p>昨日までの主計画は「選抜 ESFT の −2pt 頭打ちは容量律速 → full-FFN(全 expert 32.2B を FSDP 訓練)で根治」だった。実装と INC-0 メモリプローブ(peak 61.8GiB/GPU、全 assert GREEN)まで完了し、本走スクリプトも staged 済み。</p>
+<p>そこでユーザ判断により Grok 4.5 で計画への敵対レビューを実施。刺さった攻撃は 3 点: (a) 選抜 ESFT の checkpoint 軌道が <em>単調下降</em>(0.825→0.820)しており「容量不足なら平坦のはず」と矛盾、(b) 出力レベルの KL(k8→k32)という最直接のノブが未試行、(c) 知識回復のデータが自分たちの事故ログ(SFT はスタイルを先に転写する)と矛盾。これを受け <strong>full-FFN 直行を棄却し、安いゲートを直列に踏む方式へ転換</strong>した。</p>
+<div class="flow">
+  <div class="node win"><b>G0: gate 整形 <span class="chip m">実測</span></b><span>訓練ゼロ。rank9-32 の質量を推論時に減衰。知識 +2.67pt / math −3.67pt</span></div>
+  <div class="node win"><b>G1: k8→k32 KL 蒸留 <span class="chip m">実測</span></b><span>教師 logits 事前計算 + CE+βKL。β0.5 で base@k8 と同着</span></div>
+  <div class="node"><b>G2: 選抜拡大 p0.2→0.5 <span class="chip p">未着手</span></b><span>G1 の勝ちで優先度低下</span></div>
+  <div class="node dead"><b>G4: full-FFN 本走 <span class="chip x">staged・降格</span></b><span>上記全滅時のみ。script/INC-0 は完備のまま凍結</span></div>
+</div>
+
+<h2><span class="no">02</span>測定土台の再アンカー(kill table の正しい姿)</h2>
+<p>後述の事故検出に伴い、local の<strong>真 stock</strong>(HF snapshot 995ad…)で全対照を測り直した。以後の比較はすべてこの土台上にある。</p>
+<div class="tablewrap"><table>
+<tr><th>構成(local、MMLU、choice-logprob、n=600)</th><th class="num">acc</th><th>意味</th></tr>
+<tr><td>base@k8(native、目標線)</td><td class="num">0.8467</td><td>治したい水準</td></tr>
+<tr><td>base@k32 naive(無訓練 k 拡張)</td><td class="num">0.8150</td><td>knowledge tax = −3.2pt</td></tr>
+<tr><td>router可動 joint probe @k32(mixed_v2、1200 step)</td><td class="num">0.8183</td><td class="mut">訓練効果 +0.3pt = ほぼ無効</td></tr>
+<tr><td>同 probe @k8</td><td class="num">0.8533</td><td>k8 経路は無傷(abort 条件クリア)</td></tr>
+</table></div>
+<p class="meta-note">aux-host(別マシン・同一新ハーネス)の対照 k32素 0.8183 / k8素 0.850 とクロスマシン整合(±0.3pt)。</p>
+<div class="callout">
+<p><strong>router 可動仮説の判定(G2 kill table):</strong> joint 訓練(expert delta + router 解凍、k∈{8,16,24,32} ランダム化、1200 step)は checkpoint 300/600/900/1200 で 0.813〜0.818 と<strong>完全フラット</strong>。router の自由度は知識を 1pt も動かさなかった — <strong>「router 較正が主因」仮説は反証</strong> <span class="chip d">反証済</span>。一方 GSM8K@k32 は 0.890 まで完治しており、「math は訓練で治る・知識だけ残る」という選択的な壁が確認された。</p>
+</div>
+
+<h2><span class="no">03</span>G0: 推論時 gate 整形 — 訓練ゼロで knowledge tax の 84% が消えた</h2>
+<p>実装は router softmax 後の重み再配分 hook(モデル重み不変、OFF 時 bit 同一を実証)。3 系統 × 2 パラメータを sweep(aux-host 真stock、n=600、paired)。</p>
+<div class="tablewrap"><table>
+<tr><th>整形</th><th class="num">MMLU</th><th class="num">Δ vs k32素</th><th class="num">McNemar p</th><th>判定</th></tr>
+<tr><td>k32 素(対照)</td><td class="num">0.8183</td><td class="num">—</td><td class="num">—</td><td></td></tr>
+<tr class="hl"><td><strong>rankdamp 0.5</strong>(rank9-32 の重み×0.5→再正規化)</td><td class="num">0.8450</td><td class="num pos">+2.67pt</td><td class="num">0.0052</td><td><strong>有意・勝者</strong></td></tr>
+<tr><td>rankdamp 0.25</td><td class="num">0.8450</td><td class="num pos">+2.67pt</td><td class="num">0.0113</td><td>有意(プラトー広い)</td></tr>
+<tr><td>masscut 0.80(累積80%で tail 切断、実効k≈23)</td><td class="num">0.8367</td><td class="num pos">+1.83pt</td><td class="num">0.0433</td><td>有意</td></tr>
+<tr><td>temp 0.5 / 0.7(softmax 温度)</td><td class="num">0.840 / 0.838</td><td class="num">+2.2 / +2.0pt</td><td class="num">0.098 / 0.088</td><td>非有意</td></tr>
+<tr><td>masscut 0.90</td><td class="num">0.8233</td><td class="num">+0.5pt</td><td class="num">0.63</td><td>非有意</td></tr>
+<tr><td>k8 素(参考天井)</td><td class="num">0.8500</td><td class="num">+3.17pt</td><td class="num">0.0127</td><td></td></tr>
+</table></div>
+<p>整形強度に対する効果の単調性(rankdamp 0.25/0.5 → masscut 0.8 → 0.9)と広いプラトーから、<strong>ナイフエッジでない頑健な効果</strong>と判断できる。</p>
+
+<div class="callout bad">
+<p><strong>ただし math には逆効果(G0b/G0c で実測)。</strong> 同じ rankdamp 0.5 が GSM8K@k32 を 0.8433 → 0.8067(<strong>−3.67pt、p=0.012 有意</strong>)に落とす。α=0.7 に緩めると知識 +1.33pt / math −0.83pt(どちらも非有意)の中間点。</p>
+</div>
+<div class="tablewrap"><table>
+<tr><th>rankdamp α(aux-host、n=600)</th><th class="num">MMLU Δ</th><th class="num">GSM8K Δ</th></tr>
+<tr><td>1.0(整形なし)</td><td class="num">±0</td><td class="num">±0</td></tr>
+<tr><td>0.7</td><td class="num pos">+1.33pt <small>(p=.12)</small></td><td class="num">−0.83pt <small>(p=.60)</small></td></tr>
+<tr><td>0.5</td><td class="num pos">+2.67pt <small>(p=.005)</small></td><td class="num neg">−3.67pt <small>(p=.012)</small></td></tr>
+</table></div>
+<p><strong>解釈:</strong> rank9-32 の gate 質量(このモデルの実測で 54〜63%)は<strong>知識には毒、math には栄養</strong>。fact recall は少数 expert の鋭い混合を要求し、多段推論は幅広い協調から利得を得る。静的な一律整形に free lunch はなく、使うならタスク種別で切り替える動的制御(分類器 gated)が必要になる。</p>
+<div class="callout good">
+<p><strong>合成は knowledge 側で機能:</strong> healed patch(mixed_v1、router 凍結 SFT)@k32 = 0.825 に rankdamp0.5 を重ねると <strong>0.8467(+2.17pt、p=0.0044 有意)</strong> — aux-host の k8素(0.850)と CI 内。訓練と整形は独立に積める。</p>
+</div>
+
+<h2><span class="no">04</span>G1: k8 教師 KL 蒸留 — 訓練だけで base@k8 と統計同着</h2>
+<p>設計: k8(native 設定)の出力 top-64 logits を訓練コーパス全 block について事前計算(58GB、8-GPU 1.7h)し、選抜 delta 訓練(p0.2、router 凍結、k32 固定)の損失に <code>CE + β·KL(teacher‖student)</code> を追加。FLCE と両立させるため teacher の top-64 indices だけ部分 lm_head 計算(full logits を作らない)。データは v3(知識厚め新コーパス: code / japanese / knowledge_en、汚染ゲート済 239,924 件)。</p>
+<div class="tablewrap"><table>
+<tr><th>腕(local 真stock、MMLU@k32、n=600、500 step)</th><th class="num">acc</th><th class="num">Δ vs naive</th><th>paired 判定</th></tr>
+<tr><td>naive(無訓練)</td><td class="num">0.8150</td><td class="num">—</td><td></td></tr>
+<tr><td>A: CE only</td><td class="num">0.8317</td><td class="num pos">+1.67pt</td><td></td></tr>
+<tr><td>B1: CE + KL β0.1</td><td class="num">0.8367</td><td class="num pos">+2.17pt</td><td>vs naive p=0.011 有意</td></tr>
+<tr class="hl"><td><strong>B2: CE + KL β0.5</strong></td><td class="num">0.8417</td><td class="num pos">+2.67pt</td><td><strong>vs naive p=0.0025 有意 / vs base@k8 p=0.74 同着</strong></td></tr>
+<tr><td>base@k8(目標線)</td><td class="num">0.8467</td><td class="num">+3.17pt</td><td></td></tr>
+</table></div>
+<p>2 つの独立した知見が重なっている:</p>
+<ul>
+<li><strong>データが律速だった。</strong> CE only でも v3(知識厚め)なら +1.67pt — mixed_v2(agentic 62%)で 3,150 step 回して +0.5pt だったものが、データを変えるだけで 500 step で 3 倍動いた。</li>
+<li><strong>KL は本物の上積み。</strong> β 0 → 0.1 → 0.5 で 0.8317 → 0.8367 → 0.8417 の<strong>単調用量反応</strong>。B2 vs A 単独の差(+1.0pt)は n=600 では未有意(p=0.24)だが、用量反応の存在が偶然を強く排除する。</li>
+</ul>
+<div class="callout warn">
+<p><strong>未測の重要事項:</strong> B2 の GSM8K / HumanEval(math・coding を壊していないか)。KL は「k8 の挙動に寄せる」訓練なので、理論上は k32 の math 利得(0.890 まで完治した実績)を薄める可能性がある。これが green なら B2 系が本線確定。<span class="chip p">次の測定</span></p>
+</div>
+
+<h2><span class="no">05</span>mechanism の現在の絵</h2>
+<p>今夜の実測を 1 枚に畳むと:</p>
+<ul>
+<li>fact は k8 経路に無傷で残っている(joint@k8 0.8533)。k32 の知識劣化は「知識が消えた」のではなく「<strong>tail 24 expert の未較正出力が fact の logit margin を薄めて読めなくしている</strong>」。</li>
+<li>だから (a) 推論時に tail 質量を減衰しても (b) 訓練で k32 分布を k8 分布に合わせても、どちらでも回復する — 2 本のレバーが同じ壁の別の面を叩いている。</li>
+<li>math は逆に tail expert の実計算を使っており(damp で −3.7pt / 訓練で 0.890 完治)、knowledge と math で<strong>最適 gate 形状が違う</strong>。</li>
+<li>「重み容量が足りない」説を支持する実測は現存しない — full-FFN の根拠は崩れた。</li>
+</ul>
+
+<h2><span class="no">06</span>integrity 事故 2 件と修復(正直な記録)</h2>
+<div class="callout bad">
+<p><strong>事故①: 「stock base」と思っていた local モデルが merged モデルだった。</strong> <code>/mnt/data/models/Qwen3.6-35B-A3B-agentic-k32</code> は README が stock のままだが、重み指紋(agentic 選抜内の expert)が stock と不一致 = agentic patch 焼き込み済みモデル。今日日中の joint probe eval 群はこれを base にした「キメラ」測定だった(patch が選抜 833 expert + router を上書きするため汚染は選抜外のみ、フラット性の結論は不変、絶対値のみ 0.8133→0.8183 に修正)。</p>
+<p><strong>事故②: aux-host の eval ハーネスが choice-logprob 未実装の旧版だった。</strong> 生成ベース MMLU で走った初回 G0 sweep は k32 0.8517 &gt; k8 0.805 という物理と逆の値を出した(無効、退避済み)。</p>
+<p><strong>検出の経緯が教訓そのもの:</strong> aux-host の「あり得ない逆転」を配線バグと疑い、3 ノードの重み指紋照合で①が、tok/s&gt;0(logprob なら 0)で②が確定。<strong>モデル dir は README や名前でなく重み指紋で検証する。物理に反する数字は必ず配線を疑う。</strong>修復: 真 stock で全対照を再アンカー(§02)、aux-host へ新ハーネス移植、以後の数字はすべて修復後。</p>
+</div>
+<p class="soft">その他の踏み抜き(修復済): ①router 永続化バグ(checkpoint に訓練済み router が保存されず初回 probe 1200 step が無評価に → save/load 修正・save-test で 120 キー実証)②FSDP×Adafactor の optimizer state 保存が scalar RMS の rank 間 assert で必ず死ぬ(model-only checkpoint で回避)③FSDP use_orig_params の grad は rank の shard 所有分のみ(union 判定に修正)④HumanEval の default max_new で 55% truncation(4096 で再走中)。</p>
+
+<h2><span class="no">07</span>いま走っているもの・資産</h2>
+<div class="tablewrap"><table>
+<tr><th>ノード</th><th>状態</th><th>内容</th></tr>
+<tr><td>gpu-host(8×96GB)</td><td><span class="chip x">idle</span></td><td>G1 3腕完走済み。次弾(B2 延長 / β sweep / B2+v3 本走)は裁可待ち</td></tr>
+<tr><td>aux-host(2×96GB)</td><td><span class="chip p">走行中</span></td><td>G0d: HumanEval×rankdamp 3腕(max_new 4096 で再走、1本目 48/82)+ healed math×damp 2本</td></tr>
+<tr><td>local(2×96GB)</td><td><span class="chip x">idle</span></td><td>B2 eval 完了。次: B2 の GSM8K/HE 測定が最優先候補</td></tr>
+</table></div>
+<ul class="soft" style="font-size:13px">
+<li>healed 本走(mixed_v1、3,150 step)完走・vault 回収済: <code>/mnt/vault/runs/aux-host_mixed_v1_esft_k32_20260709/</code>(9.2GB)</li>
+<li>k8 教師 logits: gpu-host <code>k8_teacher_v3_seq7168_top64/</code>(58GB、v3 cache 全 22,238 block)</li>
+<li>G1 patch 3 本: local <code>/mnt/data/probe_ckpt_eval/g1{A,B1,B2}_patch.safetensors</code></li>
+<li>gate 整形実装: aux-host <code>~/esft/gate_shaping.py</code>(env 切替、OFF 時 bit 同一)</li>
+<li>full-FFN 一式(凍結): gpu-host <code>run_fullffn_main.sh</code> + INC-0 GREEN 済み trainer(v3 70% + mixed_v2 30% 設定のまま)</li>
+<li>eval レポート: local <code>~/esft/reports/eval/</code>(reanchor_* / g1_arm*)、aux-host <code>~/esft/reports/eval/</code>(g0_* / g0b〜g0d)</li>
+</ul>
+
+<h2><span class="no">08</span>分岐と推奨(裁可待ち)</h2>
+<div class="tablewrap"><table>
+<tr><th>選択肢</th><th>コスト</th><th>期待値(正直)</th></tr>
+<tr class="hl"><td><strong>推奨①: B2 の GSM8K + HumanEval を即測定</strong> — 「両取り」の最終確認。green なら B2 系(v3 + KL β0.5)を本線宣言</td><td class="num">~1.5h(local)</td><td>高。ここが分水嶺</td></tr>
+<tr><td><strong>推奨②: KL 本走</strong> — β0.5 で step 延長(500→1500-2000)+ β1.0 の 1 点。残り 0.5pt と base@k8 超えを狙う</td><td class="num">~半日(gpu-host)</td><td>中〜高。用量反応の外挿どおりなら超えは射程内</td></tr>
+<tr><td>β sweep 精密化(0.3 / 0.7)や healed+KL 合成</td><td class="num">各 ~2.5h</td><td>中。②の後でよい</td></tr>
+<tr><td>動的 gate 整形(knowledge 検出で damp 切替)</td><td class="num">実装 ~1日</td><td>中。KL 単独で足りれば不要 — B2 の math 結果待ち</td></tr>
+<tr><td>full-FFN 本走</td><td class="num">2-3日(gpu-host)</td><td class="mut">低。根拠が崩れた。凍結のまま保持</td></tr>
+</table></div>
+<p>北極星(Terminal-Bench)への接続: B2 系が MMLU/GSM8K/HE を全て base@k8 同等以上で守れるなら、「A6B = k32 の agentic 増力を、知識・math の税ゼロで得る」構成が完成し、その上で RL(GRPO / SWE-RL)へ進む土台になる。</p>
+
+<footer>
+測定規律: すべて n=600(HumanEval のみ 164)、同一マシン・同一ハーネス・同一 seed の paired 比較、有意判定は exact McNemar。「実測」「未測」「反証済」を厳密に区別して記載。生成系ベンチは truncation 率を必ず確認(HE 事故の教訓)。/ 2026-07-10 04:30 JST・35B-A6B キャンペーン
+</footer>
+</div>
+
+<script>
+  (function(){
+    var b=document.getElementById('tt');
+    function cur(){ var e=document.documentElement.getAttribute('data-theme');
+      if(e) return e; return window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'; }
+    function paint(){ b.textContent = cur()==='dark' ? 'light' : 'dark'; }
+    b.addEventListener('click',function(){
+      document.documentElement.setAttribute('data-theme', cur()==='dark' ? 'light':'dark'); paint();
+    });
+    paint();
+  })();
+</script>
