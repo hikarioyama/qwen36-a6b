@@ -69,9 +69,9 @@
 - 日本語軸の差は未解決で、margin 0.02のnon-inferiorityもINCONCLUSIVE。目的(a)のハーネスbring-upは達成したが、(b)は補助材料に留まり、protocol未凍結・採用判定には使わない。
 - report: `reports/JMMLU_PILOT_20260710.md`
 
-### 夜間の自走範囲(明示)
-- やる: T1 の監視・検分・report 検証、T2 の実行と判定、本ドキュメントと DEVLOG の更新、T4 の候補調査(read-only)。
-- やらない: モデル採用判定の確定、追加訓練の開始、Full-FFN 200-step/本走、checkpoint の削除・上書き、git reset/clean。
+### 自走範囲(2026-07-11 ユーザー委任で拡大)
+- **ユーザー指示 (07-11 夕)**: 「full-ffn とかの重い処理もガンガン君の判断で進めて」— 訓練系 (200-step probe / 本走) の起動判断も Claude に委任。ただし kill 基準・評価ゲート・データ規律 (汚染除去、A/B 群分離) は従来どおり厳守し、ゲート不通過で本走を始めない。
+- 引き続きやらない: モデル採用判定の確定 (実測を添えてユーザーに提示)、checkpoint の削除・上書き、git reset/clean、push (ユーザー判断)。
 
 ## ガードレール(常設)
 - 数字は同一条件 paired + CI95 のみ信用。単発・条件違いは参考値扱い。

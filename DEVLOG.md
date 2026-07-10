@@ -324,3 +324,11 @@
 - 効果 = ノブ × mechanism が綺麗に分離: no-think 注入が json_parse 系 (+33.3pt)、stage hint が前 stage 再出力系 (+25.0pt) をそれぞれ潰した。診断 raw (mt_diag_r1) の分解と完全に整合。
 - 含意: v1.1 (両ノブ default on) で量産すれば multi_turn/error_recovery の歩留まりが大幅改善する見込み (error_recovery も同じ 2 死因の混在だった)。量産は ja v2 pilot と 200-step 評価の後の GPU 空きで判断。
 - 日本語 verifiable 指示追従 selfgen v2 (`esft/selfgen_ja_verifiable_v2.py`, Codex 実装) を検分・テスト再走 (新規 7 + v1 9 + eval harness 21 全 PASS) の上、**pilot500 を起動** (run `20260711_ja_v2_pilot500`、真stock fingerprint 凍結確認済み)。検証器 14 種 (M-IFEval 同型 10 + 独自 4、独自型 ≥1/3 fail-closed)、6 eval セット 3,105,649 8-gram の汚染ゲート、M-IFEval 本文は拒否集合への変換のみで転記経路なし。
+
+## 2026-07-11 (夜) — ja v2 pilot500 完走: 76.6%、タイプ別弱点マップ + 量産前の要修正 1 件
+
+- **accepted 383/500 = 76.6%** (truncation 0、棄却 117 は全て best-of-4 全滅)。群別: mifeval_like 247/300 = 82% / native (独自型) 136/200 = 68%。
+- **制約タイプ別の採用率 = モデルの日本語指示追従の弱点マップ** (n=50-200/タイプ): 満点級 = numbered_list/json_object/markdown_table 1.00、keyword_count/paragraph_count 0.98、bullet_count 0.96。弱い = **plain_style 0.22 (常体統一、敬体に引っ張られる)** / ending 0.28 / char_range 0.34 / script_only 0.46。reject 側の違反 top: plain_style 156 / sentence_count 136 / script_only 102。→ 弱タイプこそ訓練価値が高いが採用が集まりにくい = 量産では弱タイプ over-sampling が必要。
+- 採用例の目視: 日本語は自然・実用的 (median 92 字)。検証器の markdown 太字跨ぎカウント等も正しい。
+- **量産前の要修正: keyword_count/forbidden_word の語彙プールが 2 語のみ (「確認」150 + 「案内」50)** — このまま量産すると特定語過学習のリスク。プール 50+ 語への拡張と弱タイプ over-sample を v2.1 として発注。
+- ローカル GPU は v1.1 toolcall 量産 (prod5000、NOTHINK+STAGE_HINT on) に切替済み。ja v2.1 量産はその後。
