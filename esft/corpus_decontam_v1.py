@@ -33,6 +33,11 @@ import unicodedata
 from typing import Any, Iterable, Iterator
 import zipfile
 
+# Some corpus rows embed integer literals with thousands of digits (observed:
+# 9,546 digits), which trips CPython's int<->str conversion guard during JSON
+# decode/encode. This is an offline batch tool, so lift the limit entirely.
+sys.set_int_max_str_digits(0)
+
 try:
     import pyarrow as pa
     import pyarrow.parquet as pq
