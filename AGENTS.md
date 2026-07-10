@@ -34,13 +34,14 @@ artifacts, or a fresh measurement can establish them directly.
 
 ## Codex Work Model
 
-- Project runtime is defined by `.codex/config.toml`: `gpt-5.6-sol` at `ultra`
-  effort. This selects Sol's automatic task delegation for the campaign's mixed
-  code, statistics, and systems work.
+- Project runtime is defined by `.codex/config.toml`: `gpt-5.6-sol` at `high`
+  effort. Sol owns orchestration, integration, and decision-critical reasoning.
 - The root agent owns the plan, user communication, repository mutations, and all
   GPU launch/stop decisions.
-- Use parallel subagents for bounded independent work such as artifact audit,
-  statistical review, implementation review, or test design.
+- Use parallel subagents proactively for bounded independent work such as
+  artifact audit, statistical review, implementation review, or test design.
+  Prefer `terra_explorer` for read-heavy investigation and `terra_worker` for
+  simple isolated implementation. Use Sol/default agents for hard or risky work.
 - Subagents must not launch GPU jobs unless the root agent explicitly delegates a
   named GPU set. This prevents two agents from evaluating on the same devices.
 - Give editing agents disjoint file ownership. The root agent reconciles and tests
@@ -94,14 +95,23 @@ current artifacts before acting, and update the project record after a branch ga
 ## Long Job Events
 
 - The `jobEvents` MCP server is the durable completion channel for long local and
-  remote jobs. At session entry, call `list_job_events` before assuming
-  that the dated handoff is still current.
+  remote jobs. At session entry and at the start of every user turn, handle any
+  unread event injected by the project hook or call `list_job_events` before
+  assuming that the dated handoff is still current.
+- Every non-empty `jobEvents` MCP result must be mirrored to the user in a
+  commentary update before analysis or acknowledgement. Prefix it with
+  `[MCP jobEvents]` and show the event ID, job ID, status, observed time, and
+  summary. Do not dump long log tails or sensitive paths unless the user asks.
 - While a turn is intentionally monitoring running work, use
   `wait_for_job_event`; do not implement model-side polling loops.
+- If monitored work is still running and no other useful work remains, do not
+  end the turn. Enter `wait_for_job_event` so the completion result returns to
+  the active conversation. The project Stop hook enforces one continuation as
+  a backstop.
 - Inspect artifacts and record the resulting decision before calling
   `ack_job_event`. An ACK means the event was handled, not merely observed.
 - MCP resource notifications do not start an idle model turn. Unhandled events
-  remain queued and must be collected at the next turn.
+  remain queued and are injected into the next user turn by the project hook.
 - Watcher definitions live in the untracked `tools/job-events-mcp/jobs.json`; the
   user service is `qwen36-a6b-job-events-watcher.service`. Before a new long GPU
   launch, add its exact process identity and positive completion artifacts, then verify

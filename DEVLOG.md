@@ -156,3 +156,131 @@
 ![A6B 3-Machine Workflow](esft/reports/viz/workflow_timeline.png)
 
 インタラクティブ版: `esft/workflow_timeline.html`(日) / `esft/workflow_timeline_en.html`(英)。左→右=時間、横レーン= gpu-host(Blackwell主砲8×96GB)/ aux-host(安定炉2GPU)/ ローカル(計測室・eval)。曲線矢印で依存(暖色=主系列/ティール=横断供給)。T2 の eval判定は gpu-host レーン(高速)。
+
+## 2026-07-10 — B2 step 1000完走・G0d最終回収
+
+- **TTDC B2継続学習完走**: G1 B2(v3 + forward KL β=0.5、teacher k8 top-64、router凍結)をcheckpoint-500からglobal step 1000まで真resume。8 rankすべてでdelta 80 tensors、optimizer state 80、scheduler epoch 500を復元し、最初の更新はstep 501。追加区間2:56:23、約21.05秒/step、LR 1e-5、rc=0。OOM / NaN / traceback / rank failureなし。
+- **内部heldout CE**: 64 blocks、KLなしのeval lossはstep 500/600/700/800/900/1000で 0.665949 / 0.662979 / 0.660277 / 0.657574 / 0.655229 / **0.654106** と単調改善し、best checkpointは1000。ただしこれは能力ベンチではないため、lossだけでB2-1000をpromoteしない。
+- **回収資産**: TTDC `codex_runs/b2_resume_20260710_0630/full_1000/` にcheckpoint-750/1000（各delta・optimizer・scheduler・trainer state・8 rank RNG）、最終delta 5,240,793,728 bytes、expert patch 5,240,961,944 bytes（1666 tensors、SHA-256 `c1b3f041051e9c184e5a3ea14126f921e3a2619b29454e3e73b96f79f45199d3`）。checkpoint-750/1000 delta SHA-256はそれぞれ `410b8d5113bf85bbe16ec184a57b85e05b15ea1ad80f62c7ba687ce275d5fd8a` / `330f1fd633499e20a54d5253671dcb0395caf9db416c352625055c53a14076ea`。step 750はearly-stop候補として保持。
+- **aux-host G0d全5腕完走**: 同一aux-host / top-k 32 / seed 0 / first-N / batch 16。HumanEval(max_new=4096, n=164)はundamped base 138/164=0.8415、trunc 12。rankdamp 0.5は146/164=0.8902、trunc 18、paired Δ+0.0488、CI95 [-0.0093,+0.1069]、A-only/B-only 8/16、McNemar p=0.1516。rankdamp 0.7は142/164=0.8659、trunc 16、Δ+0.0244、CI95 [-0.0340,+0.0828]、10/14、p=0.5413。どちらも**非有意で未確定**、かつtruncationは増加。
+- **healed mathでstatic rankdampを棄却**: mixed_v1 healed patchのGSM8K(n=600、first-N、thinking有効、固定max_newなし)はundamped 526/600=0.8767、trunc 29に対し、rankdamp 0.5は486/600=0.8100、trunc 62。paired Δ−0.0667、CI95 [−0.0935,−0.0399]、base-only/damp-only 55/15、p=1.653e-6。truncationも+0.0550、CI95 [+0.0330,+0.0770]、p=1.071e-6。**static rankdampはproduct defaultから除外**し、必要なら将来のtask-gated動的制御だけを研究候補に残す。
+- aux-hostの10 JSON/itemは `esft/reports/eval/g0d_20260710/` へ回収し、現行ローカルharnessでcorrect/truncatedを再検算済み。旧max-new不足runは判定から除外。
+- **監視の穴**: durable event `aux-host-rankdamp05-gsm8k--completed` は中間腕の完了（07:57 JST）だけを監視しており、G0d runner全体の最終完了（09:34 JST）より約1時間36分早かった。今回は全10成果物、件数、paired出力、`G0D_EXIT_0`、tracebackなしを直接確認して成功判定した。次回はrunner最終marker/全成果物を監視し、runnerにも`set -o pipefail`を追加する。
+- **次ゲート**: B2-1000は真stock指紋・同一protocolで、少なくともcheckpoint-750/1000のMMLU/GSM8K/HumanEval paired比較を行う。既存B2-500 paired GSM8Kは base@k8 0.9000 vs B2@k32 0.8833、Δ−0.0167、NI margin 0.02でINCONCLUSIVE。full-FFNと追加訓練は評価まで凍結。
+
+## 2026-07-10 — Full-FFN DCP probe v1 OOMとGA4修正
+
+- ユーザー承認後、真stock revision `995ad96eacd98c81ed38be0c5b274b04031597b0`、fixed k32、router凍結、WD 0、v3 70% + mixed_v2 replay 30%、8 GPU、GA4でFull-FFN DCP probe v1を開始。
+- v1は最初のbackwardで全rank CUDA OOM。各GPUでPyTorch allocated 93.19GiB、使用量約94.14/94.97GiBの状態からMoE grouped-mmが896MiBを追加確保できなかった。step 0のためcheckpoint/学習成果なし。終了後8 GPUは0MiB。
+- 真因はFSDP + gradient accumulationの既定`no_sync`: GA4の先頭microbatchで32.2B expertの未shard全勾配を各GPUに保持したため。旧GA1 memory probeの実測61.8GiBと差が生じた理由もこれで説明できる。
+- global batch 32を維持するためGA1へ降格せず、Transformers 5.7の`accelerator_config.gradient_accumulation_kwargs.sync_each_batch=true`をFull-FFNだけに指定。各microbatchで勾配をshard/reduceし、通信増と引換えにfull-gradient常駐を防ぐ。新規job ID `gpu-host-fullffn-dcp-probe-v2`で再検証する。
+- **v2結果**: OOMは解消。8 GPU peak max 63.59GiB(<70)、trainable 32,212,254,720、expert grad union 80/80、frozen gradなし、checkpoint-5/6とresume checkpoint-6はcomplete。step5からのmodel/optimizer loaderは全rankで成功し、optimizer state件数は保存値どおり `[40,40,40,40,40,80,40,40]`、scheduler epoch 5を復元した。
+- ただしexact-resume最終ゲートはRED。連続step6とresume step6は表示loss `0.608`、grad norm `0.2521`、scheduler、および8 rank全RNGファイルが一致した一方、全local model+optimizer byte digestは全rankで不一致。対応するrank0 model/optimizer DCP shardも同サイズながらbyte不一致で、digest表現だけの偽差ではない。bit-exact不一致の発生点（checkpoint-5 model load直後か、同一batch更新中のFSDP非決定性か）を分離するまで200-step本番は開始しない。
+- **MCP通知自己診断**: completed manifestを持つ一時local jobを登録し、`wait_for_job_event`へ約29秒で`mcp-notification-selftest-20260710-1234--completed`が自動配信された。続いてv2の実failedイベントも自動配信。通知経路は正常で、先の長時間無通知は249GiB checkpoint I/O中で終端条件に未到達だったため。一時定義/manifestは削除しイベントACK済み。
+- **Full-FFN probe v3 Phase A**: component別full digestとstage境界を追加して真stock/GA4を再実行。checkpoint save前後は全rankでmodel/optimizer完全一致、checkpoint-5からのmodel/optimizer load直後も全rank一致した。step6の全32 microbatch hash、各microbatch loss raw float bits、pre-forward RNGもreference/resumeで一致。一方、clip後gradient digestは全rank不一致で、直後のmodel/Adafactor exp_avg_sqも不一致。したがってDCP save/load、sampler skip、RNG、forwardではなく、backward kernelまたはFSDP/NCCL reductionの再起動間非決定性が最初の分岐点。200-stepは引き続き停止し、同一checkpoint-5から決定論設定を固定した1-step resumeを2回比較する。
+- **fresh resume再現性probe v1**: 同じv3 checkpoint-5から別のfresh processで5→6を再実行し、v3のfresh resume枝と比較。load model/optimizer、pre-forward RNG、全32 microbatch、全raw loss bitsは一致したが、clip後gradient digestは8 rankすべて不一致。よって差はwarm連続枝固有ではなく、native grouped-mm backwardまたはFSDP/NCCL reductionの再起動間非決定性。次は`CUBLAS_WORKSPACE_CONFIG=:4096:8`、`NCCL_ALGO=Ring`、`NCCL_PROTO=Simple`とPyTorch deterministic coreを固定したcold/cold 1-step pairを行う。
+- **決定論cold/cold probe arm A**: `CUBLAS_WORKSPACE_CONFIG=:4096:8`、`NCCL_ALGO=Ring`、`NCCL_PROTO=Simple`、`torch.use_deterministic_algorithms(True)`、cuDNN deterministic、TF32無効を全8 rankで確認し、同じcheckpoint-5から5→6を完走。peak allocated最大63.64GiB、frozen gradなし、recordログ生成成功。診断用`--skip-final-checkpoint`も機能し、checkpoint-6は非生成。これは比較基準の採取であり単独ではGREENにしない。次に独立cold processのarm Bを同じ設定で走らせ、load/RNG/32 microbatch/raw loss/clip後gradient/post-optimizerをarm Aとbyte比較する。
+- **決定論cold/cold probe arm B 実行試行**: **BLOCKED（remote 実行なし）**。Codex サンドボックスから `ssh -F ~/.ssh/config gpu-host` を実行したが、remote shell 開始前に `socket: Operation not permitted` / `ssh: connect to host REDACTED-IP port 22: failure` で拒否された。ユーザー指示どおり回避策は試さず、GPU/入力artifactの再検証、arm B、比較、checkpoint生成はいずれも未実施。checkpoint-5 と arm A record は未変更、200-step/本走も開始していない。再開には同一SSH経路が Codex sandbox で許可されることが必要。詳細: `reports/FULLFFN_DETERMINISM_ARMB_20260710.md`。
+
+## 2026-07-10 — B2-1000 paired評価完了
+
+- gpu-hostで真stock k8とB2-1000 k32を同一問題・同一seedで比較し、全6腕がrc=0。GPU Xid、sandbox timeout、成果物欠落なし。manifest SHA-256 `8a6242f04813cbc2785da96371b9e130bf5b22e5dfbbdd8e76f356f27f785609`。
+- MMLU(n=600): 0.8400 → 0.8200（−2.00pt、paired CI95 [−4.06,+0.06]pt）。GSM8K(n=600): 0.8967 → 0.8967（同点、CI95 [−1.67,+1.67]pt）。HumanEval(n=164): 0.8963 → 0.8598（−3.66pt、CI95 [−9.96,+2.64]pt）。3項目とも事前設定した非劣化判定はINCONCLUSIVEで、自動採用不可。
+- HumanEvalの打切りはbase 42件、B2 1件へ大幅減少した一方、正解数は147→141。生成長の違いを含め、B2を現時点で採用とはしない。
+
+### 2026-07-10 — B2 checkpoint-750 paired preservation gate (TTDC)
+
+- checkpoint-750 delta SHA `410b8d…fd8a` を同じ `save_expert_patch_delta` 経路で export（patch SHA `84de4415…0329`, 5,240,961,944 bytes, 1,666 tensors, router 0）し、真stock k8 対 B2-750 k32 を同一n/seedで評価。固定2/2/4波を廃し、各ベンチを8 GPU全枚で直列化した。全6 arm rc=0、sandbox timeout 0、manifest SHA `de70d63c…31f56`。
+- MMLU n=600: base 505/600=0.8417 → B2-750 490/600=0.8167、Δ−0.0250、paired CI95 [−0.0453,−0.0047]、McNemar p=.02370、NI margin .01 は保守的exact boundでINCONCLUSIVE。GSM8K n=600: 0.8900→0.8933、Δ+.0033、CI95 [−.0140,+.0206]、p=.8506、NI(.02) INCONCLUSIVE。HumanEval n=164: 0.8537→0.8415、Δ−.0122、CI95 [−.0707,+.0463]、p=.8388、NI(.05) INCONCLUSIVE。
+- HumanEval truncation はbase 49→B2-750 0（paired p<3.6e-15）まで減ったが、正解は140→138。B2-750 vs B2-1000は全3項目で1000が数値上+0.33/+0.33/+1.83ptだが、同一item keyの記述的paired CIはすべて0を跨ぐ（GPU配置のみが異なるため structured harness の正式protocol paired判定対象外）。B2系列の自動採用なし、ユーザー判断待ち。
+- 次の判断: B2-750を同一protocolで測るか、B2系列を打ち切るかをユーザー判断とする。追加訓練・Full-FFN本走は引き続き開始しない。
+
+## 2026-07-10 (夜) — 最終目標の明文化と overnight 計画
+
+- ユーザー指示で最終目標を明文化: **35B-A6B をツールコール/コーディング/一貫性/日本語の4軸で base から有意強化**(paired CI95 で判定、一般能力は非劣化ゲート)。
+- living document `reports/GOALS_AND_TODO.md` を新設。優先順: T1 B2-750評価(走行中) → T2 Full-FFN決定論 arm B → T3 本走準備メモ → T4 4軸評価ハーネス整備(要ユーザー相談)。夜間自走範囲とガードレールも同ファイルに固定。
+
+## 2026-07-10 — JMMLU paired pilot 完了
+
+- 日本語軸用の choice-logprob JMMLU paired campaign を、true stock base@k8 と B2-1000@k32で実測。`n=300`、shuffle seed 0、batch 16、no-think、同一の順序付きitem、ローカル物理GPU 0/1のみ、base→B2直列。B2-1000 patch はローカル配置後にSHA-256 `c1b3f041…f45199d3` と1666 tensorsを再検証し、true stock指紋・code sandbox・GPU空きとともにpreflightを通過した。GPU 2・gpu-host・既存checkpoint/eval資産は使わず、上書きもしない。
+- **実測 (same-condition paired):** base@k8 = 225/300 = 0.7500、B2-1000@k32 = 220/300 = 0.7333、Δ(B2−base) = **−0.0167**。paired 95% Wald CI [−0.0451, +0.0117]、base-only/B2-only = 12/7、exact McNemar p=0.3593。従って日本語軸の差はn=300では**未解決**であり、B2採用の根拠にも日本語protocol凍結の根拠にもならない。choice-logprobなので両armのtruncationは0。
+- margin 0.02 のnon-inferiority判定もINCONCLUSIVE（conditional Clopper–Pearson/Bonferroni lower95 = −0.0731 < −0.02）。run manifest、同一item-key確認、成果物hashを含む詳細は `reports/JMMLU_PILOT_20260710.md` と `esft/reports/eval/codex_runs/20260710_jmmlu_b2_1000_pilot_v1/` に保存。
+
+## 2026-07-10 — BFCL tool-call pilot bring-up: 実測前BLOCKED
+
+- BFCL v4 の非live ASTカテゴリを使うローカル paired パイロット（true-stock base@k8 vs B2-1000 patch@k32、GPU 0/1のみ、base→B2直列）を開始前検査したが、**測定は開始していない**。`nvidia-smi` が NVIDIA driver と通信不能で、GPU 0/1 の空き・GPU 2非使用を検証不能だった。`free -h` は125 GiB total / 109 GiB availableだったが、GPU preflight の代替にはならない。swap は4.0/4.0 GiB使用中。
+- BFCL/Gorilla はローカルに checkout されておらず、`bfcl_eval` import も不存在。`git ls-remote https://github.com/ShishirPatil/gorilla.git HEAD` は `github.com` DNS 解決不能で失敗した。公式 parser/AST checker を持たない状態で look-alike scorer を実装・採点するのは比較不能な数値を作るため行わなかった。
+- このため Qwen3.5-MoE tool-call chat template と BFCL parser の整合 smoke (`n=10`) も、本測定（nonlive から shuffle seed 0 の n=200–400）も未実施。**n=0 (not evaluated), paired CI95/McNemar/truncation は報告値なし。** `web_search` など外部APIカテゴリは設計どおり除外のまま、protocol は未凍結・採用判定なし。
+- 復旧後は pinned BFCL source/data と upstream parser/AST checker を使う薄い adapter を作り、CPU fixtures → template smoke → 既存 preflight → serial paired の順で再開する。詳細は `reports/BFCL_PILOT_20260710.md`。
+
+## 2026-07-10 — BFCL tool-call pilot 再開・完走 (local GPU 0/1)
+
+- ブロッカー解消後、pinned Gorilla `6ea57973c7a6097fd7c5915698c54c17c5b1b6c8` と local `bfcl-eval` 2026.3.23 wheel を使用。Qwen3.6 native template は `<function=…>/<parameter=…>` で、BFCL の旧 Qwen JSON handler と不整合だったため、native XML を Python call expression へ正規化して **upstream `ast_parse` → upstream `ast_checker`** に渡す薄い adapter を新設した。独自 scorer は使用していない。wheel が checker import 時に未使用 Qwen API handler の optional `soundfile` を eager import する欠落があり、ネットワーク/venv変更なしでその未到達 audio module を process-local stub にした（成果物 metadata に記録）。
+- CPU fixture（BFCL simple Python の gold call）は adapter→pinned parser→pinned AST checker で valid。続く native-template smoke は n=10、base@k8 9/10、B2-1000@k32 10/10、trunc 0/0、paired Δ+0.10、McNemar p=1.0。syntax smoke に過ぎず能力判定には使わない。
+- 本測定は `20260710_bfcl_b2_1000_pilot_v1`。非live deterministic AST の6カテゴリのみ、live/execution/memory/multi-turn/`web_search` を除外し、全eligibleを `(category,id)` sort→global seed0 shuffle→first `n=300` として両arm前に固定（Python114 / Java26 / JavaScript14 / parallel50 / multiple44 / parallel-multiple52）。true-stock revision `995ad…97b0`（expert fingerprint `3a1ca2a6…e3aa315`）base@k8→B2-1000 patch@k32（SHA `c1b3f041…f45199d3`, 1666 tensors）を GPU 0/1 のみ、BF16/no-think/greedy/batch4/max_new512、serial に実行。GPU2/gpu-host/aux-hostは未使用、HF/Transformers offline。
+- **実測:** base 237/300=0.7900 (trunc 1)、B2 249/300=0.8300 (trunc 0)。同一 item-key 300件、protocol metadata 全一致。paired Δ(B2−base)=**+0.0400**、Wald CI95 **[+0.0111,+0.0689]**、base-only/B2-only=4/16、exact McNemar **p=0.0118179**。事前NI margin 0.02 は conditional Clopper–Pearson/Bonferroni lower95 +0.0024で PASS。truncation Δ−0.0033、CI95 [−0.0099,+0.0032]、p=1.0で未解決。
+- **上流の死角:** pinned official checker は selected `simple_java` と `simple_javascript` の generic schema type `string` を Java/JS type-map に index して `KeyError('string')` を発生。40/300 が両armとも強制0点（Java 0/26, JS 0/14）となる。これをローカルで修正・除外して数字を良く見せてはいない。従って global +4pt は tool-call bring-up の正の evidence だが、cross-language BFCL能力・B2採用の結論には使わない。次は user と、上流修正版 pin の再走か、Python-only subset の事前固定再走を決める。
+
+## 2026-07-11 (0時前) — arm B は GREEN 完了済みと判明・BFCL でツールコール有意改善
+
+- **Full-FFN 決定論 probe arm B**: gpu-host 直接検分で、arm B (`codex_runs/fullffn_resume_det_b_20260710`) は 2026-07-10 05:31–05:38 UTC に実行済み・**GREEN** と判明 (DEVLOG 反映漏れ)。6段階アサート (load_model/load_optimizer/RNG/batch_loss×32/clip後gradient/post_optimizer、各8 rank) 全 MATCH。bit 不一致の発生源は grouped-mm backward / NCCL reduction の再起動間非決定性で確定し、決定論 env (CUBLAS :4096:8 + NCCL Ring/Simple + deterministic core + TF32 off) で消える。**exact-resume ゲート GREEN、200-step 本番はユーザー承認待ちのみ**。詳細: reports/FULLFFN_DETERMINISM_ARMB_20260710.md
+- **BFCL v4 パイロット (ツールコール軸初計測)**: base@k8 0.7900 vs B2-1000@k32 0.8300、Δ+4.00pt、CI95 [+1.11,+6.89]、McNemar p=0.012 (n=300 paired, same-condition, protocol未凍結)。**B2 recipe は標的軸 (ツールコール) を有意に動かすが一般能力 (MMLU) を守れない**、が B2 系列の正しい総括。pinned checker の Java/JS 40件 KeyError で両arm 0点の上流バグあり、cross-language 結論は禁止。詳細: reports/BFCL_PILOT_20260710.md
+- 4軸の paired 計測体制: コーディング (既存 HumanEval) + 日本語 (JMMLU, 今夜 bring-up) + ツールコール (BFCL v4, 今夜 bring-up) が稼働。残るは一貫性軸 (M-IFEval seed 分散 + paraphrase 一致率、候補検証済み・ユーザー相談待ち)。
+
+## 2026-07-11 — Full-FFN 決定論 env 速度 A/B probe: BLOCKED
+
+- 200-step 本番の前提となる同一条件 ABBA (A,B,B,A)、各10 step・warm-up 1 step除外の速度計測を、gpu-host GPU 0--7 で開始前に接続確認した。
+- 指定経路 `ssh -F ~/.ssh/config gpu-host` は remote shell 開始前に `socket: Operation not permitted` / `ssh: connect to host REDACTED-IP port 22: failure` で拒否された。ユーザーの停止条件に従い、回避策、remote 状態確認、GPU job 実行は一切行わなかった。
+- **結果は n=0, same-condition: not established**。決定論 env の s/step、平均/分散、paired 差は未測定であり、200-step 本番で決定論設定を維持するかの判断材料は未取得。checkpoint-5、既存 record/run dir、200-step 本番はいずれも未変更/未開始。詳細: `reports/FULLFFN_DET_SPEED_AB_20260711.md`。
+
+## 2026-07-11 — M-IFEval 日本語 paired seed-dispersion bring-up: BLOCKED
+
+- `external/M-IFEval/data/ja_input_data.jsonl` の全 **n=172**（key 1--172）を、upstream `test_instruction_following_strict` の「全 instruction rule が pass」の item-level binary として、base@k8/B2-1000@k32各5 sampling seed `{0,1,2,3,4}` で比較する専用ハーネス `esft/mifeval_pilot.py` を追加。arm と seed は base seed0--4 → B2 seed0--4 の完全直列、GPU 0/1限定、GPU2/gpu-host/aux-host禁止、exclusive-create成果物、max_new=2048のtruncation記録、per-item seed-pair agreement と item-clustered 10,000-replicate paired bootstrap CI95 を実装した。
+- **GPU投入前に BLOCKED**: `/usr/bin/python3 esft/mifeval_pilot.py preflight --json` は M-IFEval registry import 内で `ModuleNotFoundError: langdetect`。ローカルoffline inventoryに `janome` と `ja_sentence_segmenter` もなく、M-IFEvalの日本語判定を近似/再実装すると protocol を変えるため実施しない。GPU 0/1は一切起動せず、生成 `n=0/860` per arm、pass rate・seed分散・agreement・paired Δ/CI95・truncation はすべて未測定。
+- CPU structural tests は新規3/3、既存 eval harness 21/21が通過。protocol は未凍結、採用判定なし。offlineで pin 済み依存（`langdetect==1.0.9`, `immutabledict==4.2.1`, `janome==0.5.0`, `ja_sentence_segmenter==0.0.2`）を提供後に同一ハーネスを再開する。詳細: `reports/MIFEVAL_PILOT_20260711.md`。
+
+## 2026-07-11 — M-IFEval scorer venv 再開試行: 依存完全性で再BLOCKED
+
+- ユーザー指定どおり scorer を `external/mifeval-venv/bin/python` (Python 3.12) に分離し、推論は従来 runtime のままにするハーネスへ更新。`langdetect` / `janome` / `ja_sentence_segmenter` / `emoji` はこのvenvで import PASS、upstream strict scorer 以外の代替・再実装は一切していない。
+- ただし unmodified `evaluation_main.py` は strict call 前に complete multilingual `instructions_registry` を import する。dedicated preflight は `ModuleNotFoundError: absl` で停止し、同venvに `immutabledict` / `nltk` / `spacy` もないことを確認。M-IFEval requirements の該当pinは各 `absl-py==1.4.0` / `immutabledict==4.2.1` / `nltk==3.9.1` / `spacy==3.7.5`。
+- GPU 0/1 は未起動（GPU2/gpu-host/aux-hostも未使用）、生成は base/B2 とも **0/860**、per-item pass、seed間一致率、pass-rate分散、paired Δ/CI95、truncation の実測値なし。専用preflightにより GPU allocation 前に停止する。CPU structural 3/3・existing eval harness 21/21 はPASS。protocol未凍結、採用判定なし。詳細: `reports/MIFEVAL_PILOT_20260711.md`。
+
+## 2026-07-11 — M-IFEval strict scorer 再々開: 全依存監査で再BLOCKED
+
+- ユーザーが追加した `absl-py` / `immutabledict` / `nltk` / `spacy` を専用 scorer venv (Python 3.12) で再確認し、strict-scorer preflight を GPU allocation 前に再実行した。`evaluation_main.py` は unmodified complete multilingual registry を eager import するため、日本語だけの依存充足では十分でない。
+- 一度の監査で registry の全 import root と実際の NLTK resource load を確認した。`absl-py` 2.5.0、`immutabledict` 4.3.1、`nltk` 3.10.0、`spacy` 3.8.14、既存の日本語依存はすべて import PASS。英語/仏語の `punkt` tokenizer と `punkt_tab` も PASS。**未解決の strict-registry dependency の完全なリストは SpaCy model distribution `es_core_news_sm` と `xx_sent_ud_sm` の2件のみ**。
+- preflight は先頭の `spacy.load("es_core_news_sm")` で停止。代替 scorer・registry削減・ルール再実装は行わず、GPU 0/1、GPU2、gpu-host、aux-host は未使用。生成は base/B2 とも **0/860**、pass rate・seed pass-rate SD・seed agreement・paired Δ+CI95・truncation はすべて未測定。protocol未凍結、採用判定なし。再開条件は両 model distribution を同じ scorer venv へ配置後に real strict import を再実行すること。詳細: `reports/MIFEVAL_PILOT_20260711.md`。
+
+## 2026-07-11 — M-IFEval strict scorer 最終再開: scorer PASS、serial campaign 実行中
+
+- ユーザーが専用 `external/mifeval-venv` に `es_core_news_sm` / `xx_sent_ud_sm` を配置し、双方の `spacy.load` を確認済みとして再開。実際の `/usr/bin/python3 esft/mifeval_pilot.py preflight --json` は **PASS**: unmodified upstream registry は118件、全日本語入力 **n=172**、scorer は Python 3.12.13。構造テスト3/3と既存 `test_eval_harness.py` 21/21もPASS。
+- 最初の単発 `nvidia-smi` はexit 9だったが、実際の campaign 内 preflight はGPU 0/1（RTX PRO 6000 Blackwell、各97,887 MiB、使用5 MiB・util 0%）を正常確認してPASS。新規run `20260711_mifeval_ja_b2_1000_seed5_v1` はbase@k8 seed 0から開始し、base seed0--4→B2-1000 seed0--4の完全直列で実行中。exact parent PID・command substring・manifestを durable watcher に登録し、`state.json` でrunningを確認済み。部分結果からの推定は禁止し、完走後にn=172×5/armのper-item pass、seed agreement、seed pass-rate SD、truncation、item-clustered paired Δ+CI95を記録する。protocolは引き続き未凍結・採用判断なし。詳細: `reports/MIFEVAL_PILOT_20260711.md`。
+
+## 2026-07-11 (未明) — 決定論 env 速度コスト実測
+
+- gpu-host で ABBA (det-on/off × 各2、10 steps/run、checkpoint-5 resume、同一条件): det on 61.96 s/it vs off 56.87 s/it → **overhead +8.9%** (n=2/腕)。腕内ばらつき ≤±0.9%。Codex sandbox SSH 不可のため Fable が直接実行。詳細: reports/FULLFFN_DET_SPEED_AB_20260711.md
+- 含意: 200-step probe は決定論 on 推奨 (+17分)。本走の on/off はユーザー判断 (72h 換算 +6.4h)。
+
+## 2026-07-11 (未明) — M-IFEval(日) 一貫性/指示追従パイロット完走
+
+- v5 (n=172 × 5 seeds × 2 arms, strict scorer): base@k8 pass 0.5628 vs B2-1000@k32 0.4256、**paired Δ−13.7pt CI95 [−22.9,−4.6] で有意悪化**。seed 間一致率は差なし (Δ−0.35pt, ns)、B2 の seed SD は 3.7倍。protocol 未凍結。詳細: reports/MIFEVAL_PILOT_20260711.md
+- これで4軸パイロットが全て揃った。B2-1000 の4軸総覧 (すべて vs 真stock base、paired): ツールコール **+4.0pt 有意改善** / コーディング −3.7pt 未確定 / 日本語知識 (JMMLU) −1.7pt 未確定 / 日本語指示追従 (M-IFEval) **−13.7pt 有意悪化**。一般能力 MMLU も B2-750 で有意悪化。→ B2 recipe は「標的 (agentic/toolcall コーパス) は効くが、それ以外を広く壊す」。router 凍結下の narrow ESFT の限界を示す綺麗な負のデータ。
+- v4 の教訓: cx (Codex) セッション内から起動した GPU キャンペーンは cx 終了で SIGKILL される。長走 job は必ず detached (nohup / setsid) で起動する。
+
+## 2026-07-11 — Full-FFN + router 可動 joint trainer を配備可能化（CPU 検証済、GPU 未実行）
+
+- B2 検死（router 凍結の expert 最適化は CE を下げても一般能力を守れない）と 2026-07-08 (4) の順番に従い、gpu-host 本番 trainer コピー `esft/deploy/train_fullffn_dcp.py` に full-FFN + router joint を追加した。`--method full-ffn --train-router` は従来どおり単独では拒否し、**`--allow-router-joint-fullffn` を同時指定した二重 opt-in** のみ許可する。delta/maskhook/frozen full-FFN と `--deterministic-fullffn` の経路は変更しない。
+- FSDP wrap 後に gate を名前で再解決し、expert の base LR group と router の `router_lr_mult * learning_rate` / weight-decay 0 group を `CheckpointableAdafactor` に渡す。base 256-way pre-top-k router snapshot / anchor KL は既存実装を流用し、DCP marker schema 3 に joint 設定を保存して resume 時の不一致を拒否する。model/optimizer DCP state は従来と同じ sharded FSDP 経路で gate も保存対象になる。
+- `FULLFFN_PROBE=1` は joint 時の router non-zero grad を rank 間 union で必須化した。frozen mode は router/attn/embed、joint mode は attn/embed を含む frozen parameter の grad None を要求する。FLCE の load-balancing auxiliary loss は joint にも加算しない（gate の補助目的は明示した base-anchor KL のみ）。
+- CPU 結果: 新規 `esft/tests/test_fullffn_joint_trainer.py` **3/3 PASS**（router LR group、anchor KL 値と gradient 方向、frozen assert の両モード）。全 CPU unittest **33/33 PASS**、既存 smoke **22/22 PASS**、`py_compile` / `git diff --check` PASS。GPU sample **n=0**、paired verdict / truncation は該当なし。Fable 配備後に joint freeze audit、router group LR、probe grad gate、checkpoint→resume digest を実機8 GPUで確認してから、承認済み200-step probe を起動する。詳細 `reports/FULLFFN_JOINT_TRAINER_20260711.md`。
+
+## 2026-07-11 — 足場付き自己生成 tool-call v1: 実装・seed凍結完了、GPU preflight BLOCKED
+
+- Full-FFN用コーパスの第一柱として、`esft/selfgen_toolcall_v1.py` を新設。BFCLはローカル評価データのfunction arity/type集計だけを構造参考にし、問題文・function名・説明・値をseed/出力に転記しない。500 task / 197 synthetic mock API schema / 20 domain、single・parallel・multi-turn・error recovery各125件、再帰1周を `20260711_toolcall_v1_pilot500_r3` として凍結した。true-stock revision `995ad…97b0` とexpert fingerprint `3a1ca2a6…e3aa315` をcodex harnessと同じテンソル照合で確認し、top-k=8 / patch=Noneをmanifestへ固定した。
+- 選別は strict JSON、schema required/type/enum、決定的mock executor再実行、凍結plan一致、multi-turn receipt / recovery error codeの連鎖、BFCL/ACEBench汚染照合をすべて要求する。合格時だけ実schema+素のuser/assistant/tool会話を `train.jsonl` に書き、system prompt/few-shotは保存しない。BFCL 20ファイルは正規化8-gramとfunction名で照合し、source SHAをmanifest保存。ACEBenchはローカル不在を `acebench_present=false` として明示し、後で配置された場合の自動照合を実装した。
+- CPU structural testは **5/5 PASS**、`py_compile` / `bash -n` / `git diff --check`もPASS。detached `nohup` runner、PID保存、never-reused watcher job arm、completion artifactsを実装した。GPU起動前preflightは `/usr/bin/python3 esft/selfgen_toolcall_v1.py preflight --run-id 20260711_toolcall_v1_pilot500_r3` が `nvidia-smi` exit 9（driver通信不能）でBLOCKED。GPU0/1・GPU2・gpu-hostはいずれも未使用、生成 **n=0/500**、accepted/rejected/truncation/採用率は未測定。復旧後にのみ `esft/launch_selfgen_toolcall_v1.sh 20260711_toolcall_v1_pilot500_r3` を実行し、500件の採用/棄却例を検分してから量産判断する。詳細 `reports/SELFGEN_TOOLCALL_V1_20260711.md`。
+
+## 2026-07-11 (昼) — コーパス計画確定 (検証済み)
+
+- データ戦略 (ユーザー承認): 足場付き自己生成+機械選別を柱に外部検証済みデータを混合。生成=ローカル/訓練=gpu-host。
+- 外部候補を Grok 調査 → Opus 2体で一次ソース裏取り。**Toucan-1.5M (Apache-2.0, 165万件) と ToolMind (Apache-2.0, 37万件) がツールコール軸の主力候補**。日本語は llm-jp-corpus-v4 (実在確認) + llm-jp-instructions。Grok の誤り2点是正: Swallow Corpus 本体は再配布されていない / arXiv:2511.00222 は日本語文脈でない。**LiveCodeBench は訓練禁止・eval 隔離** (自家 eval 汚染の逆リスク)。ライセンスは A 群 (商用可) / B 群 (非商用: ichikara, APIGen-MT) に分離、B 群は既定で混ぜない。詳細: reports/CORPUS_PLAN_20260711.md
