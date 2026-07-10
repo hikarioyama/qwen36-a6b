@@ -16,6 +16,17 @@ is achieved by keeping a Codex turn active in `wait_for_job_event`; otherwise th
 event remains durable and is returned on the next turn. This avoids concurrent
 writes caused by launching `codex exec resume` against an already-open TUI thread.
 
+The project hooks add two delivery guarantees on top of the durable queue:
+
+- `UserPromptSubmit` injects unread event summaries into the next turn, even if
+  the model forgot to call `list_job_events` first;
+- `Stop` keeps a turn alive once when unread events exist or monitored jobs are
+  still running, directing Codex to surface the MCP result and wait.
+
+Codex must mirror every non-empty MCP result into visible commentary using the
+`[MCP jobEvents]` prefix before acknowledging it. The hook context itself is not
+user-visible; this explicit relay is what makes delivery visible in the chat.
+
 ## Runtime
 
 - Watcher service: `qwen36-a6b-job-events-watcher.service`
@@ -55,7 +66,7 @@ systemctl --user restart qwen36-a6b-job-events-watcher.service
 
 `bun run smoke` exercises MCP initialization, all four tools, timeout behavior,
 event acknowledgement, watcher process detection, and terminal-event
-deduplication. TypeScript is bundled for Node because the MCP SDK's stdio transport
+deduplication, plus the Codex delivery hooks. TypeScript is bundled for Node because the MCP SDK's stdio transport
 uses Node stream semantics; Bun is used only for dependency management and build.
 
 Codex is registered globally with a 14,430-second MCP tool timeout. A Codex process

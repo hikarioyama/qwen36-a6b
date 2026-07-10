@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/tools/job-events-mcp/codex_hook.py\"",
+            "timeout": 10,
+            "statusMessage": "Checking durable GPU job events"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/tools/job-events-mcp/codex_hook.py\"",
+            "timeout": 10,
+            "statusMessage": "Checking monitored GPU jobs before stopping"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -123,9 +123,9 @@ def code_sandbox_self_test() -> dict[str, Any]:
     sys.path.insert(0, str(ESFT_ROOT))
     from eval_harness import _run_sandboxed
 
-    passed, pass_detail = _run_sandboxed("assert 1 + 1 == 2")
-    bypassed, _ = _run_sandboxed("raise SystemExit(0)\nassert False")
-    source_bypassed, _ = _run_sandboxed(
+    passed, pass_detail, pass_reason = _run_sandboxed("assert 1 + 1 == 2")
+    bypassed, _, bypass_reason = _run_sandboxed("raise SystemExit(0)\nassert False")
+    source_bypassed, _, source_reason = _run_sandboxed(
         "import os, re\n"
         "src = open(__file__).read()\n"
         "token = re.search(r'__ESFT_TESTS_PASSED_[0-9a-f]+__', src).group(0)\n"
@@ -134,16 +134,23 @@ def code_sandbox_self_test() -> dict[str, Any]:
         "assert False"
     )
     escape_path = Path(f"/tmp/esft_sandbox_escape_probe_{os.getpid()}")
-    isolated, isolate_detail = _run_sandboxed(
+    isolated, isolate_detail, isolate_reason = _run_sandboxed(
         f"open({str(escape_path)!r}, 'w').write('sandbox-only')")
+    timed_out, timeout_detail, timeout_reason = _run_sandboxed(
+        "while True: pass", timeout=0.2)
     host_write = escape_path.exists()
-    if (passed is not True or bypassed is not False or source_bypassed is not False
-            or isolated is not True or host_write):
+    if (passed is not True or pass_reason != "pass"
+            or bypassed is not False or bypass_reason != "failed"
+            or source_bypassed is not False or source_reason != "failed"
+            or isolated is not True or host_write
+            or timed_out is not False or timeout_reason != "timeout"):
         raise PreflightError(
             "code sandbox self-test failed: "
             f"pass={passed} bypassed={bypassed} source_bypassed={source_bypassed} "
             f"isolated={isolated} "
-            f"host_write={host_write} detail={pass_detail or isolate_detail}"
+            f"reasons={pass_reason}/{bypass_reason}/{source_reason}/{isolate_reason} "
+            f"timeout={timed_out}/{timeout_reason} host_write={host_write} "
+            f"detail={pass_detail or isolate_detail or timeout_detail}"
         )
     return {
         "backend": "bubblewrap",
@@ -151,6 +158,7 @@ def code_sandbox_self_test() -> dict[str, Any]:
         "system_exit_bypass_blocked": not bypassed,
         "source_read_bypass_blocked": not source_bypassed,
         "host_filesystem_isolated": not host_write,
+        "timeout_cleanup": timeout_reason == "timeout",
     }
 
 
@@ -463,7 +471,7 @@ def run_logged(argv: list[str], log_path: Path, env: dict[str, str]) -> None:
 
 def validate_arm_output(
     cfg: dict[str, Any], audit: dict[str, Any], benchmark: str, arm: str,
-    result_path: Path, items_path: Path,
+    result_path: Path, items_path: Path, logical_gpus: list[int] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     try:
         report = json.loads(result_path.read_text())
@@ -496,7 +504,7 @@ def validate_arm_output(
         "max_new": expected_max_new,
         "seed": int(protocol["seed"]),
         "shuffle": bool(protocol["shuffle"]),
-        "gpus": [0, 1],
+        "gpus": list(logical_gpus or [0, 1]),
         "no_think": bool(protocol["no_think"]),
         "choice_logprob": bool(protocol["choice_logprob"]),
         "effective_prompt_modes": {benchmark: expected_prompt_mode},
@@ -720,7 +728,7 @@ def build_parser() -> argparse.ArgumentParser:
     pre.add_argument("--json", action="store_true")
 
     camp = sub.add_parser("campaign", help="run fresh serial base@k8 and B2@k32 arms")
-    camp.add_argument("benchmark", choices=["mmlu", "gsm8k", "humaneval"])
+    camp.add_argument("benchmark", choices=["mmlu", "jmmlu", "gsm8k", "humaneval"])
     camp.add_argument("--run-id")
     camp.add_argument("--dry-run", action="store_true")
     camp.add_argument(

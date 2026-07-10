@@ -19,19 +19,10 @@ fingerprint_sha256 = "3a1ca2a61e9a86af44c5114d72a9033504d3a20e27c3c6838f4162b87e
 forbidden_path = "/mnt/data/models/Qwen3.6-35B-A3B-agentic-k32"
 
 [patches.b2]
-path = "/mnt/data/probe_ckpt_eval/g1B2_patch.safetensors"
-sha256 = "3a35b3c8aa291c2d81afd1164b6e1e28da27a5705c1d832a86d2d01c1ec34f87"
+path = "~/models/esft/b2_1000/expert_patch.safetensors"
+sha256 = "c1b3f041051e9c184e5a3ea14126f921e3a2619b29454e3e73b96f79f45199d3"
 tensor_count = 1666
 router_tensor_count = 0
-
-[protocols.mmlu]
-n = 600
-seed = 0
-shuffle = true
-batch_size = 16
-max_new = 0
-no_think = true
-choice_logprob = true
 
 [protocols.jmmlu]
 n = 300
@@ -41,21 +32,3 @@ batch_size = 16
 max_new = 0
 no_think = true
 choice_logprob = true
-
-[protocols.gsm8k]
-n = 600
-seed = 0
-shuffle = true
-batch_size = 16
-max_new = 2048
-no_think = true
-choice_logprob = false
-
-[protocols.humaneval]
-n = 164
-seed = 0
-shuffle = true
-batch_size = 8
-max_new = 4096
-no_think = false
-choice_logprob = false

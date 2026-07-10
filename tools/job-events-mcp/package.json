@@ -6,7 +6,7 @@
   "scripts": {
     "build": "bun build server.ts --target=node --outfile=dist/server.js",
     "server": "node dist/server.js",
-    "smoke": "bun run build && python3 smoke.py && python3 watcher_smoke.py"
+    "smoke": "bun run build && python3 smoke.py && python3 watcher_smoke.py && python3 hook_smoke.py"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.27.1"
