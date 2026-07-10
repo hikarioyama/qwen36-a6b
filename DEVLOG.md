@@ -332,3 +332,9 @@
 - 採用例の目視: 日本語は自然・実用的 (median 92 字)。検証器の markdown 太字跨ぎカウント等も正しい。
 - **量産前の要修正: keyword_count/forbidden_word の語彙プールが 2 語のみ (「確認」150 + 「案内」50)** — このまま量産すると特定語過学習のリスク。プール 50+ 語への拡張と弱タイプ over-sample を v2.1 として発注。
 - ローカル GPU は v1.1 toolcall 量産 (prod5000、NOTHINK+STAGE_HINT on) に切替済み。ja v2.1 量産はその後。
+
+## 2026-07-11 (夜) — 200-step v1 が step 100 checkpoint 保存で死亡 → linspace バグ特定・修正・再発射
+
+- **v1 crash (23:05 UTC-9)**: step 100 の eval は成功 (eval_loss 0.7022、step 50 の 0.723 から低下)、直後の `_save_checkpoint` → `_state_component_signatures` → `IndexKernel.cu:111 index out of bounds` (rank1 初発) で全 rank SIGABRT。checkpoint-100 は未保存。訓練自体は 99 step まで完全に健全 (train loss 0.795→0.61 帯)。crash ログは `train200.crash_step100_linspace.log` として保全。
+- **機構確定 (measured, ローカル GPU 再現)**: digest サンプリング経路 (FULLFFN_PROBE=0 のみ) の `torch.linspace(0, N-1, 4096, dtype=long)` は CUDA の float 計算で丸まり、**N ≥ 1e9 で max index == N (N-1 を 1 超過)**。N=1e9/4.4e9/8.8e9 で再現、N=1e7 では出ない。FSDP flat param (rank あたり ~8.8e9 bytes) の campaign 保存で決定論的に発火。gradgate v3 が無事だったのは probe on = full digest でサンプリング経路を踏まないから。resume 側の検証 (L1384/1471) も同経路 = campaign resume も同バグだった。
+- **修正**: 整数演算 `arange(4096) * (numel-1) // 4095` に置換 (両端含む等間隔、オーバーフロー余裕 numel < 2.25e15)。正当性テスト全レンジ PASS。gpu-host 配備 → **v2 再発射 (fresh)**。step 1 の loss 0.7954 / grad_norm 0.7917 が v1 と bit 一致 = 決定論 env の再現性の生き証拠。次の山場は step 100 の保存 (~2:10 後)、save-live-audit を Monitor 対象に追加。

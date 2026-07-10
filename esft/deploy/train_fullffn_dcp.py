@@ -1118,10 +1118,12 @@ def main():
             def tensor_bytes(digest, value):
                 tensor = value.detach().contiguous().view(torch.uint8).reshape(-1)
                 if not full_digest and tensor.numel() > 4096:
-                    indices = torch.linspace(
-                        0, tensor.numel() - 1, 4096,
-                        device=tensor.device, dtype=torch.long,
-                    )
+                    # Integer arithmetic only: CUDA linspace computes in float32 and
+                    # its rounded max index EXCEEDS numel-1 for numel >= ~1e9 (measured:
+                    # N=1e9/4.4e9/8.8e9 all yield max_idx == N), which device-asserts
+                    # on FSDP flat params during campaign checkpoint saves.
+                    positions = torch.arange(4096, device=tensor.device, dtype=torch.long)
+                    indices = positions * (tensor.numel() - 1) // 4095
                     tensor = tensor[indices]
                 chunk = 64 * 1024 * 1024
                 for start in range(0, tensor.numel(), chunk):
