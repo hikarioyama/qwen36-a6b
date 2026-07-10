@@ -17,3 +17,6 @@ reports/launch-bundles/
 reports/job-events/
 CONCEPT.md
 ESFT_PLAN.md
+# 外部 clone/venv(6.0G、再取得可)とバックアップ
+external/
+*.bak*

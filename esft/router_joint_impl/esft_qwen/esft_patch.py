@@ -52,12 +52,16 @@ class EsftHandles:
     ``hook_handles`` are the registered gradient hooks (call ``.remove()`` to undo).
     ``expert_params`` lists the packed Parameters that are being trained, so the
     caller can build a no-decay optimiser group.
+
+    ``router_params`` lists the router (gate) Parameters unfrozen for the
+    "router-mobile" joint-training mode (empty = frozen router, legacy default).
     """
 
     expert_config: dict
     masks: dict = field(default_factory=dict)
     hook_handles: list = field(default_factory=list)
     expert_params: list = field(default_factory=list)
+    router_params: list = field(default_factory=list)
     selected: dict = field(default_factory=dict)  # layer_idx -> sorted list[int]
 
     def remove(self) -> None:
@@ -88,6 +92,7 @@ def to_esft_qwen(
     *,
     train_shared_experts: bool | None = None,
     train_non_expert_modules: bool | None = None,
+    train_router: bool = False,
 ) -> EsftHandles:
     """Configure ``model`` for ESFT training of the selected experts only.
 
@@ -131,19 +136,153 @@ def to_esft_qwen(
         if train_shared_experts and ref.shared_expert is not None:
             ref.shared_expert.requires_grad_(True)
 
+    # Router-mobile joint training (flag-gated): unfreeze every gate. Off by
+    # default so the legacy frozen-router path is bit-for-bit unchanged. The
+    # expert grad-hooks above are NOT applied to the router.
+    if train_router:
+        enable_router_training(model, handles)
+
     return handles
 
 
-def build_param_groups(model: torch.nn.Module, handles: EsftHandles, weight_decay: float = 0.0):
-    """Optimiser param groups: packed expert params get weight_decay=0 to keep
-    non-selected experts bit-exact frozen; everything else trainable uses
+def enable_router_training(model: torch.nn.Module, handles) -> list:
+    """Unfreeze every routed-MoE gate (router) and record its Parameters on
+    ``handles.router_params``.
+
+    Works for both :class:`EsftHandles` (maskhook path) and ``DeltaHandles``
+    (residual-delta path) -- both expose a ``router_params`` list. The gate is the
+    only module that can re-weight the k=9..32 tail's gate mass, so making it
+    trainable at a low LR (+ a base-anchor KL) is what lets ESFT@k32 fix the
+    routing mis-calibration that a frozen router cannot.
+
+    Returns the list of unfrozen router Parameters.
+    """
+    params: list = []
+    for ref in find_moe_blocks(model):
+        for p in ref.gate.parameters(recurse=True):
+            p.requires_grad_(True)
+            params.append(p)
+    handles.router_params = params
+    return params
+
+
+def snapshot_router_weights(model: torch.nn.Module) -> dict:
+    """Detached-clone snapshot of every gate ``weight``, keyed by layer index.
+
+    Taken once at train start (before the optimiser moves the gate) to serve as
+    the frozen anchor target for :class:`RouterAnchor`.
+    """
+    snap: dict[int, torch.Tensor] = {}
+    for ref in find_moe_blocks(model):
+        snap[ref.layer_idx] = ref.gate.weight.detach().clone()
+    return snap
+
+
+class RouterAnchor:
+    """Base-routing anchor: penalise drift of the (mobile) router away from the
+    base model's routing distribution, averaged over MoE layers.
+
+    Mechanistic note -- the anchor is *k-independent*. ``Qwen3_5MoeTopKRouter``
+    computes ``router_logits = F.linear(x, weight)`` and softmaxes over ALL 256
+    experts *before* the top-k selection, so keeping ``softmax(current_logits)``
+    close to ``softmax(base_logits)`` pins the whole distribution (hence the
+    served k=8 mass) with a SINGLE forward -- no second forward, no k dependence.
+
+    Implementation:
+      * a forward hook on each gate stashes its input ``x`` (input[0]); the gate's
+        own output logits equal ``F.linear(x, weight)`` (no bias -- see the router
+        forward), so we recompute *current* logits from the stashed ``x`` with the
+        LIVE gate weight. Recomputing (rather than reusing the stashed output)
+        keeps the router gradient intact even under gradient checkpointing, where
+        the checkpointed region's internal output tensor is detached from the
+        outer graph; the leaf ``gate.weight`` still receives grad. Numerically
+        identical to the gate's emitted logits.
+      * ``base_logits = F.linear(x_detached, base_weight)`` (stop-grad on base).
+      * KL(log_softmax(current) || softmax(base)) via ``F.kl_div(..., 'batchmean')``,
+        float32 for stability, padding tokens dropped via an optional valid mask.
+
+    ``compute()`` consumes and clears the per-forward stash; call it once per
+    forward, right after the backbone forward and before ``backward``.
+    """
+
+    def __init__(self, model: torch.nn.Module, base_weights: dict, weight: float = 0.15):
+        self.weight = float(weight)
+        self.base_weights = base_weights  # layer_idx -> detached base gate weight
+        self._gates: dict = {}            # layer_idx -> gate module
+        self._stash: dict = {}            # layer_idx -> stashed input x
+        self.handles: list = []
+        for ref in find_moe_blocks(model):
+            self._gates[ref.layer_idx] = ref.gate
+            self.handles.append(ref.gate.register_forward_hook(self._make_hook(ref.layer_idx)))
+
+    def _make_hook(self, layer_idx: int):
+        def hook(module, inputs, output):
+            # input[0] is the (possibly 3D) hidden state fed to the gate; the gate
+            # reshapes to (-1, H) internally, and F.linear broadcasts over leading
+            # dims, so we keep it as-is and flatten at compute time.
+            self._stash[layer_idx] = inputs[0]
+        return hook
+
+    def compute(self, valid_mask: torch.Tensor | None = None):
+        """Return the weighted mean-over-layers anchor KL (a scalar tensor), or a
+        Python 0.0 if disabled / no stash. ``valid_mask`` is a bool tensor over the
+        flattened token axis (True = keep); typically ``input_ids != pad_id``.
+        Clears the stash before returning."""
+        if self.weight == 0.0 or not self._stash:
+            self._stash.clear()
+            return 0.0
+        kls = []
+        vm = None if valid_mask is None else valid_mask.reshape(-1).bool()
+        for layer_idx, x in self._stash.items():
+            gate = self._gates[layer_idx]
+            H = x.shape[-1]
+            xf = x.reshape(-1, H)
+            base_w = self.base_weights[layer_idx].to(device=xf.device, dtype=xf.dtype)
+            cur_logits = torch.nn.functional.linear(xf, gate.weight)          # grad -> gate.weight
+            base_logits = torch.nn.functional.linear(xf.detach(), base_w)     # stop-grad
+            if vm is not None and vm.numel() == cur_logits.shape[0]:
+                cur_logits = cur_logits[vm]
+                base_logits = base_logits[vm]
+            if cur_logits.shape[0] == 0:
+                continue
+            log_cur = torch.log_softmax(cur_logits.float(), dim=-1)
+            base_prob = torch.softmax(base_logits.float(), dim=-1).detach()
+            kl = torch.nn.functional.kl_div(log_cur, base_prob, reduction="batchmean")
+            kls.append(kl)
+        self._stash.clear()
+        if not kls:
+            return 0.0
+        return self.weight * torch.stack(kls).mean()
+
+    def remove(self) -> None:
+        for h in self.handles:
+            h.remove()
+        self.handles.clear()
+
+
+def build_param_groups(model: torch.nn.Module, handles: EsftHandles,
+                       weight_decay: float = 0.0, router_lr: float | None = None):
+    """Optimiser param groups: packed expert/delta params get weight_decay=0 to
+    keep non-selected experts bit-exact frozen; everything else trainable uses
     ``weight_decay``.
+
+    If ``router_lr`` is given AND the router was unfrozen
+    (``handles.router_params`` non-empty), the router (gate) params go into their
+    own group with an explicit low ``lr`` (= router_lr_mult * base_lr) and
+    weight_decay=0. Router params are excluded from the other groups by id, so
+    there is no overlap.
     """
     expert_ids = {id(p) for p in handles.expert_params}
+    router_params = list(getattr(handles, "router_params", []) or [])
+    router_ids = {id(p) for p in router_params}
+    use_router_group = bool(router_params) and router_lr is not None
+
     decay, no_decay = [], []
     for p in model.parameters():
         if not p.requires_grad:
             continue
+        if use_router_group and id(p) in router_ids:
+            continue  # handled in the dedicated router group below
         if id(p) in expert_ids:
             no_decay.append(p)
         else:
@@ -153,6 +292,8 @@ def build_param_groups(model: torch.nn.Module, handles: EsftHandles, weight_deca
         groups.append({"params": decay, "weight_decay": weight_decay})
     if no_decay:
         groups.append({"params": no_decay, "weight_decay": 0.0})
+    if use_router_group:
+        groups.append({"params": router_params, "lr": router_lr, "weight_decay": 0.0})
     return groups
 
 
@@ -194,20 +335,8 @@ def load_expert_patch(model: torch.nn.Module, path: str, *, strict: bool = True)
     tensors = _st_load(path)
     refs = {r.layer_idx: r for r in find_moe_blocks(model)}
     n_written = 0
-    n_router = 0
     with torch.no_grad():
         for key, val in tensors.items():
-            if key.startswith("router.gate."):
-                # key: router.gate.{L}.weight -> absolute gate weight
-                layer_idx = int(key.split(".")[2])
-                if layer_idx not in refs:
-                    if strict:
-                        raise KeyError(f"patch references missing router layer {layer_idx}")
-                    continue
-                w = refs[layer_idx].gate.weight
-                w.copy_(val.to(device=w.device, dtype=w.dtype))
-                n_router += 1
-                continue
             # key: layers.{L}.experts.{which}.{E}
             _, layer_s, _, which, expert_s = key.split(".")
             layer_idx, expert_id = int(layer_s), int(expert_s)
@@ -219,4 +348,4 @@ def load_expert_patch(model: torch.nn.Module, path: str, *, strict: bool = True)
             target = experts.gate_up_proj if which == "gate_up" else experts.down_proj
             target[expert_id].copy_(val.to(device=target.device, dtype=target.dtype))
             n_written += 1
-    return {"num_written": n_written, "num_router": n_router, "path": path}
+    return {"num_written": n_written, "path": path}

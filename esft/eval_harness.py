@@ -54,8 +54,9 @@ Per (model, topk, benchmark): a record
 "tok_s_parallel",...}`` (CI95 = normal approximation, to match ``topk_sweep.py``)
 atomically flushed to ``~/esft/reports/eval/{tag}.json`` after each benchmark
 completes on both GPUs. Every scored item is also dumped to
-``reports/eval/{tag}_items.json`` as ``{"id","pred","gold","correct","truncated",
-"gen_len"}`` so two runs over the same items can be compared PAIRED:
+``reports/eval/{tag}_items.json`` as ``{"id","item_key","pred","gold","correct",
+"truncated","gen_len"}`` so two runs over the same items can be compared PAIRED.
+The verdict rejects protocol metadata mismatches before comparing:
 
     eval_harness.py --paired-verdict A_items.json B_items.json
 
@@ -78,8 +79,14 @@ import re
 import json
 import math
 import time
+import hashlib
+import importlib.metadata
+import queue
+import secrets
+import shutil
 import argparse
 import multiprocessing as mp
+from functools import lru_cache
 
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 MODEL_35B = os.path.expanduser("~/esft-work/models/Qwen3.6-35B-A3B")
@@ -126,6 +133,17 @@ class Benchmark:
     def score(self, pred, item: dict) -> bool:
         """True iff ``pred`` matches the item's gold answer."""
         raise NotImplementedError
+
+    def item_key(self, item: dict) -> str:
+        """Content-derived identity used to prove two arms saw the same item."""
+        payload = {key: value for key, value in item.items() if not key.startswith("_")}
+        canonical = json.dumps(
+            {"benchmark": self.name, "item": payload},
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode()
+        return hashlib.sha256(canonical).hexdigest()
 
 
 # ------------------------------- GSM8K --------------------------------------
@@ -370,16 +388,20 @@ def _sandbox_header(timeout, mem_mb):
     mem_bytes = int(mem_mb) * 1024 * 1024 if mem_mb else 0
     cpu_s = int(timeout) + 1
     return (
-        "import os as _os, sys as _sys, builtins as _bi\n"
-        "try:\n"
-        "    import resource as _r\n"
-        f"    _MEM = {mem_bytes}\n"
-        "    if _MEM:\n"
-        "        _r.setrlimit(_r.RLIMIT_AS, (_MEM, _MEM))\n"
-        f"    _r.setrlimit(_r.RLIMIT_CPU, ({cpu_s}, {cpu_s}))\n"
-        "    _r.setrlimit(_r.RLIMIT_CORE, (0, 0))\n"
-        "except Exception:\n"
-        "    pass\n"
+        "import os as _os, sys as _sys, builtins as _bi, resource as _r\n"
+        f"_MEM = {mem_bytes}\n"
+        "if _MEM:\n"
+        "    _r.setrlimit(_r.RLIMIT_AS, (_MEM, _MEM))\n"
+        f"_r.setrlimit(_r.RLIMIT_CPU, ({cpu_s}, {cpu_s}))\n"
+        "_r.setrlimit(_r.RLIMIT_CORE, (0, 0))\n"
+        "_r.setrlimit(_r.RLIMIT_FSIZE, (1048576, 1048576))\n"
+        "_r.setrlimit(_r.RLIMIT_NOFILE, (64, 64))\n"
+        "if hasattr(_r, 'RLIMIT_NPROC'):\n"
+        "    _r.setrlimit(_r.RLIMIT_NPROC, (64, 64))\n"
+        "assert not _MEM or _r.getrlimit(_r.RLIMIT_AS)[0] == _MEM\n"
+        f"assert _r.getrlimit(_r.RLIMIT_CPU)[0] == {cpu_s}\n"
+        "assert _r.getrlimit(_r.RLIMIT_FSIZE)[0] == 1048576\n"
+        "assert _r.getrlimit(_r.RLIMIT_NOFILE)[0] == 64\n"
         "_os.environ['OMP_NUM_THREADS'] = '1'\n"
         "for _n in ('system','remove','unlink','rmdir','removedirs','rename',\n"
         "           'renames','replace','truncate','kill','killpg','fork',\n"
@@ -398,53 +420,141 @@ def _sandbox_header(timeout, mem_mb):
         "    pass\n"
         "_bi.exit = _bi.quit = None\n"
         "_sys.modules['resource'] = None\n"
-        "del _os, _sys, _bi\n")
+        "del _os, _sys, _bi, _r\n")
+
+
+@lru_cache(maxsize=None)
+def _bubblewrap_supports_size(bwrap):
+    """Return whether this bubblewrap build supports ``--size SIZE``.
+
+    Ubuntu Jammy ships bubblewrap 0.6.1 without that option, while newer builds
+    accept it as a size limit for the following tmpfs.  Probe the executable
+    instead of assuming that all hosts have the same command-line interface.
+    Each evaluator worker performs the probe at most once.
+    """
+    import subprocess
+
+    proc = subprocess.run(
+        [bwrap, "--help"], text=True, stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT, check=False)
+    if proc.returncode != 0:
+        raise RuntimeError(
+            f"bubblewrap capability probe failed ({proc.returncode}): "
+            f"{proc.stdout[-800:]}")
+    return re.search(r"(?:^|\s)--size(?:[=\s]|$)", proc.stdout) is not None
+
+
+def _usr_merged_link_target(host_path):
+    """Map a host usr-merged compatibility path to its in-sandbox target.
+
+    Hosts differ here: Arch commonly resolves ``/lib64`` to ``/usr/lib`` while
+    Ubuntu resolves it to ``/usr/lib64``.  The sandbox read-only binds ``/usr``
+    and must recreate the link using the target actually present on this host.
+    """
+    resolved = os.path.realpath(host_path)
+    if not resolved.startswith("/usr/") or not os.path.exists(resolved):
+        raise RuntimeError(
+            f"sandbox requires a usr-merged host path, got {host_path} -> {resolved}")
+    return resolved.lstrip("/")
+
+
+def _bubblewrap_argv(bwrap, sandbox_python):
+    """Build a host-compatible bubblewrap command for one code candidate."""
+    argv = [
+        bwrap,
+        "--die-with-parent", "--unshare-all", "--new-session",
+        "--ro-bind", "/usr", "/usr",
+        "--symlink", _usr_merged_link_target("/lib"), "/lib",
+        "--symlink", _usr_merged_link_target("/lib64"), "/lib64",
+        "--symlink", _usr_merged_link_target("/bin"), "/bin",
+        "--dev", "/dev",
+    ]
+    for destination in ("/tmp", "/work"):
+        if _bubblewrap_supports_size(bwrap):
+            argv += ["--size", "67108864"]
+        argv += ["--tmpfs", destination]
+    argv += [
+        "--chdir", "/work", "--clearenv",
+        "--setenv", "PATH", "/usr/bin",
+        "--setenv", "HOME", "/tmp",
+        "--setenv", "OMP_NUM_THREADS", "1",
+        "--setenv", "MKL_NUM_THREADS", "1",
+        "--setenv", "OPENBLAS_NUM_THREADS", "1",
+        "--setenv", "PYTHONDONTWRITEBYTECODE", "1",
+        sandbox_python, "-",
+    ]
+    return argv
 
 
 def _run_sandboxed(body, timeout=10.0, mem_mb=4096):
     """Run ``body`` (candidate code + asserts) as an isolated subprocess.
 
-    Returns ``(passed, detail)`` with ``passed`` True iff the program exits 0 (all
-    asserts held). On timeout the entire process group is SIGKILLed, so a hung or
-    looping candidate -- and anything it spawned -- is guaranteed to die."""
+    Returns ``(passed, detail, reason)`` with ``passed`` True iff the program
+    exits 0 (all asserts held). ``reason`` is one of ``pass``, ``failed``, or
+    ``timeout`` and is not derived from candidate-controlled output. On timeout
+    the entire process group is SIGKILLed, so a hung or looping candidate -- and
+    anything it spawned -- is guaranteed to die. The OS sandbox protects the
+    host; like standard code benchmarks, correctness scoring assumes the
+    completion is not intentionally impersonating the test wrapper."""
+    import signal
     import subprocess
     import tempfile
-    import signal
 
-    program = _sandbox_header(timeout, mem_mb) + "\n" + body
-    env = dict(os.environ)
-    env.update({"OMP_NUM_THREADS": "1", "MKL_NUM_THREADS": "1",
-                "OPENBLAS_NUM_THREADS": "1", "PYTHONDONTWRITEBYTECODE": "1"})
+    bwrap = shutil.which("bwrap")
+    sandbox_python = "/usr/bin/python3"
+    if not bwrap or not os.path.exists(sandbox_python):
+        raise RuntimeError("bubblewrap sandbox or /usr/bin/python3 unavailable")
+
+    sentinel = f"__ESFT_TESTS_PASSED_{secrets.token_hex(24)}__"
+    program = (
+        _sandbox_header(timeout, mem_mb)
+        + f"\n_BODY = {body!r}\n"
+        + "try:\n"
+        + "    exec(compile(_BODY, '<candidate-and-tests>', 'exec'), globals(), globals())\n"
+        + "except BaseException:\n"
+        + "    import traceback as _tb\n"
+        + "    _tb.print_exc()\n"
+        + "else:\n"
+        + f"    print({sentinel!r}, flush=True)\n"
+    )
 
     with tempfile.TemporaryDirectory(prefix="esft_sbx_") as td:
-        prog_path = os.path.join(td, "prog.py")
-        with open(prog_path, "w") as f:
-            f.write(program)
-        try:
-            proc = subprocess.Popen(
-                [sys.executable, prog_path], cwd=td,
-                stdin=subprocess.DEVNULL,
-                stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                env=env, text=True, start_new_session=True)
-        except Exception as e:  # noqa: BLE001
-            return False, f"spawn-failed: {e}"
-        try:
-            _out, err = proc.communicate(timeout=timeout)
-            passed = (proc.returncode == 0)
-            return passed, ("" if passed else (err or "")[-800:])
-        except subprocess.TimeoutExpired:
+        stdout_path = os.path.join(td, "stdout.txt")
+        stderr_path = os.path.join(td, "stderr.txt")
+        with open(stdout_path, "w+") as stdout_file, open(stderr_path, "w+") as stderr_file:
+            sandbox_argv = _bubblewrap_argv(bwrap, sandbox_python)
             try:
-                os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
-            except Exception:  # noqa: BLE001
+                proc = subprocess.Popen(
+                    sandbox_argv, cwd=td,
+                    stdin=subprocess.PIPE,
+                    stdout=stdout_file, stderr=stderr_file,
+                    text=True, start_new_session=True)
+            except Exception as e:  # noqa: BLE001
+                raise RuntimeError(f"bubblewrap spawn failed: {e}") from e
+            try:
+                proc.communicate(program, timeout=timeout)
+            except subprocess.TimeoutExpired:
                 try:
-                    proc.kill()
+                    os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+                except Exception:  # noqa: BLE001
+                    try:
+                        proc.kill()
+                    except Exception:  # noqa: BLE001
+                        pass
+                try:
+                    proc.communicate(timeout=5)
                 except Exception:  # noqa: BLE001
                     pass
-            try:
-                proc.communicate(timeout=5)
-            except Exception:  # noqa: BLE001
-                pass
-            return False, f"timeout>{timeout}s"
+                return False, f"timeout>{timeout}s", "timeout"
+
+            stdout_file.flush(); stderr_file.flush()
+            stdout_file.seek(0); stderr_file.seek(0)
+            out, err = stdout_file.read(), stderr_file.read()
+            if proc.returncode != 0 and err.lstrip().startswith("bwrap:"):
+                raise RuntimeError(f"bubblewrap sandbox failed: {err[-800:]}")
+            passed = proc.returncode == 0 and sentinel in out.splitlines()
+            detail = "" if passed else ((err or out or "")[-800:])
+            return passed, detail, ("pass" if passed else "failed")
 
 
 class _CodingBenchmark(Benchmark):
@@ -463,10 +573,13 @@ class _CodingBenchmark(Benchmark):
         raise NotImplementedError
 
     def score(self, pred, item):
+        self._last_sandbox_timeout = False
         if not pred or not pred.strip():
             return False
-        ok, _ = _run_sandboxed(self._build_program(pred, item),
-                               timeout=self.timeout, mem_mb=self.mem_mb)
+        ok, _detail, reason = _run_sandboxed(
+            self._build_program(pred, item),
+            timeout=self.timeout, mem_mb=self.mem_mb)
+        self._last_sandbox_timeout = reason == "timeout"
         return ok
 
 
@@ -670,6 +783,11 @@ def _count_gen_tokens(row_ids):
     return (min(hit) + 1) if hit else len(row_ids)
 
 
+def _hit_generation_cap(row_ids, max_new):
+    """True when generation consumed the full budget without emitting EOS."""
+    return len(row_ids) >= max_new and not any(eos in row_ids for eos in EOS_IDS)
+
+
 def run_one_benchmark(gpu_id, tok, model, bench, items, batch_size, max_new):
     import torch
     dev = f"cuda:{gpu_id}"
@@ -699,16 +817,18 @@ def run_one_benchmark(gpu_id, tok, model, bench, items, batch_size, max_new):
             text = tok.decode(row, skip_special_tokens=True)
             pred = bench.extract_answer(text)
             ok = bool(bench.score(pred, item))
-            # Generation hit the cap before the reasoning block closed: the
-            # extractor then reads raw <think> text, so this item's answer is
-            # unreliable and must be visible in the paired comparison.
-            trunc = (n_gen >= max_new) and ("</think>" not in text)
+            sandbox_timeout = bool(getattr(bench, "_last_sandbox_timeout", False))
+            # Any non-EOS token-cap hit is truncated. This includes code cut off
+            # after </think>, which the former reasoning-only check missed.
+            trunc = _hit_generation_cap(gt, max_new)
             correct += int(ok)
             truncated += int(trunc)
             n += 1
-            rec = {"id": item.get("_id"), "pred": pred,
+            rec = {"id": item.get("_id"), "item_key": item.get("_item_key"),
+                   "pred": pred,
                    "gold": item.get("gold"), "correct": ok,
-                   "truncated": trunc, "gen_len": n_gen}
+                   "truncated": trunc, "gen_len": n_gen,
+                   "sandbox_timeout": sandbox_timeout}
             if "task_id" in item:
                 rec["task_id"] = item["task_id"]
             per_item.append(rec)
@@ -753,14 +873,20 @@ def run_logprob_benchmark(gpu_id, tok, model, bench, items, batch_size):
                        attention_mask=enc["attention_mask"])
             h_last = out.last_hidden_state[:, -1, :]        # left-pad => real last
             last = head(h_last).float()                     # (B, V)
-        picks = last[:, cand].argmax(dim=-1).tolist()
+        choice_scores = last[:, cand]
+        if not torch.isfinite(choice_scores).all():
+            raise RuntimeError(
+                f"non-finite choice logits on gpu{gpu_id} for {bench.name}")
+        picks = choice_scores.argmax(dim=-1).tolist()
         for j, item in enumerate(ichunk):
             pred = _LETTERS[picks[j]]
             ok = (pred == item.get("gold"))
             correct += int(ok); n += 1
-            per_item.append({"id": item.get("_id"), "pred": pred,
+            per_item.append({"id": item.get("_id"),
+                             "item_key": item.get("_item_key"), "pred": pred,
                              "gold": item.get("gold"), "correct": ok,
-                             "truncated": False, "gen_len": 0})
+                             "truncated": False, "gen_len": 0,
+                             "sandbox_timeout": False})
         print(f"[gpu{gpu_id} {bench.name}(logprob)] {n}/{len(prompts)} "
               f"acc={correct/max(n,1):.3f}", flush=True)
     dt = time.time() - t0
@@ -825,18 +951,37 @@ def mcnemar_exact_p(n10, n01):
 def paired_verdict(items_a, items_b, key="correct", alpha=0.05):
     """Paired A-vs-B verdict over per-item records evaluated on the same items.
 
-    ``items_*``: lists of dicts carrying ``id`` and a boolean ``key`` field, as
+    ``items_*``: lists of dicts carrying ``item_key`` (or legacy ``id``) and a
+    boolean ``key`` field, as
     written to ``reports/eval/{tag}_items.json`` (records where ``key`` is absent
     or None are ignored, e.g. toolcall negatives when key="arg_match"; the same
     records drop from both sides because the item sets are identical).
 
-    Returns ``{"n","key","acc_a","acc_b","delta","n10","n01","paired_ci95",
-    "mcnemar_p","significant"}`` where ``delta`` = acc_b - acc_a, ``paired_ci95``
-    is the Wald CI on delta from the discordant counts, and ``significant`` is
-    the decision (exact McNemar p < alpha).
+    Returns counts, accuracies, the paired delta, a descriptive Wald interval,
+    and exact McNemar significance. Non-inferiority uses a separate conservative
+    exact interval; the Wald interval is never used for that decision.
     """
-    amap = {it["id"]: bool(it[key]) for it in items_a if it.get(key) is not None}
-    bmap = {it["id"]: bool(it[key]) for it in items_b if it.get(key) is not None}
+    a_has_stable = [it.get("item_key") is not None for it in items_a]
+    b_has_stable = [it.get("item_key") is not None for it in items_b]
+    if any(a_has_stable) != all(a_has_stable) or any(b_has_stable) != all(b_has_stable):
+        raise ValueError("paired_verdict: mixed stable and legacy item identities")
+    if all(a_has_stable) != all(b_has_stable):
+        raise ValueError(
+            "paired_verdict: one result uses stable item keys and the other is legacy; "
+            "rerun both arms with the same harness"
+        )
+    id_field = "item_key" if all(a_has_stable) and all(b_has_stable) else "id"
+
+    def keyed(items):
+        records = [(it[id_field], bool(it[key]))
+                   for it in items if it.get(key) is not None]
+        mapped = dict(records)
+        if len(mapped) != len(records):
+            raise ValueError(f"paired_verdict: duplicate {id_field} values")
+        return mapped
+
+    amap = keyed(items_a)
+    bmap = keyed(items_b)
     if set(amap) != set(bmap):
         raise ValueError(
             f"paired_verdict: item id sets differ (A={len(amap)}, B={len(bmap)}, "
@@ -847,17 +992,97 @@ def paired_verdict(items_a, items_b, key="correct", alpha=0.05):
         raise ValueError(f"paired_verdict: no items carry the field {key!r}")
     n10 = sum(1 for i in amap if amap[i] and not bmap[i])
     n01 = sum(1 for i in amap if not amap[i] and bmap[i])
-    acc_a = sum(amap.values()) / n
-    acc_b = sum(bmap.values()) / n
+    correct_a = sum(amap.values())
+    correct_b = sum(bmap.values())
+    acc_a = correct_a / n
+    acc_b = correct_b / n
     delta = acc_b - acc_a
     se = math.sqrt(max(n10 + n01 - (n01 - n10) ** 2 / n, 0.0)) / n
+    one_sided_z = 1.6448536269514722
     p = mcnemar_exact_p(n10, n01)
-    return {"n": n, "key": key,
+    return {"n": n, "key": key, "correct_a": correct_a, "correct_b": correct_b,
             "acc_a": round(acc_a, 4), "acc_b": round(acc_b, 4),
             "delta": round(delta, 4), "n10": n10, "n01": n01,
             "paired_ci95": [round(delta - 1.96 * se, 4),
                             round(delta + 1.96 * se, 4)],
+            "paired_one_sided95": [round(delta - one_sided_z * se, 4),
+                                    round(delta + one_sided_z * se, 4)],
             "mcnemar_p": p, "significant": p < alpha}
+
+
+def _clopper_pearson(successes, trials, interval_alpha):
+    """Conservative exact binomial interval with total error ``interval_alpha``."""
+    if (isinstance(successes, bool) or isinstance(trials, bool)
+            or not isinstance(successes, int) or not isinstance(trials, int)
+            or not 0 <= successes <= trials or trials <= 0):
+        raise ValueError("invalid binomial counts")
+    from scipy.stats import beta
+
+    tail = interval_alpha / 2.0
+    lower = 0.0 if successes == 0 else float(
+        beta.ppf(tail, successes, trials - successes + 1))
+    upper = 1.0 if successes == trials else float(
+        beta.ppf(1.0 - tail, successes + 1, trials - successes))
+    return lower, upper
+
+
+def paired_difference_exact_bounds(n, n10, n01, alpha=0.05):
+    """Conservative confidence bounds for a paired binary accuracy delta.
+
+    Let ``s`` be the probability of a discordant pair and ``q`` the conditional
+    probability that B alone is correct. Then ``delta = s * (2q - 1)``. Exact
+    Clopper-Pearson intervals for ``s`` and ``q`` receive half the error budget
+    each; mapping their Bonferroni joint region through that identity avoids the
+    zero-width and small-sample failures of a paired Wald interval.
+    """
+    counts = (n, n10, n01)
+    if (any(isinstance(value, bool) or not isinstance(value, int) for value in counts)
+            or n <= 0 or min(n10, n01) < 0 or n10 + n01 > n):
+        raise ValueError("invalid paired counts")
+    if not 0 < alpha < 1:
+        raise ValueError("alpha must be between zero and one")
+
+    discordant = n10 + n01
+    component_alpha = alpha / 2.0
+    s_lower, s_upper = _clopper_pearson(discordant, n, component_alpha)
+    if discordant:
+        q_lower, q_upper = _clopper_pearson(n01, discordant, component_alpha)
+    else:
+        q_lower, q_upper = 0.0, 1.0
+    r_lower, r_upper = 2.0 * q_lower - 1.0, 2.0 * q_upper - 1.0
+    corners = (
+        s_lower * r_lower,
+        s_lower * r_upper,
+        s_upper * r_lower,
+        s_upper * r_upper,
+    )
+    return min(corners), max(corners)
+
+
+def noninferiority_verdict(verdict, margin, alpha=0.05):
+    """Classify a paired delta against a predeclared absolute regression margin."""
+    margin = float(margin)
+    if not math.isfinite(margin) or not 0 <= margin <= 1:
+        raise ValueError("non-inferiority margin must be a finite fraction from 0 to 1")
+    lower, upper = paired_difference_exact_bounds(
+        verdict["n"], verdict["n10"], verdict["n01"], alpha=alpha)
+    boundary = -margin
+    if lower > boundary:
+        status = "PASS"
+    elif upper < boundary:
+        status = "FAIL"
+    else:
+        status = "INCONCLUSIVE"
+    return {
+        "status": status,
+        "margin": margin,
+        "boundary": boundary,
+        "delta": verdict["delta"],
+        "confidence": 1.0 - alpha,
+        "method": "conditional_clopper_pearson_bonferroni",
+        "lower_95": lower,
+        "upper_95": upper,
+    }
 
 
 def _load_items_file(path):
@@ -867,15 +1092,48 @@ def _load_items_file(path):
         data = json.load(f)
     items = data.get("items", data) if isinstance(data, dict) else data
     if isinstance(items, list):
-        return {"all": items}
-    return items
+        items = {"all": items}
+    meta = data.get("_meta", {}) if isinstance(data, dict) else {}
+    return items, meta
+
+
+_PAIRED_PROTOCOL_FIELDS = (
+    "model_path", "n_per_benchmark", "batch_size", "max_new", "seed", "shuffle", "gpus",
+    "no_think", "choice_logprob", "effective_prompt_modes", "split", "harness_sha256",
+    "source_sha256", "python_executable", "python_version", "package_versions",
+)
+
+
+def _validate_paired_protocol(meta_a, meta_b, *, require_complete=True):
+    missing = []
+    if require_complete:
+        for label, meta in (("A", meta_a), ("B", meta_b)):
+            absent = [field for field in _PAIRED_PROTOCOL_FIELDS if field not in meta]
+            if absent:
+                missing.append(f"{label} missing {absent}")
+    mismatches = []
+    for field in _PAIRED_PROTOCOL_FIELDS:
+        if field in meta_a and field in meta_b and meta_a[field] != meta_b[field]:
+            mismatches.append(f"{field}: A={meta_a[field]!r}, B={meta_b[field]!r}")
+    if missing or mismatches:
+        raise ValueError(
+            "paired verdict requires identical evaluation protocols; "
+            + "; ".join(missing + mismatches)
+        )
 
 
 def run_paired_verdict(path_a, path_b, key="correct"):
-    a, b = _load_items_file(path_a), _load_items_file(path_b)
+    (a, meta_a), (b, meta_b) = _load_items_file(path_a), _load_items_file(path_b)
     common = [name for name in a if name in b]
     if not common:
         raise SystemExit(f"no common benchmark between {path_a} and {path_b}")
+    stable = any(
+        item.get("item_key") is not None
+        for collection in (a, b)
+        for name in common
+        for item in collection[name]
+    )
+    _validate_paired_protocol(meta_a, meta_b, require_complete=stable)
     for name in common:
         v = paired_verdict(a[name], b[name], key=key)
         print(f"[{name}] n={v['n']}  acc A={v['acc_a']:.4f} B={v['acc_b']:.4f}  "
@@ -884,13 +1142,13 @@ def run_paired_verdict(path_a, path_b, key="correct"):
               f"McNemar p={v['mcnemar_p']:.4g}  significant={v['significant']}")
 
 
-def aggregate(partial, spec, max_new_map):
+def aggregate(partial, spec, max_new_map, expected_workers=2):
     """partial: {bench_name: {gpu_id: msg}} -> {bench_name: record} for benchmarks
     with BOTH gpus reported."""
     out = {}
     for bench_name in sorted(partial):
         parts = partial[bench_name]
-        if len(parts) < 2:
+        if len(parts) < expected_workers:
             continue
         c = sum(p["correct"] for p in parts.values())
         n = sum(p["n"] for p in parts.values())
@@ -907,6 +1165,9 @@ def aggregate(partial, spec, max_new_map):
             "ci95": ci95_normal(acc, n) if acc is not None else None,
             "correct": c,
             "truncated_n": sum(p.get("truncated_n", 0) for p in parts.values()),
+            "sandbox_timeout_n": sum(
+                bool(item.get("sandbox_timeout"))
+                for p in parts.values() for item in p.get("items", [])),
             "gen_tokens": g,
             "tok_s": round(g / tsum, 2) if tsum else None,            # per-GPU-equiv
             "tok_s_parallel": round(g / tmax, 2) if tmax else None,   # 2-GPU wall
@@ -930,8 +1191,34 @@ def items_path_for(out_path):
     return base + "_items.json"
 
 
-def flush(out_path, partial, meta, spec, max_new_map):
-    data = {"_meta": meta, "results": aggregate(partial, spec, max_new_map)}
+def runtime_provenance():
+    packages = {}
+    for name in ("torch", "transformers", "datasets", "safetensors", "scipy"):
+        try:
+            packages[name] = importlib.metadata.version(name)
+        except importlib.metadata.PackageNotFoundError:
+            packages[name] = None
+    source_paths = {
+        "eval_harness.py": __file__,
+        "esft_qwen/common.py": os.path.join(PROJECT_ROOT, "esft_qwen", "common.py"),
+        "esft_qwen/esft_patch.py": os.path.join(PROJECT_ROOT, "esft_qwen", "esft_patch.py"),
+    }
+    source_sha256 = {}
+    for name, path in source_paths.items():
+        with open(path, "rb") as f:
+            source_sha256[name] = hashlib.sha256(f.read()).hexdigest()
+    return {
+        "harness_sha256": source_sha256["eval_harness.py"],
+        "source_sha256": source_sha256,
+        "python_executable": sys.executable,
+        "python_version": sys.version,
+        "package_versions": packages,
+    }
+
+
+def flush(out_path, partial, meta, spec, max_new_map, expected_workers=2):
+    data = {"_meta": meta, "results": aggregate(
+        partial, spec, max_new_map, expected_workers)}
     _atomic_json_dump(data, out_path)
     # Per-item dump (paired-analysis input): every scored item reported so far,
     # both GPUs merged, sorted by id. Written even for half-finished benchmarks
@@ -945,8 +1232,8 @@ def flush(out_path, partial, meta, spec, max_new_map):
     _atomic_json_dump({"_meta": meta, "items": items}, items_path_for(out_path))
 
 
-def print_table(partial, spec, max_new_map):
-    agg = aggregate(partial, spec, max_new_map)
+def print_table(partial, spec, max_new_map, expected_workers=2):
+    agg = aggregate(partial, spec, max_new_map, expected_workers)
     print("\n" + "=" * 68)
     print(f"model={spec['kind']}  topk={spec.get('topk')}")
     print(f"{'benchmark':>12} | {'acc':>7} | {'ci95':>7} | {'n':>5} | {'tok/s':>8}")
@@ -998,11 +1285,16 @@ def main():
                          "argmax over choice-letter logits instead of generating "
                          "(no truncation; fast). Other benchmarks still generate.")
     ap.add_argument("--report-dir", default=REPORT_DIR)
+    ap.add_argument("--overwrite", action="store_true",
+                    help="allow replacing an existing tag (disabled by default)")
     args = ap.parse_args()
 
     if args.paired_verdict:
-        run_paired_verdict(args.paired_verdict[0], args.paired_verdict[1],
-                           key=args.verdict_key)
+        try:
+            run_paired_verdict(args.paired_verdict[0], args.paired_verdict[1],
+                               key=args.verdict_key)
+        except ValueError as e:
+            ap.error(str(e))
         return
     if not args.model:
         ap.error("--model is required (or use --paired-verdict)")
@@ -1015,7 +1307,8 @@ def main():
         ap.error(str(e))
 
     gpus = [int(x) for x in args.gpus.split(",")]
-    assert len(gpus) == 2, "this harness is wired for exactly 2 GPUs"
+    if len(gpus) < 2 or len(set(gpus)) != len(gpus):
+        ap.error("--gpus must name at least two distinct logical GPUs")
 
     bench_names = [b.strip() for b in args.benchmark.split(",") if b.strip()]
     for b in bench_names:
@@ -1024,10 +1317,13 @@ def main():
 
     tag = args.tag or f"{spec['kind']}_k{spec.get('topk')}_{'_'.join(bench_names)}"
     out_path = os.path.join(args.report_dir, f"{tag}.json")
+    if not args.overwrite and (os.path.exists(out_path) or
+                               os.path.exists(items_path_for(out_path))):
+        ap.error(f"result tag already exists: {tag!r}; choose a new --tag or use --overwrite")
 
     # Load every benchmark's items in the parent (picklable) and split even/odd.
     max_new_map = {b: args.max_new for b in bench_names}  # None => per-bench default
-    items_g0, items_g1 = [], []
+    items_by_gpu = {gpu: [] for gpu in gpus}
     for b in bench_names:
         bench = get_benchmark(b)
         items = bench.load(args.n, args.seed, args.shuffle)
@@ -1036,8 +1332,9 @@ def main():
         # --shuffle) can be joined item-by-item for the paired verdict.
         for j, it in enumerate(items):
             it["_id"] = j
-        items_g0.append((b, items[0::2]))
-        items_g1.append((b, items[1::2]))
+            it["_item_key"] = bench.item_key(it)
+        for offset, gpu in enumerate(gpus):
+            items_by_gpu[gpu].append((b, items[offset::len(gpus)]))
         print(f"loaded {len(items)} {b} items", flush=True)
 
     meta = {
@@ -1047,14 +1344,20 @@ def main():
         "batch_size": args.batch_size, "max_new": args.max_new,
         "seed": args.seed, "shuffle": args.shuffle, "gpus": gpus,
         "no_think": args.no_think, "choice_logprob": args.choice_logprob,
+        "effective_prompt_modes": {
+            b: ("choice_logprob_no_think"
+                if args.choice_logprob and get_benchmark(b).supports_logprob
+                else ("generation_no_think" if args.no_think else "generation_think"))
+            for b in bench_names
+        },
         "split": "first-N" + (" shuffled" if args.shuffle else ""),
         "note": "reasoning model; per-benchmark max_new may truncate <think>",
+        **runtime_provenance(),
     }
 
     q = mp.Queue()
-    subsets = {gpus[0]: items_g0, gpus[1]: items_g1}
     procs = [mp.Process(target=worker,
-                        args=(g, spec, subsets[g], args.batch_size, max_new_map,
+                        args=(g, spec, items_by_gpu[g], args.batch_size, max_new_map,
                               args.no_think, args.choice_logprob, q))
              for g in gpus]
     for p in procs:
@@ -1062,24 +1365,66 @@ def main():
 
     partial = {}
     done = set()
-    while len(done) < len(procs):
-        msg = q.get()
-        if msg.get("done"):
-            done.add(msg["gpu"])
-            continue
-        partial.setdefault(msg["benchmark"], {})[msg["gpu"]] = msg
-        flush(out_path, partial, meta, spec, max_new_map)
-        agg = aggregate(partial, spec, max_new_map)
-        if msg["benchmark"] in agg:
-            r = agg[msg["benchmark"]]
-            print(f">>> {msg['benchmark']} COMPLETE  acc={r['acc']}±{r['ci95']}  "
-                  f"tok/s={r['tok_s']}  (flushed to {out_path})", flush=True)
 
-    for p in procs:
-        p.join()
+    def stop_workers(grace_seconds=10):
+        for proc in procs:
+            if proc.is_alive():
+                proc.terminate()
+        deadline = time.monotonic() + grace_seconds
+        for proc in procs:
+            if proc.is_alive():
+                proc.join(timeout=max(0.1, deadline - time.monotonic()))
+        for proc in procs:
+            if proc.is_alive():
+                try:
+                    proc.kill()
+                except AttributeError:
+                    proc.terminate()
+        for proc in procs:
+            proc.join(timeout=5)
 
-    flush(out_path, partial, meta, spec, max_new_map)
-    print_table(partial, spec, max_new_map)
+    def reap_workers(grace_seconds=120):
+        deadline = time.monotonic() + grace_seconds
+        for proc in procs:
+            while proc.is_alive() and time.monotonic() < deadline:
+                proc.join(timeout=1)
+        if any(proc.is_alive() for proc in procs):
+            stop_workers(10)
+
+    try:
+        while len(done) < len(procs):
+            try:
+                msg = q.get(timeout=5)
+            except queue.Empty:
+                failed = [(p.pid, p.exitcode) for p in procs
+                          if p.exitcode not in (None, 0)]
+                if failed:
+                    raise RuntimeError(f"evaluation worker exited before reporting: {failed}")
+                if all(not p.is_alive() for p in procs):
+                    raise RuntimeError("all evaluation workers exited without completion messages")
+                continue
+            if msg.get("done"):
+                done.add(msg["gpu"])
+                continue
+            partial.setdefault(msg["benchmark"], {})[msg["gpu"]] = msg
+            flush(out_path, partial, meta, spec, max_new_map, len(gpus))
+            agg = aggregate(partial, spec, max_new_map, len(gpus))
+            if msg["benchmark"] in agg:
+                r = agg[msg["benchmark"]]
+                print(f">>> {msg['benchmark']} COMPLETE  acc={r['acc']}±{r['ci95']}  "
+                      f"tok/s={r['tok_s']}  (flushed to {out_path})", flush=True)
+    except BaseException:
+        stop_workers(10)
+        raise
+    finally:
+        reap_workers(120)
+
+    failed = [(p.pid, p.exitcode) for p in procs if p.exitcode != 0]
+    if failed:
+        raise RuntimeError(f"evaluation workers failed: {failed}")
+
+    flush(out_path, partial, meta, spec, max_new_map, len(gpus))
+    print_table(partial, spec, max_new_map, len(gpus))
     print(f"\nwrote {out_path}")
 
 

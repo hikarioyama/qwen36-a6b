@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 ESFT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ESFT_ROOT))
@@ -15,6 +16,90 @@ import eval_harness
 
 
 class EvalHarnessTests(unittest.TestCase):
+    def test_bubblewrap_argv_adapts_to_jammy_without_size(self):
+        targets = {
+            "/lib": "usr/lib",
+            "/lib64": "usr/lib64",
+            "/bin": "usr/bin",
+        }
+        with mock.patch.object(
+                eval_harness, "_bubblewrap_supports_size", return_value=False), \
+                mock.patch.object(
+                    eval_harness, "_usr_merged_link_target",
+                    side_effect=lambda path: targets[path]):
+            argv = eval_harness._bubblewrap_argv("/tmp/bwrap", "/usr/bin/python3")
+
+        self.assertNotIn("--size", argv)
+        self.assertIn("usr/lib64", argv)
+        self.assertEqual(argv[-2:], ["/usr/bin/python3", "-"])
+        self.assertEqual(argv.count("--tmpfs"), 2)
+
+    def test_bubblewrap_argv_retains_tmpfs_limits_when_supported(self):
+        with mock.patch.object(
+                eval_harness, "_bubblewrap_supports_size", return_value=True), \
+                mock.patch.object(
+                    eval_harness, "_usr_merged_link_target",
+                    side_effect=lambda path: {
+                        "/lib": "usr/lib", "/lib64": "usr/lib64", "/bin": "usr/bin",
+                    }[path]):
+            argv = eval_harness._bubblewrap_argv("/tmp/bwrap", "/usr/bin/python3")
+
+        self.assertEqual(argv.count("--size"), 2)
+        self.assertEqual(argv.count("67108864"), 2)
+
+    def test_coding_score_records_sandbox_timeout_separately(self):
+        class Coding(eval_harness._CodingBenchmark):
+            def _build_program(self, code, item):
+                return code
+
+        bench = Coding()
+        with mock.patch.object(
+                eval_harness, "_run_sandboxed",
+                return_value=(False, "candidate-controlled text", "timeout")):
+            self.assertFalse(bench.score("def f(): pass", {}))
+
+        self.assertTrue(bench._last_sandbox_timeout)
+        with mock.patch.object(
+                eval_harness, "_run_sandboxed",
+                return_value=(False, "timeout>10.0s", "failed")):
+            self.assertFalse(bench.score("raise AssertionError", {}))
+        self.assertFalse(bench._last_sandbox_timeout)
+        self.assertFalse(bench.score(None, {}))
+        self.assertFalse(bench._last_sandbox_timeout)
+
+    def test_aggregate_counts_sandbox_timeouts(self):
+        part = {
+            "mmlu": {
+                0: {"correct": 1, "n": 1, "gen_tokens": 0, "gen_time": 1.0,
+                    "truncated_n": 0,
+                    "items": [{"sandbox_timeout": False}]},
+                1: {"correct": 0, "n": 1, "gen_tokens": 0, "gen_time": 1.0,
+                    "truncated_n": 0,
+                    "items": [{"sandbox_timeout": True}]},
+            },
+        }
+
+        result = eval_harness.aggregate(
+            part, {"kind": "base", "topk": 8}, {"mmlu": None})["mmlu"]
+
+        self.assertEqual(result["sandbox_timeout_n"], 1)
+
+    def test_aggregate_waits_for_all_four_humaneval_workers(self):
+        parts = {"humaneval": {}}
+        for gpu in range(4):
+            parts["humaneval"][gpu] = {
+                "correct": 1, "n": 1, "gen_tokens": 1, "gen_time": 1.0,
+                "truncated_n": 0,
+                "items": [{"sandbox_timeout": False}],
+            }
+        spec = {"kind": "base", "topk": 8}
+        self.assertEqual(eval_harness.aggregate(
+            {"humaneval": dict(list(parts["humaneval"].items())[:3])},
+            spec, {"humaneval": 4096}, expected_workers=4), {})
+        result = eval_harness.aggregate(
+            parts, spec, {"humaneval": 4096}, expected_workers=4)["humaneval"]
+        self.assertEqual(result["n"], 4)
+
     def test_item_key_is_content_derived_and_ignores_runtime_fields(self):
         bench = eval_harness.Benchmark()
         first = {"question": "q", "gold": "A", "_id": 0}
@@ -109,6 +194,16 @@ class EvalHarnessTests(unittest.TestCase):
         cfg = codex_harness.load_config(codex_harness.DEFAULT_CONFIG)
         args = codex_harness.protocol_args(cfg["protocols"]["mmlu"])
 
+        self.assertIn("--choice-logprob", args)
+        self.assertIn("--shuffle", args)
+        self.assertIn("--no-think", args)
+        self.assertNotIn("--max-new", args)
+
+    def test_jmmlu_protocol_uses_choice_logprob_and_pilot_sample(self):
+        cfg = codex_harness.load_config(codex_harness.DEFAULT_CONFIG)
+        args = codex_harness.protocol_args(cfg["protocols"]["jmmlu"])
+
+        self.assertEqual(cfg["protocols"]["jmmlu"]["n"], 300)
         self.assertIn("--choice-logprob", args)
         self.assertIn("--shuffle", args)
         self.assertIn("--no-think", args)

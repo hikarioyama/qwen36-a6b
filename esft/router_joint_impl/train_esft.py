@@ -59,8 +59,7 @@ def install_topk_random_hook(model, gates, topk_set, seed):
     gate.top_k is read at call time by Qwen3_5MoeTopKRouter.forward, so rewriting it
     here before the forward changes the routing width for that step. The RNG is seeded
     per-run (not per-rank) and only advances on training forwards, so both DDP ranks
-    draw an identical k sequence. Returns (handle, eval_k). Single source of truth for
-    both the trainer and tests/verify_topk_random.py.
+    draw an identical k sequence. Returns (handle, eval_k).
     """
     topk_set = sorted(set(topk_set))
     if not topk_set:
@@ -294,16 +293,26 @@ def main():
                     help="override gate.top_k at train time (0 = keep config value 8); "
                          "use 32 for ESFT@k32 so rank-9..32 experts receive gradient")
     ap.add_argument("--router-topk-random", action="store_true",
-                    help="stochastic co-activation: randomise gate.top_k on EVERY training "
-                         "forward, sampled uniformly from --topk-random-set (all MoE layers "
-                         "share one k per forward). Eval/save fall back to max(set) (=32) so "
-                         "evaluation is always measured at k=32. Overrides --router-top-k. "
-                         "Selection (833-expert delta) is unchanged; only the active count "
-                         "per forward varies, so low-k forwards simply leave some selected "
-                         "experts inactive (their delta gets no gradient that step).")
+                    help="stochastic co-activation (EMoE-min): randomise gate.top_k on "
+                         "EVERY training forward, sampled uniformly from --topk-random-set "
+                         "(all MoE layers share one k per forward). Eval/save use max(set) "
+                         "(=32) so evaluation is always at k=32. Overrides --router-top-k. "
+                         "Selection (delta) unchanged; low-k forwards just leave some "
+                         "selected experts inactive that step.")
     ap.add_argument("--topk-random-set", default="8,16,24,32",
                     help="comma-separated top_k values sampled uniformly per forward when "
                          "--router-topk-random is set; max() is the eval/save value")
+    ap.add_argument("--train-router", action="store_true",
+                    help="ROUTER-MOBILE joint training: unfreeze every gate (router) and "
+                         "train it at a low LR (--router-lr-mult) with a base-routing anchor "
+                         "(--router-anchor-weight). Off by default = legacy frozen router. "
+                         "The router logits are computed BEFORE top-k, so the anchor pins the "
+                         "k=8 distribution with one forward (k-independent).")
+    ap.add_argument("--router-lr-mult", type=float, default=0.08,
+                    help="router param-group LR = router_lr_mult * learning_rate")
+    ap.add_argument("--router-anchor-weight", type=float, default=0.15,
+                    help="lambda for the base-routing anchor KL added to the loss "
+                         "(0 disables the anchor; router still trains)")
     ap.add_argument("--seq-length", type=int, default=4096)
     ap.add_argument("--max-steps", type=int, default=500)
     ap.add_argument("--learning-rate", type=float, default=1e-5)
@@ -352,7 +361,10 @@ def main():
     )
     from torch.utils.data import TensorDataset
 
-    from esft_qwen.esft_patch import to_esft_qwen, build_param_groups, save_expert_patch
+    from esft_qwen.esft_patch import (
+        to_esft_qwen, build_param_groups, save_expert_patch,
+        enable_router_training, snapshot_router_weights, RouterAnchor,
+    )
     from esft_qwen.delta_patch import (
         to_esft_delta, save_delta_state, load_delta_state,
         save_expert_patch_delta, verify_frozen_vs_disk,
@@ -400,15 +412,9 @@ def main():
     if args.router_topk_random:
         # Stochastic co-activation (EMoE 2509.21892, minimal variant): each TRAIN
         # forward routes at a k sampled uniformly from topk_set so selected experts
-        # learn to co-fire across the whole k=8..32 range instead of only at the
-        # fixed serve-time k. A model-level forward-pre-hook rewrites gate.top_k
-        # (read at call time by Qwen3_5MoeTopKRouter.forward) before every forward:
-        #   * module.training -> sample k from the set
-        #   * eval/save (module.training is False) -> max(set) so every eval is at k=32
-        # The RNG is seeded per-run (not per-rank), so both DDP ranks draw the SAME k
-        # each forward -> identical routing width, no cross-rank grad divergence. The
-        # hook only advances the RNG on training forwards (eval takes the else branch),
-        # keeping the draw sequence rank-identical.
+        # learn to co-fire across k=8..32 instead of only at the fixed serve-time k.
+        # Eval/save fall back to max(set)=32. RNG seeded per-run so both DDP ranks
+        # draw the same k each forward (identical routing width, no grad divergence).
         topk_set = sorted({int(x) for x in args.topk_random_set.split(",") if x.strip()})
         if not topk_set:
             sys.exit("--topk-random-set is empty")
@@ -426,6 +432,16 @@ def main():
         handles = to_esft_delta(model, expert_config)
     else:
         handles = to_esft_qwen(model, expert_config)
+    # ---- router-mobile joint training (flag-gated; default off = frozen router) ----
+    router_snapshot = None
+    if args.train_router:
+        rp = enable_router_training(model, handles)
+        router_snapshot = snapshot_router_weights(model)  # base anchor target (pre-optimiser)
+        print(f"{rank_tag} router UNFROZEN: {len(rp)} gate params trainable, "
+              f"LR = {args.router_lr_mult} * {args.learning_rate} = "
+              f"{args.router_lr_mult * args.learning_rate:.3e}; "
+              f"anchor lambda = {args.router_anchor_weight}")
+
     n_train = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"{rank_tag} ESFT trainable params ({args.method}): {n_train:,}")
 
@@ -461,8 +477,37 @@ def main():
         print(f"{rank_tag} fused-CE (Liger FLCE) enabled: full [seq x "
               f"{_lm_head.weight.size(0)}] logits skipped; router aux dropped (frozen)")
 
+    # ---- base-routing anchor: wrap model.forward to add lambda*KL(current||base) ----
+    # Wrapping the final model.forward (after the optional fused-CE swap) covers both
+    # the fused and standard loss paths uniformly. The anchor forward-hooks stash each
+    # gate's input during the backbone forward; compute() folds the per-forward KL into
+    # the returned loss so it flows through the (trainable) gate weights.
+    if args.train_router and args.router_anchor_weight > 0 and router_snapshot is not None:
+        anchor = RouterAnchor(model, router_snapshot, weight=args.router_anchor_weight)
+        pad_id = (tokenizer.pad_token_id if tokenizer.pad_token_id is not None
+                  else tokenizer.eos_token_id)
+        _base_forward = model.forward  # bound method (fused or original)
+
+        def _forward_with_anchor(*fargs, **fkw):
+            out = _base_forward(*fargs, **fkw)
+            if getattr(out, "loss", None) is not None:
+                am = fkw.get("attention_mask")
+                if am is None:
+                    ids = fkw.get("input_ids")
+                    if ids is None and fargs:
+                        ids = fargs[0]
+                    am = (ids != pad_id) if (ids is not None and pad_id is not None) else None
+                out.loss = out.loss + anchor.compute(am)
+            return out
+
+        model.forward = _forward_with_anchor
+        print(f"{rank_tag} router anchor active (lambda={args.router_anchor_weight}, "
+              f"{len(anchor.handles)} gate hooks)")
+
     # Custom optimiser: expert/delta params in a weight_decay=0 group.
-    param_groups = build_param_groups(model, handles, weight_decay=args.weight_decay)
+    router_lr = (args.router_lr_mult * args.learning_rate) if args.train_router else None
+    param_groups = build_param_groups(model, handles, weight_decay=args.weight_decay,
+                                      router_lr=router_lr)
     if args.optimizer == "adafactor":
         from transformers.optimization import Adafactor
         optimizer = Adafactor(param_groups, lr=args.learning_rate,
@@ -516,6 +561,42 @@ def main():
             torch.save(self.args, os.path.join(output_dir, "training_args.bin"))
 
     trainer_cls = DeltaTrainer if args.method == "delta" else Trainer
+
+    # grad-gate 診断: GRAD_PROBE=1 のとき、各 optimizer step の直前(=backward 後)に
+    # router / 選抜expert の grad norm と、非訓練 param の grad が None かを表示・assert する。
+    # 実モデル(40層・gradient checkpointing)越しに router へ勾配が流れるかを見る唯一の実証点。
+    _extra_callbacks = []
+    if os.environ.get("GRAD_PROBE") == "1":
+        from transformers import TrainerCallback
+        _rp = list(getattr(handles, "router_params", []) or [])
+        _ep = list(getattr(handles, "expert_params", []) or [])
+        # 非訓練の見本: embed_tokens.weight(常に凍結のはず)
+        _frozen_sample = None
+        for _n, _p in model.named_parameters():
+            if "embed_tokens" in _n:
+                _frozen_sample = (_n, _p); break
+
+        def _gnorm(ps):
+            tot, n = 0.0, 0
+            for p in ps:
+                if p.grad is not None:
+                    tot += float(p.grad.detach().float().norm() ** 2); n += 1
+            return (tot ** 0.5), n
+
+        class GradProbe(TrainerCallback):
+            def on_pre_optimizer_step(self, a, s, c, **kw):
+                rn, rc = _gnorm(_rp)
+                en, ec = _gnorm(_ep)
+                msg = f"{rank_tag} [GRAD_PROBE step={s.global_step}] router_gnorm={rn:.3e}(n={rc}) expert_gnorm={en:.3e}(n={ec})"
+                if _frozen_sample is not None:
+                    fn, fp = _frozen_sample
+                    msg += f" frozen[{fn}].grad={'None' if fp.grad is None else 'NOT-None!!'}"
+                print(msg, flush=True)
+                if rc and rn == 0.0:
+                    print(f"{rank_tag} [GRAD_PROBE] FAIL: router grad is zero (勾配が流れていない)", flush=True)
+
+        _extra_callbacks.append(GradProbe())
+
     trainer = trainer_cls(
         model=model,
         args=training_args,
@@ -523,6 +604,7 @@ def main():
         eval_dataset=val_ds,
         data_collator=data_collator,
         optimizers=(optimizer, None),  # scheduler built by Trainer (constant)
+        callbacks=_extra_callbacks or None,
     )
     if trainer.accelerator.ddp_handler is not None:
         # grads live inside the DDP reduction buckets instead of a second copy

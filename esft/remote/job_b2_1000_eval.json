@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "run": {
+    "id": "b2_1000_eval_20260710_v1",
+    "root": "/mnt/docker-raid/models/esft/codex_runs/b2_1000_eval_20260710_v1",
+    "manifest": "manifest.json",
+    "pid_file": "wrapper.pid",
+    "success_marker": "B2_1000_EVAL_COMPLETE"
+  },
+  "runtime": {
+    "python": "~/esft-venv/bin/python",
+    "hf_home": "/mnt/docker-raid/huggingface",
+    "python_path": "/mnt/docker-raid/models/esft/codex_runs/b2_1000_eval_20260710_v1/deps/python",
+    "bubblewrap_bin_dir": "/mnt/docker-raid/models/esft/codex_runs/b2_1000_eval_20260710_v1/deps/bwrap/usr/bin",
+    "pytorch_cuda_alloc_conf": "expandable_segments:True",
+    "thread_count": 8,
+    "expected_hostname": "gpu-host",
+    "expected_gpu_name": "NVIDIA RTX PRO 6000 Blackwell Server Edition",
+    "expected_driver_version": "595.71.05",
+    "expected_compute_capability": "12.0",
+    "expected_gpu_uuids": {
+      "0": "GPU-8c2aa6bd-dbd9-69df-9285-6af673f3f80d",
+      "1": "GPU-b1c8023e-3621-cd5d-1407-588525cd38a4",
+      "2": "GPU-6978b4b4-293c-3cc0-3ab3-855b3d1b372c",
+      "3": "GPU-fe8716e5-8985-6320-7025-5db6fcb7c2c1",
+      "4": "GPU-9433cf9b-f5f8-ada9-090f-28deebec15f2",
+      "5": "GPU-e704a9d4-b503-27d3-4827-6402f1b1307a",
+      "6": "GPU-dc9b2149-2ce4-9873-2f19-f083f90de616",
+      "7": "GPU-2dbf4efc-0042-10a0-0d58-7337325097a9"
+    },
+    "gpu_idle_max_used_mib": 1024,
+    "gpu_idle_max_utilization_percent": 5,
+    "gpu_stop_temperature_c": 90,
+    "min_memory_available_gib_idle": 512,
+    "min_memory_available_gib_running": 256,
+    "min_disk_free_gib": 1024,
+    "monitor_interval_seconds": 30,
+    "wave_max_seconds": 21600,
+    "gpu_idle_wait_seconds": 600,
+    "lock_path": "/tmp/qwen36-a6b-gpu-host-b2-1000-eval-v1.lock"
+  },
+  "stock": {
+    "path": "/mnt/docker-raid/huggingface/hub/models--Qwen--Qwen3.6-35B-A3B/snapshots/995ad96eacd98c81ed38be0c5b274b04031597b0",
+    "revision": "995ad96eacd98c81ed38be0c5b274b04031597b0",
+    "shard_count": 26,
+    "fingerprint_key_suffix": "layers.3.mlp.experts.gate_up_proj",
+    "fingerprint_expert": 6,
+    "fingerprint_sha256": "3a1ca2a61e9a86af44c5114d72a9033504d3a20e27c3c6838f4162b87e3aa315",
+    "forbidden_path": "/mnt/data/models/Qwen3.6-35B-A3B-agentic-k32"
+  },
+  "patches": {
+    "b2": {
+      "path": "/mnt/docker-raid/models/esft/codex_runs/b2_resume_20260710_0630/full_1000/expert_patch.safetensors",
+      "sha256": "c1b3f041051e9c184e5a3ea14126f921e3a2619b29454e3e73b96f79f45199d3",
+      "size_bytes": 5240961944,
+      "tensor_count": 1666,
+      "router_tensor_count": 0
+    }
+  },
+  "gpu_pairs": {
+    "mmlu": [0, 1],
+    "gsm8k": [2, 3],
+    "humaneval": [4, 5, 6, 7]
+  },
+  "dataset_hashes": {
+    "mmlu": "45381e9cd163388f409e385edb446daf30209708afd7996df0bc6398c4a5275f",
+    "gsm8k": "9956b5c7f18d42c30e4355a3e1ab4216b335e77c726f7f25ebf46e304f78327e",
+    "humaneval": "8cf3d4a36641d9890353e12b6f0e2e98cdc807a39e970418435ecb95d7f719c2"
+  },
+  "source_sha256": {
+    "eval_harness.py": "0beed4f5bcef48ee811f57c9eadfcf663bcaa425f980bb6d12dd2e8d961c6bce",
+    "esft_qwen/common.py": "206af106a400f5608746f080cdcc995a09de42301b1995618fe5c8aa6412f3b5",
+    "esft_qwen/esft_patch.py": "fbf13ac7efd9a2fbd6cfa3cc5dfd2410b951aefb9466a43fa274d97132ecf927",
+    "codex_harness.py": "d95c5c4821a9ba7e3e0bb2dca9dd2df6270d57ce08f53b747d2c4675a61772ef",
+    "run_b2_1000_eval.py": "ed0bfcd701a02923d6336465bf40947ff8eb673bb63615e8f93222f439355e24"
+  },
+  "expected_packages": {
+    "torch": "2.11.0+cu128",
+    "transformers": "5.7.0",
+    "datasets": "5.0.0",
+    "safetensors": "0.8.0",
+    "numpy": "2.3.5",
+    "accelerate": "1.14.0",
+    "scipy": "1.17.1"
+  },
+  "dependencies": {
+    "bwrap_path": "/mnt/docker-raid/models/esft/codex_runs/b2_1000_eval_20260710_v1/deps/bwrap/usr/bin/bwrap",
+    "bwrap_sha256": "d78807229d616606e339c5988392b9e0ab4a6a6998fa51e4590837f426a12fca",
+    "bwrap_version": "0.6.1",
+    "bubblewrap_deb_path": "/mnt/docker-raid/models/esft/codex_runs/b2_1000_eval_20260710_v1/deps/bubblewrap_0.6.1-1ubuntu0.1_amd64.deb",
+    "bubblewrap_deb_sha256": "f75c835d6871d1b36370e12ee82940334b2a9f94efc7b959b5b236447e89743d"
+  },
+  "protocols": {
+    "mmlu": {
+      "n": 600,
+      "seed": 0,
+      "shuffle": true,
+      "batch_size": 16,
+      "max_new": 0,
+      "no_think": true,
+      "choice_logprob": true,
+      "noninferiority_margin": 0.01
+    },
+    "gsm8k": {
+      "n": 600,
+      "seed": 0,
+      "shuffle": true,
+      "batch_size": 16,
+      "max_new": 2048,
+      "no_think": true,
+      "choice_logprob": false,
+      "noninferiority_margin": 0.02
+    },
+    "humaneval": {
+      "n": 164,
+      "seed": 0,
+      "shuffle": true,
+      "batch_size": 8,
+      "max_new": 4096,
+      "no_think": false,
+      "choice_logprob": false,
+      "noninferiority_margin": 0.05
+    }
+  }
+}
