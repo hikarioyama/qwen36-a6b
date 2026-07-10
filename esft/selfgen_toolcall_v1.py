@@ -429,10 +429,18 @@ FEW_SHOTS = [
 
 def scaffold_prompt(seed: dict[str, Any], stage: int, tool_results: list[dict[str, Any]]) -> str:
     # This material is input-only scaffolding.  It is never written into train.jsonl.
+    instruction = "Emit the next assistant tool-call JSON only."
+    # Diagnosed failure mode (mt_diag_r1): at stage>0 the model re-emits calls from
+    # earlier stages (28/30 plan_alignment fails). Opt-in stage hint spells out that
+    # prior turns are done and only the next turn's new calls are wanted.
+    if os.environ.get("SELFGEN_STAGE_HINT") == "1" and stage > 0:
+        instruction = (f"Turns 1..{stage} are already executed; their results are in "
+                       f"prior_tool_results. Emit ONLY the new tool-call JSON for turn {stage + 1}. "
+                       "Never repeat a call that was already executed.")
     return canonical({"system": SYSTEM, "few_shots": FEW_SHOTS, "tools": seed["tools"],
                       "user_request": seed["user_request"], "turn": stage + 1,
                       "prior_tool_results": tool_results,
-                      "instruction": "Emit the next assistant tool-call JSON only."})
+                      "instruction": instruction})
 
 
 def render_training(seed: dict[str, Any], selected: list[list[dict[str, Any]]],
@@ -484,6 +492,11 @@ def load_stock_model(gpu: int):
 
 def generate_candidates(torch: Any, tokenizer: Any, model: Any, prompt: str,
                         spec: GenerationSpec) -> list[str]:
+    # Diagnosed failure mode (mt_diag_r1): 27/30 json_parse fails are <think> spills,
+    # 24 of them truncated mid-think at max_new. Opt-in Qwen3-style no-think injection
+    # closes the thinking channel before the model starts emitting.
+    if os.environ.get("SELFGEN_NOTHINK") == "1":
+        prompt = prompt + "\n<think>\n\n</think>\n\n"
     enc = tokenizer(prompt, return_tensors="pt", add_special_tokens=False).to(f"cuda:{spec.gpu}")
     input_len = enc["input_ids"].shape[1]
     with torch.no_grad():

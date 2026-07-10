@@ -308,3 +308,19 @@
 
 - 全量 scan (n=2,015,157 rows / 142 files、complete): **Toucan 1,646,546 rows (公称一致)** — Kimi-K2 518,516 / OSS 457,130 / Qwen3 551,613 / SFT 119,287、**ToolMind 368,611 rows (公称一致)**。chars/4 近似で総計 ~18.8B tokens 相当 (JSON serialize 込みの過大側近似)。Toucan の messages/tools は parquet string 列内の JSON エンコード (ingestor は二重パース必須)。
 - 初回 scan がコーパス行内の 9,546 桁整数リテラルで即死 (CPython の int↔str 4300 桁ガード、json decode 時)。`sys.set_int_max_str_digits(0)` で解除して再走 → scan 12 分で完走、decontam (8-gram 除去) 走行中。
+
+## 2026-07-11 (午後) — 200-step probe の速度観測 + multi_turn 死因の完全分解
+
+- 200-step probe 定常 **76.8s/it (46 step 時点)** vs speed A/B の det-on 61.96s/it。構成差: A/B は router 凍結 + FULLFFN_PROBE=1 + resume、200-step は **joint (anchor KL forward hook + router grad)** + probe off + fresh。**hypothesized: joint 化 (毎 step の 40 層 × 256-way logits 捕獲 + KL) が +15-24% 級の追加コスト** — 同一条件 A/B 未実施なので確定ではない。本走前の改善候補: anchor KL の適用頻度間引き (毎 step → N step ごと、router 暴走防止との兼ね合いは要検討)。ETA への影響: 200-step 完了 ~4.3h + export (発射時の粗い見積 2-2.5h から上方修正)。
+- **multi_turn 採用率 19.2% の死因を実物 raw で完全分解** (mt_diag_r1、n=60 failure candidates、SELFGEN_DEBUG_RAW パッチ): ①json_parse 30 件 = `<think>` 漏れ 27 (うち **24 は think 途中で max_new 512 到達、JSON 未出力**) + 空 3。②plan_alignment 30 件 = 全件 JSON 妥当、うち **28 件 (93%) が前 stage の呼び出し再出力** (scaffold が「実行済み call を繰り返すな」を伝えていない)。
+- 処方箋 2 ノブを opt-in env で実装: `SELFGEN_NOTHINK=1` (Qwen3 流 no-think 注入 `<think>\n\n</think>`) / `SELFGEN_STAGE_HINT=1` (stage>0 で実行済み turn の明示 + 再出力禁止指示)。同一 24 seeds で直列 A/B 中: arm A (現行) = 9/24 = 37.5% 実測済み → arm B (+NOTHINK) 走行中 → arm C (+両方) 予定。
+
+## 2026-07-11 (夕) — multi_turn 修復 3腕 A/B/C 完勝: 37.5% → 95.8% (same-condition)
+
+- 同一 multi_turn 24 seeds・同一 seed/temperature/best-of-4 の直列 3 腕 (n=24/腕、paired same-condition):
+  - **arm A (現行 v1)**: 9/24 = **37.5%**
+  - **arm B (+SELFGEN_NOTHINK)**: 17/24 = **70.8%** — json_parse 棄却 0 件 (think 漏れ根絶)、残る棄却は plan_alignment 7 のみ
+  - **arm C (+SELFGEN_NOTHINK +SELFGEN_STAGE_HINT)**: 23/24 = **95.8%** — 残る棄却は plan_alignment 1 件のみ
+- 効果 = ノブ × mechanism が綺麗に分離: no-think 注入が json_parse 系 (+33.3pt)、stage hint が前 stage 再出力系 (+25.0pt) をそれぞれ潰した。診断 raw (mt_diag_r1) の分解と完全に整合。
+- 含意: v1.1 (両ノブ default on) で量産すれば multi_turn/error_recovery の歩留まりが大幅改善する見込み (error_recovery も同じ 2 死因の混在だった)。量産は ja v2 pilot と 200-step 評価の後の GPU 空きで判断。
+- 日本語 verifiable 指示追従 selfgen v2 (`esft/selfgen_ja_verifiable_v2.py`, Codex 実装) を検分・テスト再走 (新規 7 + v1 9 + eval harness 21 全 PASS) の上、**pilot500 を起動** (run `20260711_ja_v2_pilot500`、真stock fingerprint 凍結確認済み)。検証器 14 種 (M-IFEval 同型 10 + 独自 4、独自型 ≥1/3 fail-closed)、6 eval セット 3,105,649 8-gram の汚染ゲート、M-IFEval 本文は拒否集合への変換のみで転記経路なし。
