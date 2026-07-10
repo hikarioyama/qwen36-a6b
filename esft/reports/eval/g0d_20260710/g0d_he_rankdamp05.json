@@ -1,0 +1,41 @@
+{
+  "_meta": {
+    "model": "base",
+    "model_path": "~/esft-work/models/Qwen3.6-35B-A3B",
+    "patch": null,
+    "topk": 32,
+    "benchmarks": [
+      "humaneval"
+    ],
+    "n_per_benchmark": 164,
+    "batch_size": 16,
+    "max_new": 4096,
+    "seed": 0,
+    "shuffle": false,
+    "gpus": [
+      0,
+      1
+    ],
+    "no_think": false,
+    "choice_logprob": false,
+    "split": "first-N",
+    "note": "reasoning model; per-benchmark max_new may truncate <think>"
+  },
+  "results": {
+    "humaneval": {
+      "model": "base",
+      "topk": 32,
+      "benchmark": "humaneval",
+      "n": 164,
+      "acc": 0.8902,
+      "ci95": 0.0478,
+      "correct": 146,
+      "truncated_n": 18,
+      "gen_tokens": 446018,
+      "tok_s": 48.78,
+      "tok_s_parallel": 97.53,
+      "gen_time_sum_s": 9143.5,
+      "max_new": 4096
+    }
+  }
+}

@@ -3,7 +3,7 @@
     "model": "base",
     "model_path": "~/.cache/huggingface/hub/models--Qwen--Qwen3.6-35B-A3B/snapshots/995ad96eacd98c81ed38be0c5b274b04031597b0",
     "patch": null,
-    "topk": 16,
+    "topk": 24,
     "benchmarks": [
       "mmlu",
       "gsm8k"
@@ -25,32 +25,32 @@
   "results": {
     "gsm8k": {
       "model": "base",
-      "topk": 16,
+      "topk": 24,
       "benchmark": "gsm8k",
       "n": 600,
-      "acc": 0.8883,
-      "ci95": 0.0252,
-      "correct": 533,
-      "truncated_n": 9,
-      "gen_tokens": 207248,
-      "tok_s": 68.73,
-      "tok_s_parallel": 137.33,
-      "gen_time_sum_s": 3015.3,
+      "acc": 0.8783,
+      "ci95": 0.0262,
+      "correct": 527,
+      "truncated_n": 6,
+      "gen_tokens": 202703,
+      "tok_s": 47.95,
+      "tok_s_parallel": 87.69,
+      "gen_time_sum_s": 4227.5,
       "max_new": 1024
     },
     "mmlu": {
       "model": "base",
-      "topk": 16,
+      "topk": 24,
       "benchmark": "mmlu",
       "n": 600,
-      "acc": 0.8283,
-      "ci95": 0.0302,
-      "correct": 497,
+      "acc": 0.815,
+      "ci95": 0.0311,
+      "correct": 489,
       "truncated_n": 0,
       "gen_tokens": 0,
       "tok_s": 0.0,
       "tok_s_parallel": 0.0,
-      "gen_time_sum_s": 26.2,
+      "gen_time_sum_s": 30.3,
       "max_new": 1024
     }
   }

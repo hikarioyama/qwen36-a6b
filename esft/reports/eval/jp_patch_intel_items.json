@@ -1,9 +1,9 @@
 {
   "_meta": {
-    "model": "base",
+    "model": "patched",
     "model_path": "~/.cache/huggingface/hub/models--Qwen--Qwen3.6-35B-A3B/snapshots/995ad96eacd98c81ed38be0c5b274b04031597b0",
-    "patch": null,
-    "topk": 16,
+    "patch": "/mnt/data/jp_pilot/runs/jp_pilot_k32/expert_patch.safetensors",
+    "topk": 32,
     "benchmarks": [
       "mmlu",
       "gsm8k"
@@ -50,9 +50,9 @@
       },
       {
         "id": 3,
-        "pred": "B",
+        "pred": "D",
         "gold": "D",
-        "correct": false,
+        "correct": true,
         "truncated": false,
         "gen_len": 0
       },
@@ -202,9 +202,9 @@
       },
       {
         "id": 22,
-        "pred": "B",
+        "pred": "C",
         "gold": "C",
-        "correct": false,
+        "correct": true,
         "truncated": false,
         "gen_len": 0
       },
@@ -218,9 +218,9 @@
       },
       {
         "id": 24,
-        "pred": "A",
+        "pred": "C",
         "gold": "C",
-        "correct": false,
+        "correct": true,
         "truncated": false,
         "gen_len": 0
       },
@@ -346,9 +346,9 @@
       },
       {
         "id": 40,
-        "pred": "D",
+        "pred": "C",
         "gold": "D",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
@@ -370,9 +370,9 @@
       },
       {
         "id": 43,
-        "pred": "A",
+        "pred": "D",
         "gold": "A",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
@@ -418,7 +418,7 @@
       },
       {
         "id": 49,
-        "pred": "A",
+        "pred": "B",
         "gold": "C",
         "correct": false,
         "truncated": false,
@@ -498,9 +498,9 @@
       },
       {
         "id": 59,
-        "pred": "D",
+        "pred": "B",
         "gold": "B",
-        "correct": false,
+        "correct": true,
         "truncated": false,
         "gen_len": 0
       },
@@ -546,9 +546,9 @@
       },
       {
         "id": 65,
-        "pred": "A",
+        "pred": "C",
         "gold": "A",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
@@ -786,9 +786,9 @@
       },
       {
         "id": 95,
-        "pred": "A",
+        "pred": "B",
         "gold": "A",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
@@ -826,9 +826,9 @@
       },
       {
         "id": 100,
-        "pred": "A",
+        "pred": "D",
         "gold": "D",
-        "correct": false,
+        "correct": true,
         "truncated": false,
         "gen_len": 0
       },
@@ -946,9 +946,9 @@
       },
       {
         "id": 115,
-        "pred": "B",
+        "pred": "A",
         "gold": "B",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
@@ -1290,9 +1290,9 @@
       },
       {
         "id": 158,
-        "pred": "D",
+        "pred": "B",
         "gold": "D",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
@@ -1338,9 +1338,9 @@
       },
       {
         "id": 164,
-        "pred": "A",
+        "pred": "D",
         "gold": "D",
-        "correct": false,
+        "correct": true,
         "truncated": false,
         "gen_len": 0
       },
@@ -1362,9 +1362,9 @@
       },
       {
         "id": 167,
-        "pred": "A",
+        "pred": "B",
         "gold": "B",
-        "correct": false,
+        "correct": true,
         "truncated": false,
         "gen_len": 0
       },
@@ -1530,9 +1530,9 @@
       },
       {
         "id": 188,
-        "pred": "D",
+        "pred": "C",
         "gold": "D",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
@@ -1802,9 +1802,9 @@
       },
       {
         "id": 222,
-        "pred": "C",
+        "pred": "D",
         "gold": "C",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
@@ -1914,9 +1914,9 @@
       },
       {
         "id": 236,
-        "pred": "A",
+        "pred": "B",
         "gold": "A",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
@@ -2658,9 +2658,9 @@
       },
       {
         "id": 329,
-        "pred": "B",
+        "pred": "A",
         "gold": "A",
-        "correct": false,
+        "correct": true,
         "truncated": false,
         "gen_len": 0
       },
@@ -2818,7 +2818,7 @@
       },
       {
         "id": 349,
-        "pred": "B",
+        "pred": "A",
         "gold": "C",
         "correct": false,
         "truncated": false,
@@ -2874,7 +2874,7 @@
       },
       {
         "id": 356,
-        "pred": "D",
+        "pred": "A",
         "gold": "C",
         "correct": false,
         "truncated": false,
@@ -3018,9 +3018,9 @@
       },
       {
         "id": 374,
-        "pred": "D",
+        "pred": "B",
         "gold": "B",
-        "correct": false,
+        "correct": true,
         "truncated": false,
         "gen_len": 0
       },
@@ -3098,9 +3098,9 @@
       },
       {
         "id": 384,
-        "pred": "D",
+        "pred": "C",
         "gold": "D",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
@@ -3314,9 +3314,9 @@
       },
       {
         "id": 411,
-        "pred": "A",
+        "pred": "B",
         "gold": "B",
-        "correct": false,
+        "correct": true,
         "truncated": false,
         "gen_len": 0
       },
@@ -3346,9 +3346,9 @@
       },
       {
         "id": 415,
-        "pred": "C",
+        "pred": "B",
         "gold": "C",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
@@ -3410,9 +3410,9 @@
       },
       {
         "id": 423,
-        "pred": "D",
+        "pred": "A",
         "gold": "D",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
@@ -3450,9 +3450,9 @@
       },
       {
         "id": 428,
-        "pred": "D",
+        "pred": "B",
         "gold": "D",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
@@ -3554,9 +3554,9 @@
       },
       {
         "id": 441,
-        "pred": "D",
+        "pred": "B",
         "gold": "B",
-        "correct": false,
+        "correct": true,
         "truncated": false,
         "gen_len": 0
       },
@@ -3698,9 +3698,9 @@
       },
       {
         "id": 459,
-        "pred": "B",
+        "pred": "C",
         "gold": "B",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
@@ -3810,9 +3810,9 @@
       },
       {
         "id": 473,
-        "pred": "B",
+        "pred": "D",
         "gold": "B",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
@@ -3858,7 +3858,7 @@
       },
       {
         "id": 479,
-        "pred": "B",
+        "pred": "A",
         "gold": "C",
         "correct": false,
         "truncated": false,
@@ -3874,7 +3874,7 @@
       },
       {
         "id": 481,
-        "pred": "A",
+        "pred": "D",
         "gold": "C",
         "correct": false,
         "truncated": false,
@@ -3954,9 +3954,9 @@
       },
       {
         "id": 491,
-        "pred": "D",
+        "pred": "B",
         "gold": "B",
-        "correct": false,
+        "correct": true,
         "truncated": false,
         "gen_len": 0
       },
@@ -4042,7 +4042,7 @@
       },
       {
         "id": 502,
-        "pred": "A",
+        "pred": "B",
         "gold": "D",
         "correct": false,
         "truncated": false,
@@ -4186,17 +4186,17 @@
       },
       {
         "id": 520,
-        "pred": "A",
+        "pred": "B",
         "gold": "A",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
       {
         "id": 521,
-        "pred": "A",
+        "pred": "C",
         "gold": "C",
-        "correct": false,
+        "correct": true,
         "truncated": false,
         "gen_len": 0
       },
@@ -4314,9 +4314,9 @@
       },
       {
         "id": 536,
-        "pred": "D",
+        "pred": "B",
         "gold": "D",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
@@ -4338,9 +4338,9 @@
       },
       {
         "id": 539,
-        "pred": "B",
+        "pred": "C",
         "gold": "C",
-        "correct": false,
+        "correct": true,
         "truncated": false,
         "gen_len": 0
       },
@@ -4354,17 +4354,17 @@
       },
       {
         "id": 541,
-        "pred": "B",
+        "pred": "A",
         "gold": "B",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
       {
         "id": 542,
-        "pred": "B",
+        "pred": "A",
         "gold": "B",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
@@ -4410,9 +4410,9 @@
       },
       {
         "id": 548,
-        "pred": "C",
+        "pred": "A",
         "gold": "C",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
@@ -4506,9 +4506,9 @@
       },
       {
         "id": 560,
-        "pred": "B",
+        "pred": "C",
         "gold": "B",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
@@ -4786,9 +4786,9 @@
       },
       {
         "id": 595,
-        "pred": "B",
+        "pred": "A",
         "gold": "B",
-        "correct": true,
+        "correct": false,
         "truncated": false,
         "gen_len": 0
       },
@@ -4832,7 +4832,7 @@
         "gold": "400",
         "correct": true,
         "truncated": false,
-        "gen_len": 337
+        "gen_len": 223
       },
       {
         "id": 1,
@@ -4840,7 +4840,7 @@
         "gold": "25",
         "correct": true,
         "truncated": false,
-        "gen_len": 394
+        "gen_len": 284
       },
       {
         "id": 2,
@@ -4848,7 +4848,7 @@
         "gold": "3",
         "correct": true,
         "truncated": false,
-        "gen_len": 398
+        "gen_len": 370
       },
       {
         "id": 3,
@@ -4856,7 +4856,7 @@
         "gold": "800",
         "correct": true,
         "truncated": false,
-        "gen_len": 418
+        "gen_len": 427
       },
       {
         "id": 4,
@@ -4864,15 +4864,15 @@
         "gold": "5",
         "correct": true,
         "truncated": false,
-        "gen_len": 372
+        "gen_len": 296
       },
       {
         "id": 5,
         "pred": "12",
         "gold": "13",
         "correct": false,
-        "truncated": true,
-        "gen_len": 1024
+        "truncated": false,
+        "gen_len": 451
       },
       {
         "id": 6,
@@ -4880,7 +4880,7 @@
         "gold": "8",
         "correct": true,
         "truncated": false,
-        "gen_len": 287
+        "gen_len": 228
       },
       {
         "id": 7,
@@ -4888,15 +4888,15 @@
         "gold": "30",
         "correct": true,
         "truncated": false,
-        "gen_len": 189
+        "gen_len": 215
       },
       {
         "id": 8,
-        "pred": "145",
+        "pred": "70",
         "gold": "145",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 418
+        "gen_len": 381
       },
       {
         "id": 9,
@@ -4904,7 +4904,7 @@
         "gold": "20",
         "correct": true,
         "truncated": false,
-        "gen_len": 372
+        "gen_len": 353
       },
       {
         "id": 10,
@@ -4912,7 +4912,7 @@
         "gold": "90",
         "correct": true,
         "truncated": false,
-        "gen_len": 131
+        "gen_len": 111
       },
       {
         "id": 11,
@@ -4920,7 +4920,7 @@
         "gold": "7",
         "correct": true,
         "truncated": false,
-        "gen_len": 627
+        "gen_len": 371
       },
       {
         "id": 12,
@@ -4928,7 +4928,7 @@
         "gold": "104",
         "correct": false,
         "truncated": false,
-        "gen_len": 544
+        "gen_len": 580
       },
       {
         "id": 13,
@@ -4936,7 +4936,7 @@
         "gold": "5",
         "correct": false,
         "truncated": false,
-        "gen_len": 399
+        "gen_len": 349
       },
       {
         "id": 14,
@@ -4944,7 +4944,7 @@
         "gold": "25",
         "correct": true,
         "truncated": false,
-        "gen_len": 347
+        "gen_len": 343
       },
       {
         "id": 15,
@@ -4952,7 +4952,7 @@
         "gold": "96",
         "correct": true,
         "truncated": false,
-        "gen_len": 258
+        "gen_len": 286
       },
       {
         "id": 16,
@@ -4960,7 +4960,7 @@
         "gold": "296",
         "correct": true,
         "truncated": false,
-        "gen_len": 311
+        "gen_len": 321
       },
       {
         "id": 17,
@@ -4968,7 +4968,7 @@
         "gold": "26",
         "correct": true,
         "truncated": false,
-        "gen_len": 156
+        "gen_len": 158
       },
       {
         "id": 18,
@@ -4976,7 +4976,7 @@
         "gold": "52",
         "correct": true,
         "truncated": false,
-        "gen_len": 404
+        "gen_len": 314
       },
       {
         "id": 19,
@@ -4984,7 +4984,7 @@
         "gold": "150",
         "correct": false,
         "truncated": false,
-        "gen_len": 186
+        "gen_len": 168
       },
       {
         "id": 20,
@@ -5000,7 +5000,7 @@
         "gold": "5",
         "correct": true,
         "truncated": false,
-        "gen_len": 261
+        "gen_len": 203
       },
       {
         "id": 22,
@@ -5008,7 +5008,7 @@
         "gold": "144",
         "correct": true,
         "truncated": false,
-        "gen_len": 249
+        "gen_len": 466
       },
       {
         "id": 23,
@@ -5016,7 +5016,7 @@
         "gold": "490",
         "correct": true,
         "truncated": false,
-        "gen_len": 321
+        "gen_len": 205
       },
       {
         "id": 24,
@@ -5024,7 +5024,7 @@
         "gold": "320",
         "correct": true,
         "truncated": false,
-        "gen_len": 443
+        "gen_len": 414
       },
       {
         "id": 25,
@@ -5032,7 +5032,7 @@
         "gold": "144",
         "correct": true,
         "truncated": false,
-        "gen_len": 493
+        "gen_len": 400
       },
       {
         "id": 26,
@@ -5040,15 +5040,15 @@
         "gold": "15",
         "correct": true,
         "truncated": false,
-        "gen_len": 197
+        "gen_len": 171
       },
       {
         "id": 27,
-        "pred": "30",
+        "pred": "28",
         "gold": "30",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 277
+        "gen_len": 217
       },
       {
         "id": 28,
@@ -5056,7 +5056,7 @@
         "gold": "7",
         "correct": true,
         "truncated": false,
-        "gen_len": 312
+        "gen_len": 419
       },
       {
         "id": 29,
@@ -5064,7 +5064,7 @@
         "gold": "225",
         "correct": true,
         "truncated": false,
-        "gen_len": 301
+        "gen_len": 235
       },
       {
         "id": 30,
@@ -5072,7 +5072,7 @@
         "gold": "8",
         "correct": true,
         "truncated": false,
-        "gen_len": 879
+        "gen_len": 618
       },
       {
         "id": 31,
@@ -5080,7 +5080,7 @@
         "gold": "22",
         "correct": true,
         "truncated": false,
-        "gen_len": 180
+        "gen_len": 194
       },
       {
         "id": 32,
@@ -5088,7 +5088,7 @@
         "gold": "8",
         "correct": true,
         "truncated": false,
-        "gen_len": 256
+        "gen_len": 255
       },
       {
         "id": 33,
@@ -5096,7 +5096,7 @@
         "gold": "56",
         "correct": true,
         "truncated": false,
-        "gen_len": 557
+        "gen_len": 539
       },
       {
         "id": 34,
@@ -5104,7 +5104,7 @@
         "gold": "30",
         "correct": true,
         "truncated": false,
-        "gen_len": 499
+        "gen_len": 434
       },
       {
         "id": 35,
@@ -5112,7 +5112,7 @@
         "gold": "250",
         "correct": true,
         "truncated": false,
-        "gen_len": 390
+        "gen_len": 428
       },
       {
         "id": 36,
@@ -5120,7 +5120,7 @@
         "gold": "9",
         "correct": true,
         "truncated": false,
-        "gen_len": 231
+        "gen_len": 309
       },
       {
         "id": 37,
@@ -5128,7 +5128,7 @@
         "gold": "90000",
         "correct": true,
         "truncated": false,
-        "gen_len": 436
+        "gen_len": 439
       },
       {
         "id": 38,
@@ -5136,15 +5136,15 @@
         "gold": "1",
         "correct": true,
         "truncated": false,
-        "gen_len": 253
+        "gen_len": 227
       },
       {
         "id": 39,
-        "pred": "2",
+        "pred": "480",
         "gold": "480",
-        "correct": false,
-        "truncated": true,
-        "gen_len": 1024
+        "correct": true,
+        "truncated": false,
+        "gen_len": 479
       },
       {
         "id": 40,
@@ -5152,7 +5152,7 @@
         "gold": "288",
         "correct": true,
         "truncated": false,
-        "gen_len": 179
+        "gen_len": 189
       },
       {
         "id": 41,
@@ -5160,7 +5160,7 @@
         "gold": "40",
         "correct": true,
         "truncated": false,
-        "gen_len": 366
+        "gen_len": 364
       },
       {
         "id": 42,
@@ -5168,7 +5168,7 @@
         "gold": "18000",
         "correct": true,
         "truncated": false,
-        "gen_len": 378
+        "gen_len": 377
       },
       {
         "id": 43,
@@ -5176,7 +5176,7 @@
         "gold": "14",
         "correct": true,
         "truncated": false,
-        "gen_len": 470
+        "gen_len": 423
       },
       {
         "id": 44,
@@ -5184,7 +5184,7 @@
         "gold": "12",
         "correct": true,
         "truncated": false,
-        "gen_len": 145
+        "gen_len": 130
       },
       {
         "id": 45,
@@ -5192,7 +5192,7 @@
         "gold": "17500",
         "correct": true,
         "truncated": false,
-        "gen_len": 281
+        "gen_len": 296
       },
       {
         "id": 46,
@@ -5200,7 +5200,7 @@
         "gold": "67",
         "correct": true,
         "truncated": false,
-        "gen_len": 287
+        "gen_len": 284
       },
       {
         "id": 47,
@@ -5208,7 +5208,7 @@
         "gold": "20",
         "correct": true,
         "truncated": false,
-        "gen_len": 389
+        "gen_len": 333
       },
       {
         "id": 48,
@@ -5216,7 +5216,7 @@
         "gold": "98",
         "correct": true,
         "truncated": false,
-        "gen_len": 310
+        "gen_len": 266
       },
       {
         "id": 49,
@@ -5232,7 +5232,7 @@
         "gold": "1198",
         "correct": true,
         "truncated": false,
-        "gen_len": 453
+        "gen_len": 400
       },
       {
         "id": 51,
@@ -5240,7 +5240,7 @@
         "gold": "2",
         "correct": true,
         "truncated": false,
-        "gen_len": 270
+        "gen_len": 211
       },
       {
         "id": 52,
@@ -5248,7 +5248,7 @@
         "gold": "4500",
         "correct": true,
         "truncated": false,
-        "gen_len": 183
+        "gen_len": 175
       },
       {
         "id": 53,
@@ -5256,7 +5256,7 @@
         "gold": "6250",
         "correct": true,
         "truncated": false,
-        "gen_len": 248
+        "gen_len": 187
       },
       {
         "id": 54,
@@ -5264,7 +5264,7 @@
         "gold": "12",
         "correct": true,
         "truncated": false,
-        "gen_len": 370
+        "gen_len": 386
       },
       {
         "id": 55,
@@ -5272,7 +5272,7 @@
         "gold": "168000",
         "correct": true,
         "truncated": false,
-        "gen_len": 749
+        "gen_len": 639
       },
       {
         "id": 56,
@@ -5280,23 +5280,23 @@
         "gold": "4",
         "correct": true,
         "truncated": false,
-        "gen_len": 372
+        "gen_len": 370
       },
       {
         "id": 57,
-        "pred": "59",
+        "pred": "19",
         "gold": "59",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 522
+        "gen_len": 556
       },
       {
         "id": 58,
-        "pred": "4",
+        "pred": "6",
         "gold": "4",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 554
+        "gen_len": 544
       },
       {
         "id": 59,
@@ -5304,7 +5304,7 @@
         "gold": "255",
         "correct": true,
         "truncated": false,
-        "gen_len": 244
+        "gen_len": 248
       },
       {
         "id": 60,
@@ -5312,7 +5312,7 @@
         "gold": "20000",
         "correct": true,
         "truncated": false,
-        "gen_len": 294
+        "gen_len": 175
       },
       {
         "id": 61,
@@ -5320,7 +5320,7 @@
         "gold": "284",
         "correct": true,
         "truncated": false,
-        "gen_len": 463
+        "gen_len": 459
       },
       {
         "id": 62,
@@ -5328,15 +5328,15 @@
         "gold": "10",
         "correct": true,
         "truncated": false,
-        "gen_len": 262
+        "gen_len": 258
       },
       {
         "id": 63,
-        "pred": "4",
+        "pred": "100",
         "gold": "100",
-        "correct": false,
+        "correct": true,
         "truncated": false,
-        "gen_len": 375
+        "gen_len": 285
       },
       {
         "id": 64,
@@ -5344,7 +5344,7 @@
         "gold": "4",
         "correct": true,
         "truncated": false,
-        "gen_len": 343
+        "gen_len": 333
       },
       {
         "id": 65,
@@ -5352,7 +5352,7 @@
         "gold": "320",
         "correct": true,
         "truncated": false,
-        "gen_len": 462
+        "gen_len": 511
       },
       {
         "id": 66,
@@ -5360,7 +5360,7 @@
         "gold": "8",
         "correct": true,
         "truncated": false,
-        "gen_len": 220
+        "gen_len": 288
       },
       {
         "id": 67,
@@ -5368,7 +5368,7 @@
         "gold": "3",
         "correct": true,
         "truncated": false,
-        "gen_len": 380
+        "gen_len": 387
       },
       {
         "id": 68,
@@ -5376,7 +5376,7 @@
         "gold": "2304",
         "correct": true,
         "truncated": false,
-        "gen_len": 251
+        "gen_len": 193
       },
       {
         "id": 69,
@@ -5384,7 +5384,7 @@
         "gold": "8",
         "correct": true,
         "truncated": false,
-        "gen_len": 344
+        "gen_len": 330
       },
       {
         "id": 70,
@@ -5392,7 +5392,7 @@
         "gold": "16",
         "correct": true,
         "truncated": false,
-        "gen_len": 322
+        "gen_len": 369
       },
       {
         "id": 71,
@@ -5400,7 +5400,7 @@
         "gold": "19",
         "correct": true,
         "truncated": false,
-        "gen_len": 257
+        "gen_len": 208
       },
       {
         "id": 72,
@@ -5408,7 +5408,7 @@
         "gold": "11",
         "correct": true,
         "truncated": false,
-        "gen_len": 204
+        "gen_len": 218
       },
       {
         "id": 73,
@@ -5416,7 +5416,7 @@
         "gold": "14",
         "correct": true,
         "truncated": false,
-        "gen_len": 138
+        "gen_len": 140
       },
       {
         "id": 74,
@@ -5424,7 +5424,7 @@
         "gold": "4",
         "correct": true,
         "truncated": false,
-        "gen_len": 477
+        "gen_len": 619
       },
       {
         "id": 75,
@@ -5432,7 +5432,7 @@
         "gold": "306",
         "correct": true,
         "truncated": false,
-        "gen_len": 230
+        "gen_len": 294
       },
       {
         "id": 76,
@@ -5440,7 +5440,7 @@
         "gold": "48",
         "correct": true,
         "truncated": false,
-        "gen_len": 289
+        "gen_len": 222
       },
       {
         "id": 77,
@@ -5448,15 +5448,15 @@
         "gold": "4",
         "correct": true,
         "truncated": false,
-        "gen_len": 115
+        "gen_len": 113
       },
       {
         "id": 78,
-        "pred": "319",
+        "pred": "318",
         "gold": "319",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 443
+        "gen_len": 297
       },
       {
         "id": 79,
@@ -5464,7 +5464,7 @@
         "gold": "220",
         "correct": true,
         "truncated": false,
-        "gen_len": 371
+        "gen_len": 211
       },
       {
         "id": 80,
@@ -5472,7 +5472,7 @@
         "gold": "132",
         "correct": false,
         "truncated": false,
-        "gen_len": 212
+        "gen_len": 209
       },
       {
         "id": 81,
@@ -5480,7 +5480,7 @@
         "gold": "10",
         "correct": true,
         "truncated": false,
-        "gen_len": 175
+        "gen_len": 149
       },
       {
         "id": 82,
@@ -5488,7 +5488,7 @@
         "gold": "17",
         "correct": true,
         "truncated": false,
-        "gen_len": 498
+        "gen_len": 480
       },
       {
         "id": 83,
@@ -5496,7 +5496,7 @@
         "gold": "75",
         "correct": false,
         "truncated": false,
-        "gen_len": 347
+        "gen_len": 337
       },
       {
         "id": 84,
@@ -5504,7 +5504,7 @@
         "gold": "2400",
         "correct": true,
         "truncated": false,
-        "gen_len": 367
+        "gen_len": 388
       },
       {
         "id": 85,
@@ -5512,7 +5512,7 @@
         "gold": "71",
         "correct": true,
         "truncated": false,
-        "gen_len": 122
+        "gen_len": 103
       },
       {
         "id": 86,
@@ -5520,7 +5520,7 @@
         "gold": "300",
         "correct": true,
         "truncated": false,
-        "gen_len": 181
+        "gen_len": 186
       },
       {
         "id": 87,
@@ -5528,15 +5528,15 @@
         "gold": "40",
         "correct": true,
         "truncated": false,
-        "gen_len": 358
+        "gen_len": 371
       },
       {
         "id": 88,
-        "pred": "4",
+        "pred": "25",
         "gold": "4",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 345
+        "gen_len": 426
       },
       {
         "id": 89,
@@ -5544,7 +5544,7 @@
         "gold": "75",
         "correct": true,
         "truncated": false,
-        "gen_len": 411
+        "gen_len": 393
       },
       {
         "id": 90,
@@ -5552,7 +5552,7 @@
         "gold": "74",
         "correct": true,
         "truncated": false,
-        "gen_len": 233
+        "gen_len": 241
       },
       {
         "id": 91,
@@ -5560,7 +5560,7 @@
         "gold": "26",
         "correct": true,
         "truncated": false,
-        "gen_len": 292
+        "gen_len": 254
       },
       {
         "id": 92,
@@ -5568,7 +5568,7 @@
         "gold": "15",
         "correct": false,
         "truncated": false,
-        "gen_len": 391
+        "gen_len": 480
       },
       {
         "id": 93,
@@ -5576,7 +5576,7 @@
         "gold": "5",
         "correct": true,
         "truncated": false,
-        "gen_len": 205
+        "gen_len": 211
       },
       {
         "id": 94,
@@ -5584,7 +5584,7 @@
         "gold": "74",
         "correct": true,
         "truncated": false,
-        "gen_len": 202
+        "gen_len": 197
       },
       {
         "id": 95,
@@ -5592,7 +5592,7 @@
         "gold": "16",
         "correct": true,
         "truncated": false,
-        "gen_len": 265
+        "gen_len": 294
       },
       {
         "id": 96,
@@ -5600,7 +5600,7 @@
         "gold": "50",
         "correct": true,
         "truncated": false,
-        "gen_len": 263
+        "gen_len": 248
       },
       {
         "id": 97,
@@ -5608,7 +5608,7 @@
         "gold": "156",
         "correct": true,
         "truncated": false,
-        "gen_len": 386
+        "gen_len": 380
       },
       {
         "id": 98,
@@ -5616,7 +5616,7 @@
         "gold": "1",
         "correct": true,
         "truncated": false,
-        "gen_len": 400
+        "gen_len": 403
       },
       {
         "id": 99,
@@ -5624,7 +5624,7 @@
         "gold": "6",
         "correct": true,
         "truncated": false,
-        "gen_len": 463
+        "gen_len": 469
       },
       {
         "id": 100,
@@ -5632,7 +5632,7 @@
         "gold": "100",
         "correct": true,
         "truncated": false,
-        "gen_len": 291
+        "gen_len": 334
       },
       {
         "id": 101,
@@ -5640,7 +5640,7 @@
         "gold": "60",
         "correct": true,
         "truncated": false,
-        "gen_len": 346
+        "gen_len": 349
       },
       {
         "id": 102,
@@ -5648,7 +5648,7 @@
         "gold": "32",
         "correct": true,
         "truncated": false,
-        "gen_len": 241
+        "gen_len": 204
       },
       {
         "id": 103,
@@ -5656,7 +5656,7 @@
         "gold": "1800",
         "correct": true,
         "truncated": false,
-        "gen_len": 310
+        "gen_len": 239
       },
       {
         "id": 104,
@@ -5664,7 +5664,7 @@
         "gold": "70",
         "correct": true,
         "truncated": false,
-        "gen_len": 240
+        "gen_len": 218
       },
       {
         "id": 105,
@@ -5672,7 +5672,7 @@
         "gold": "80",
         "correct": true,
         "truncated": false,
-        "gen_len": 277
+        "gen_len": 285
       },
       {
         "id": 106,
@@ -5680,7 +5680,7 @@
         "gold": "28",
         "correct": true,
         "truncated": false,
-        "gen_len": 214
+        "gen_len": 210
       },
       {
         "id": 107,
@@ -5688,7 +5688,7 @@
         "gold": "24",
         "correct": true,
         "truncated": false,
-        "gen_len": 355
+        "gen_len": 322
       },
       {
         "id": 108,
@@ -5696,7 +5696,7 @@
         "gold": "220",
         "correct": true,
         "truncated": false,
-        "gen_len": 214
+        "gen_len": 212
       },
       {
         "id": 109,
@@ -5704,15 +5704,15 @@
         "gold": "6",
         "correct": true,
         "truncated": false,
-        "gen_len": 267
+        "gen_len": 242
       },
       {
         "id": 110,
-        "pred": "42",
+        "pred": "9",
         "gold": "9",
-        "correct": false,
+        "correct": true,
         "truncated": false,
-        "gen_len": 178
+        "gen_len": 159
       },
       {
         "id": 111,
@@ -5720,7 +5720,7 @@
         "gold": "6",
         "correct": true,
         "truncated": false,
-        "gen_len": 495
+        "gen_len": 363
       },
       {
         "id": 112,
@@ -5728,7 +5728,7 @@
         "gold": "18",
         "correct": true,
         "truncated": false,
-        "gen_len": 224
+        "gen_len": 177
       },
       {
         "id": 113,
@@ -5736,7 +5736,7 @@
         "gold": "180",
         "correct": true,
         "truncated": false,
-        "gen_len": 404
+        "gen_len": 336
       },
       {
         "id": 114,
@@ -5744,7 +5744,7 @@
         "gold": "20",
         "correct": true,
         "truncated": false,
-        "gen_len": 575
+        "gen_len": 484
       },
       {
         "id": 115,
@@ -5752,7 +5752,7 @@
         "gold": "1248",
         "correct": true,
         "truncated": false,
-        "gen_len": 404
+        "gen_len": 367
       },
       {
         "id": 116,
@@ -5760,7 +5760,7 @@
         "gold": "14",
         "correct": true,
         "truncated": false,
-        "gen_len": 321
+        "gen_len": 310
       },
       {
         "id": 117,
@@ -5768,11 +5768,11 @@
         "gold": "243",
         "correct": true,
         "truncated": false,
-        "gen_len": 381
+        "gen_len": 368
       },
       {
         "id": 118,
-        "pred": "34.00",
+        "pred": "34.0",
         "gold": "34",
         "correct": true,
         "truncated": false,
@@ -5784,7 +5784,7 @@
         "gold": "800",
         "correct": true,
         "truncated": false,
-        "gen_len": 249
+        "gen_len": 273
       },
       {
         "id": 120,
@@ -5792,7 +5792,7 @@
         "gold": "450",
         "correct": true,
         "truncated": false,
-        "gen_len": 405
+        "gen_len": 289
       },
       {
         "id": 121,
@@ -5800,15 +5800,15 @@
         "gold": "7",
         "correct": true,
         "truncated": false,
-        "gen_len": 277
+        "gen_len": 334
       },
       {
         "id": 122,
-        "pred": "31.00",
+        "pred": "27.00",
         "gold": "31",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 433
+        "gen_len": 442
       },
       {
         "id": 123,
@@ -5816,7 +5816,7 @@
         "gold": "8",
         "correct": false,
         "truncated": false,
-        "gen_len": 201
+        "gen_len": 178
       },
       {
         "id": 124,
@@ -5824,7 +5824,7 @@
         "gold": "120",
         "correct": true,
         "truncated": false,
-        "gen_len": 375
+        "gen_len": 352
       },
       {
         "id": 125,
@@ -5832,15 +5832,15 @@
         "gold": "10",
         "correct": true,
         "truncated": false,
-        "gen_len": 179
+        "gen_len": 164
       },
       {
         "id": 126,
-        "pred": "2",
+        "pred": "9",
         "gold": "2",
-        "correct": true,
-        "truncated": false,
-        "gen_len": 804
+        "correct": false,
+        "truncated": true,
+        "gen_len": 1024
       },
       {
         "id": 127,
@@ -5848,7 +5848,7 @@
         "gold": "260",
         "correct": true,
         "truncated": false,
-        "gen_len": 323
+        "gen_len": 294
       },
       {
         "id": 128,
@@ -5856,7 +5856,7 @@
         "gold": "31",
         "correct": false,
         "truncated": false,
-        "gen_len": 296
+        "gen_len": 307
       },
       {
         "id": 129,
@@ -5864,7 +5864,7 @@
         "gold": "1260",
         "correct": false,
         "truncated": false,
-        "gen_len": 258
+        "gen_len": 239
       },
       {
         "id": 130,
@@ -5872,7 +5872,7 @@
         "gold": "60",
         "correct": true,
         "truncated": false,
-        "gen_len": 258
+        "gen_len": 248
       },
       {
         "id": 131,
@@ -5880,7 +5880,7 @@
         "gold": "8",
         "correct": true,
         "truncated": false,
-        "gen_len": 181
+        "gen_len": 172
       },
       {
         "id": 132,
@@ -5888,7 +5888,7 @@
         "gold": "10",
         "correct": true,
         "truncated": false,
-        "gen_len": 274
+        "gen_len": 267
       },
       {
         "id": 133,
@@ -5896,7 +5896,7 @@
         "gold": "315",
         "correct": true,
         "truncated": false,
-        "gen_len": 483
+        "gen_len": 385
       },
       {
         "id": 134,
@@ -5904,7 +5904,7 @@
         "gold": "221",
         "correct": true,
         "truncated": false,
-        "gen_len": 211
+        "gen_len": 243
       },
       {
         "id": 135,
@@ -5912,7 +5912,7 @@
         "gold": "3",
         "correct": true,
         "truncated": false,
-        "gen_len": 179
+        "gen_len": 184
       },
       {
         "id": 136,
@@ -5920,15 +5920,15 @@
         "gold": "7",
         "correct": true,
         "truncated": false,
-        "gen_len": 374
+        "gen_len": 414
       },
       {
         "id": 137,
-        "pred": "60",
+        "pred": "90",
         "gold": "45",
         "correct": false,
-        "truncated": true,
-        "gen_len": 1024
+        "truncated": false,
+        "gen_len": 433
       },
       {
         "id": 138,
@@ -5944,7 +5944,7 @@
         "gold": "50",
         "correct": true,
         "truncated": false,
-        "gen_len": 279
+        "gen_len": 225
       },
       {
         "id": 140,
@@ -5952,7 +5952,7 @@
         "gold": "21",
         "correct": true,
         "truncated": false,
-        "gen_len": 377
+        "gen_len": 404
       },
       {
         "id": 141,
@@ -5960,7 +5960,7 @@
         "gold": "70",
         "correct": false,
         "truncated": false,
-        "gen_len": 304
+        "gen_len": 253
       },
       {
         "id": 142,
@@ -5968,7 +5968,7 @@
         "gold": "16",
         "correct": true,
         "truncated": false,
-        "gen_len": 302
+        "gen_len": 326
       },
       {
         "id": 143,
@@ -5984,15 +5984,15 @@
         "gold": "10",
         "correct": true,
         "truncated": false,
-        "gen_len": 385
+        "gen_len": 394
       },
       {
         "id": 145,
         "pred": "4",
         "gold": "4",
         "correct": true,
-        "truncated": false,
-        "gen_len": 410
+        "truncated": true,
+        "gen_len": 1024
       },
       {
         "id": 146,
@@ -6000,7 +6000,7 @@
         "gold": "1800",
         "correct": true,
         "truncated": false,
-        "gen_len": 459
+        "gen_len": 481
       },
       {
         "id": 147,
@@ -6008,7 +6008,7 @@
         "gold": "50",
         "correct": true,
         "truncated": false,
-        "gen_len": 492
+        "gen_len": 409
       },
       {
         "id": 148,
@@ -6016,7 +6016,7 @@
         "gold": "320",
         "correct": false,
         "truncated": false,
-        "gen_len": 239
+        "gen_len": 220
       },
       {
         "id": 149,
@@ -6024,7 +6024,7 @@
         "gold": "1128",
         "correct": false,
         "truncated": false,
-        "gen_len": 435
+        "gen_len": 413
       },
       {
         "id": 150,
@@ -6032,23 +6032,23 @@
         "gold": "6",
         "correct": true,
         "truncated": false,
-        "gen_len": 303
+        "gen_len": 282
       },
       {
         "id": 151,
-        "pred": "11",
+        "pred": "10",
         "gold": "11",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 426
+        "gen_len": 348
       },
       {
         "id": 152,
-        "pred": "2",
+        "pred": "2.67",
         "gold": "2",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 316
+        "gen_len": 274
       },
       {
         "id": 153,
@@ -6056,7 +6056,7 @@
         "gold": "5",
         "correct": true,
         "truncated": false,
-        "gen_len": 281
+        "gen_len": 257
       },
       {
         "id": 154,
@@ -6064,7 +6064,7 @@
         "gold": "240",
         "correct": true,
         "truncated": false,
-        "gen_len": 373
+        "gen_len": 377
       },
       {
         "id": 155,
@@ -6072,7 +6072,7 @@
         "gold": "60",
         "correct": true,
         "truncated": false,
-        "gen_len": 257
+        "gen_len": 240
       },
       {
         "id": 156,
@@ -6080,7 +6080,7 @@
         "gold": "58",
         "correct": true,
         "truncated": false,
-        "gen_len": 317
+        "gen_len": 309
       },
       {
         "id": 157,
@@ -6088,7 +6088,7 @@
         "gold": "7",
         "correct": true,
         "truncated": false,
-        "gen_len": 193
+        "gen_len": 287
       },
       {
         "id": 158,
@@ -6096,7 +6096,7 @@
         "gold": "55",
         "correct": true,
         "truncated": false,
-        "gen_len": 341
+        "gen_len": 340
       },
       {
         "id": 159,
@@ -6104,7 +6104,7 @@
         "gold": "3",
         "correct": true,
         "truncated": false,
-        "gen_len": 537
+        "gen_len": 381
       },
       {
         "id": 160,
@@ -6112,7 +6112,7 @@
         "gold": "70000",
         "correct": true,
         "truncated": false,
-        "gen_len": 471
+        "gen_len": 410
       },
       {
         "id": 161,
@@ -6120,7 +6120,7 @@
         "gold": "27",
         "correct": true,
         "truncated": false,
-        "gen_len": 525
+        "gen_len": 490
       },
       {
         "id": 162,
@@ -6128,7 +6128,7 @@
         "gold": "360",
         "correct": true,
         "truncated": false,
-        "gen_len": 129
+        "gen_len": 140
       },
       {
         "id": 163,
@@ -6136,7 +6136,7 @@
         "gold": "1170",
         "correct": true,
         "truncated": false,
-        "gen_len": 254
+        "gen_len": 253
       },
       {
         "id": 164,
@@ -6144,7 +6144,7 @@
         "gold": "5",
         "correct": true,
         "truncated": false,
-        "gen_len": 229
+        "gen_len": 238
       },
       {
         "id": 165,
@@ -6152,7 +6152,7 @@
         "gold": "40",
         "correct": true,
         "truncated": false,
-        "gen_len": 314
+        "gen_len": 295
       },
       {
         "id": 166,
@@ -6160,7 +6160,7 @@
         "gold": "1125",
         "correct": true,
         "truncated": false,
-        "gen_len": 217
+        "gen_len": 220
       },
       {
         "id": 167,
@@ -6168,7 +6168,7 @@
         "gold": "736",
         "correct": true,
         "truncated": false,
-        "gen_len": 415
+        "gen_len": 377
       },
       {
         "id": 168,
@@ -6176,7 +6176,7 @@
         "gold": "2",
         "correct": true,
         "truncated": false,
-        "gen_len": 255
+        "gen_len": 256
       },
       {
         "id": 169,
@@ -6184,7 +6184,7 @@
         "gold": "2",
         "correct": false,
         "truncated": false,
-        "gen_len": 227
+        "gen_len": 204
       },
       {
         "id": 170,
@@ -6192,7 +6192,7 @@
         "gold": "762",
         "correct": true,
         "truncated": false,
-        "gen_len": 386
+        "gen_len": 393
       },
       {
         "id": 171,
@@ -6200,7 +6200,7 @@
         "gold": "40",
         "correct": true,
         "truncated": false,
-        "gen_len": 448
+        "gen_len": 431
       },
       {
         "id": 172,
@@ -6208,7 +6208,7 @@
         "gold": "33",
         "correct": true,
         "truncated": false,
-        "gen_len": 440
+        "gen_len": 411
       },
       {
         "id": 173,
@@ -6216,7 +6216,7 @@
         "gold": "11",
         "correct": true,
         "truncated": false,
-        "gen_len": 264
+        "gen_len": 220
       },
       {
         "id": 174,
@@ -6224,7 +6224,7 @@
         "gold": "76",
         "correct": true,
         "truncated": false,
-        "gen_len": 224
+        "gen_len": 258
       },
       {
         "id": 175,
@@ -6232,7 +6232,7 @@
         "gold": "4",
         "correct": true,
         "truncated": false,
-        "gen_len": 216
+        "gen_len": 234
       },
       {
         "id": 176,
@@ -6240,7 +6240,7 @@
         "gold": "160",
         "correct": true,
         "truncated": false,
-        "gen_len": 250
+        "gen_len": 234
       },
       {
         "id": 177,
@@ -6248,7 +6248,7 @@
         "gold": "240",
         "correct": true,
         "truncated": false,
-        "gen_len": 567
+        "gen_len": 518
       },
       {
         "id": 178,
@@ -6256,15 +6256,15 @@
         "gold": "2",
         "correct": false,
         "truncated": false,
-        "gen_len": 243
+        "gen_len": 211
       },
       {
         "id": 179,
-        "pred": "26000",
+        "pred": "14000",
         "gold": "14000",
-        "correct": false,
-        "truncated": true,
-        "gen_len": 1024
+        "correct": true,
+        "truncated": false,
+        "gen_len": 366
       },
       {
         "id": 180,
@@ -6272,7 +6272,7 @@
         "gold": "7",
         "correct": true,
         "truncated": false,
-        "gen_len": 335
+        "gen_len": 322
       },
       {
         "id": 181,
@@ -6280,7 +6280,7 @@
         "gold": "6",
         "correct": true,
         "truncated": false,
-        "gen_len": 198
+        "gen_len": 180
       },
       {
         "id": 182,
@@ -6288,7 +6288,7 @@
         "gold": "1",
         "correct": true,
         "truncated": false,
-        "gen_len": 187
+        "gen_len": 148
       },
       {
         "id": 183,
@@ -6296,7 +6296,7 @@
         "gold": "168",
         "correct": false,
         "truncated": false,
-        "gen_len": 235
+        "gen_len": 223
       },
       {
         "id": 184,
@@ -6304,7 +6304,7 @@
         "gold": "11",
         "correct": true,
         "truncated": false,
-        "gen_len": 497
+        "gen_len": 429
       },
       {
         "id": 185,
@@ -6312,7 +6312,7 @@
         "gold": "110",
         "correct": true,
         "truncated": false,
-        "gen_len": 299
+        "gen_len": 300
       },
       {
         "id": 186,
@@ -6320,15 +6320,15 @@
         "gold": "82",
         "correct": true,
         "truncated": false,
-        "gen_len": 180
+        "gen_len": 161
       },
       {
         "id": 187,
-        "pred": "162.00",
+        "pred": "162",
         "gold": "162",
         "correct": true,
         "truncated": false,
-        "gen_len": 358
+        "gen_len": 276
       },
       {
         "id": 188,
@@ -6336,7 +6336,7 @@
         "gold": "240",
         "correct": false,
         "truncated": false,
-        "gen_len": 456
+        "gen_len": 421
       },
       {
         "id": 189,
@@ -6344,7 +6344,7 @@
         "gold": "120",
         "correct": true,
         "truncated": false,
-        "gen_len": 415
+        "gen_len": 436
       },
       {
         "id": 190,
@@ -6352,15 +6352,15 @@
         "gold": "3",
         "correct": false,
         "truncated": false,
-        "gen_len": 508
+        "gen_len": 520
       },
       {
         "id": 191,
-        "pred": "310",
+        "pred": "1",
         "gold": "310",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 250
+        "gen_len": 253
       },
       {
         "id": 192,
@@ -6368,7 +6368,7 @@
         "gold": "8",
         "correct": true,
         "truncated": false,
-        "gen_len": 190
+        "gen_len": 180
       },
       {
         "id": 193,
@@ -6376,7 +6376,7 @@
         "gold": "14",
         "correct": true,
         "truncated": false,
-        "gen_len": 179
+        "gen_len": 159
       },
       {
         "id": 194,
@@ -6384,7 +6384,7 @@
         "gold": "6",
         "correct": true,
         "truncated": false,
-        "gen_len": 406
+        "gen_len": 378
       },
       {
         "id": 195,
@@ -6392,7 +6392,7 @@
         "gold": "30",
         "correct": true,
         "truncated": false,
-        "gen_len": 176
+        "gen_len": 146
       },
       {
         "id": 196,
@@ -6400,7 +6400,7 @@
         "gold": "2",
         "correct": true,
         "truncated": false,
-        "gen_len": 247
+        "gen_len": 286
       },
       {
         "id": 197,
@@ -6408,7 +6408,7 @@
         "gold": "595",
         "correct": true,
         "truncated": false,
-        "gen_len": 358
+        "gen_len": 359
       },
       {
         "id": 198,
@@ -6416,7 +6416,7 @@
         "gold": "23",
         "correct": true,
         "truncated": false,
-        "gen_len": 458
+        "gen_len": 454
       },
       {
         "id": 199,
@@ -6424,7 +6424,7 @@
         "gold": "7",
         "correct": true,
         "truncated": false,
-        "gen_len": 196
+        "gen_len": 206
       },
       {
         "id": 200,
@@ -6432,7 +6432,7 @@
         "gold": "280",
         "correct": true,
         "truncated": false,
-        "gen_len": 259
+        "gen_len": 230
       },
       {
         "id": 201,
@@ -6440,7 +6440,7 @@
         "gold": "100",
         "correct": true,
         "truncated": false,
-        "gen_len": 384
+        "gen_len": 352
       },
       {
         "id": 202,
@@ -6448,7 +6448,7 @@
         "gold": "85000",
         "correct": true,
         "truncated": false,
-        "gen_len": 419
+        "gen_len": 416
       },
       {
         "id": 203,
@@ -6456,7 +6456,7 @@
         "gold": "10",
         "correct": true,
         "truncated": false,
-        "gen_len": 254
+        "gen_len": 252
       },
       {
         "id": 204,
@@ -6464,7 +6464,7 @@
         "gold": "1",
         "correct": true,
         "truncated": false,
-        "gen_len": 265
+        "gen_len": 330
       },
       {
         "id": 205,
@@ -6472,7 +6472,7 @@
         "gold": "6",
         "correct": true,
         "truncated": false,
-        "gen_len": 237
+        "gen_len": 182
       },
       {
         "id": 206,
@@ -6480,7 +6480,7 @@
         "gold": "2",
         "correct": true,
         "truncated": false,
-        "gen_len": 347
+        "gen_len": 370
       },
       {
         "id": 207,
@@ -6488,7 +6488,7 @@
         "gold": "75",
         "correct": true,
         "truncated": false,
-        "gen_len": 353
+        "gen_len": 350
       },
       {
         "id": 208,
@@ -6496,7 +6496,7 @@
         "gold": "160",
         "correct": true,
         "truncated": false,
-        "gen_len": 250
+        "gen_len": 202
       },
       {
         "id": 209,
@@ -6504,7 +6504,7 @@
         "gold": "1000",
         "correct": true,
         "truncated": false,
-        "gen_len": 375
+        "gen_len": 359
       },
       {
         "id": 210,
@@ -6512,7 +6512,7 @@
         "gold": "68",
         "correct": true,
         "truncated": false,
-        "gen_len": 380
+        "gen_len": 388
       },
       {
         "id": 211,
@@ -6520,7 +6520,7 @@
         "gold": "860",
         "correct": true,
         "truncated": false,
-        "gen_len": 363
+        "gen_len": 356
       },
       {
         "id": 212,
@@ -6528,7 +6528,7 @@
         "gold": "17000",
         "correct": true,
         "truncated": false,
-        "gen_len": 297
+        "gen_len": 245
       },
       {
         "id": 213,
@@ -6536,7 +6536,7 @@
         "gold": "64",
         "correct": true,
         "truncated": false,
-        "gen_len": 282
+        "gen_len": 235
       },
       {
         "id": 214,
@@ -6544,7 +6544,7 @@
         "gold": "38",
         "correct": true,
         "truncated": false,
-        "gen_len": 150
+        "gen_len": 128
       },
       {
         "id": 215,
@@ -6552,7 +6552,7 @@
         "gold": "4",
         "correct": true,
         "truncated": false,
-        "gen_len": 328
+        "gen_len": 329
       },
       {
         "id": 216,
@@ -6560,7 +6560,7 @@
         "gold": "12",
         "correct": true,
         "truncated": false,
-        "gen_len": 361
+        "gen_len": 310
       },
       {
         "id": 217,
@@ -6568,7 +6568,7 @@
         "gold": "2",
         "correct": true,
         "truncated": false,
-        "gen_len": 376
+        "gen_len": 340
       },
       {
         "id": 218,
@@ -6576,7 +6576,7 @@
         "gold": "8",
         "correct": true,
         "truncated": false,
-        "gen_len": 197
+        "gen_len": 167
       },
       {
         "id": 219,
@@ -6584,7 +6584,7 @@
         "gold": "60",
         "correct": false,
         "truncated": false,
-        "gen_len": 377
+        "gen_len": 310
       },
       {
         "id": 220,
@@ -6592,7 +6592,7 @@
         "gold": "43",
         "correct": true,
         "truncated": false,
-        "gen_len": 504
+        "gen_len": 497
       },
       {
         "id": 221,
@@ -6600,15 +6600,15 @@
         "gold": "120",
         "correct": true,
         "truncated": false,
-        "gen_len": 481
+        "gen_len": 391
       },
       {
         "id": 222,
-        "pred": "240",
+        "pred": "300",
         "gold": "240",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 189
+        "gen_len": 131
       },
       {
         "id": 223,
@@ -6616,7 +6616,7 @@
         "gold": "6",
         "correct": true,
         "truncated": false,
-        "gen_len": 187
+        "gen_len": 183
       },
       {
         "id": 224,
@@ -6624,7 +6624,7 @@
         "gold": "80",
         "correct": true,
         "truncated": false,
-        "gen_len": 300
+        "gen_len": 290
       },
       {
         "id": 225,
@@ -6632,7 +6632,7 @@
         "gold": "70",
         "correct": true,
         "truncated": false,
-        "gen_len": 113
+        "gen_len": 123
       },
       {
         "id": 226,
@@ -6640,7 +6640,7 @@
         "gold": "7500",
         "correct": true,
         "truncated": false,
-        "gen_len": 391
+        "gen_len": 394
       },
       {
         "id": 227,
@@ -6648,7 +6648,7 @@
         "gold": "20",
         "correct": true,
         "truncated": false,
-        "gen_len": 213
+        "gen_len": 345
       },
       {
         "id": 228,
@@ -6656,7 +6656,7 @@
         "gold": "15",
         "correct": true,
         "truncated": false,
-        "gen_len": 277
+        "gen_len": 258
       },
       {
         "id": 229,
@@ -6664,7 +6664,7 @@
         "gold": "49",
         "correct": true,
         "truncated": false,
-        "gen_len": 194
+        "gen_len": 221
       },
       {
         "id": 230,
@@ -6672,7 +6672,7 @@
         "gold": "60",
         "correct": true,
         "truncated": false,
-        "gen_len": 215
+        "gen_len": 223
       },
       {
         "id": 231,
@@ -6680,7 +6680,7 @@
         "gold": "120",
         "correct": true,
         "truncated": false,
-        "gen_len": 306
+        "gen_len": 316
       },
       {
         "id": 232,
@@ -6688,7 +6688,7 @@
         "gold": "25",
         "correct": true,
         "truncated": false,
-        "gen_len": 246
+        "gen_len": 309
       },
       {
         "id": 233,
@@ -6696,7 +6696,7 @@
         "gold": "18",
         "correct": false,
         "truncated": false,
-        "gen_len": 628
+        "gen_len": 459
       },
       {
         "id": 234,
@@ -6704,7 +6704,7 @@
         "gold": "12",
         "correct": true,
         "truncated": false,
-        "gen_len": 244
+        "gen_len": 188
       },
       {
         "id": 235,
@@ -6712,7 +6712,7 @@
         "gold": "9",
         "correct": true,
         "truncated": false,
-        "gen_len": 287
+        "gen_len": 229
       },
       {
         "id": 236,
@@ -6720,7 +6720,7 @@
         "gold": "36",
         "correct": true,
         "truncated": false,
-        "gen_len": 280
+        "gen_len": 224
       },
       {
         "id": 237,
@@ -6728,7 +6728,7 @@
         "gold": "575",
         "correct": true,
         "truncated": false,
-        "gen_len": 353
+        "gen_len": 356
       },
       {
         "id": 238,
@@ -6736,23 +6736,23 @@
         "gold": "13",
         "correct": false,
         "truncated": false,
-        "gen_len": 275
+        "gen_len": 271
       },
       {
         "id": 239,
-        "pred": "6",
+        "pred": "3",
         "gold": "6",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 384
+        "gen_len": 386
       },
       {
         "id": 240,
-        "pred": "350",
+        "pred": "300",
         "gold": "350",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 287
+        "gen_len": 332
       },
       {
         "id": 241,
@@ -6760,7 +6760,7 @@
         "gold": "33",
         "correct": true,
         "truncated": false,
-        "gen_len": 438
+        "gen_len": 293
       },
       {
         "id": 242,
@@ -6768,7 +6768,7 @@
         "gold": "12",
         "correct": true,
         "truncated": false,
-        "gen_len": 387
+        "gen_len": 383
       },
       {
         "id": 243,
@@ -6776,7 +6776,7 @@
         "gold": "3",
         "correct": true,
         "truncated": false,
-        "gen_len": 284
+        "gen_len": 293
       },
       {
         "id": 244,
@@ -6784,7 +6784,7 @@
         "gold": "10",
         "correct": true,
         "truncated": false,
-        "gen_len": 284
+        "gen_len": 301
       },
       {
         "id": 245,
@@ -6792,7 +6792,7 @@
         "gold": "240",
         "correct": true,
         "truncated": false,
-        "gen_len": 242
+        "gen_len": 262
       },
       {
         "id": 246,
@@ -6800,7 +6800,7 @@
         "gold": "21",
         "correct": false,
         "truncated": false,
-        "gen_len": 218
+        "gen_len": 216
       },
       {
         "id": 247,
@@ -6808,7 +6808,7 @@
         "gold": "40",
         "correct": true,
         "truncated": false,
-        "gen_len": 445
+        "gen_len": 462
       },
       {
         "id": 248,
@@ -6816,7 +6816,7 @@
         "gold": "98",
         "correct": true,
         "truncated": false,
-        "gen_len": 245
+        "gen_len": 269
       },
       {
         "id": 249,
@@ -6824,7 +6824,7 @@
         "gold": "34",
         "correct": true,
         "truncated": false,
-        "gen_len": 319
+        "gen_len": 283
       },
       {
         "id": 250,
@@ -6832,7 +6832,7 @@
         "gold": "20",
         "correct": true,
         "truncated": false,
-        "gen_len": 282
+        "gen_len": 201
       },
       {
         "id": 251,
@@ -6840,7 +6840,7 @@
         "gold": "3528",
         "correct": true,
         "truncated": false,
-        "gen_len": 511
+        "gen_len": 471
       },
       {
         "id": 252,
@@ -6848,7 +6848,7 @@
         "gold": "21",
         "correct": true,
         "truncated": false,
-        "gen_len": 237
+        "gen_len": 159
       },
       {
         "id": 253,
@@ -6856,7 +6856,7 @@
         "gold": "180",
         "correct": true,
         "truncated": false,
-        "gen_len": 272
+        "gen_len": 220
       },
       {
         "id": 254,
@@ -6864,7 +6864,7 @@
         "gold": "4",
         "correct": true,
         "truncated": false,
-        "gen_len": 434
+        "gen_len": 319
       },
       {
         "id": 255,
@@ -6872,7 +6872,7 @@
         "gold": "108",
         "correct": true,
         "truncated": false,
-        "gen_len": 340
+        "gen_len": 388
       },
       {
         "id": 256,
@@ -6880,7 +6880,7 @@
         "gold": "16",
         "correct": true,
         "truncated": false,
-        "gen_len": 465
+        "gen_len": 336
       },
       {
         "id": 257,
@@ -6888,7 +6888,7 @@
         "gold": "4",
         "correct": true,
         "truncated": false,
-        "gen_len": 238
+        "gen_len": 243
       },
       {
         "id": 258,
@@ -6896,7 +6896,7 @@
         "gold": "5",
         "correct": true,
         "truncated": false,
-        "gen_len": 169
+        "gen_len": 211
       },
       {
         "id": 259,
@@ -6904,7 +6904,7 @@
         "gold": "26",
         "correct": true,
         "truncated": false,
-        "gen_len": 570
+        "gen_len": 428
       },
       {
         "id": 260,
@@ -6912,7 +6912,7 @@
         "gold": "16",
         "correct": true,
         "truncated": false,
-        "gen_len": 256
+        "gen_len": 261
       },
       {
         "id": 261,
@@ -6920,7 +6920,7 @@
         "gold": "42",
         "correct": true,
         "truncated": false,
-        "gen_len": 197
+        "gen_len": 179
       },
       {
         "id": 262,
@@ -6928,7 +6928,7 @@
         "gold": "70",
         "correct": true,
         "truncated": false,
-        "gen_len": 231
+        "gen_len": 302
       },
       {
         "id": 263,
@@ -6936,7 +6936,7 @@
         "gold": "63",
         "correct": true,
         "truncated": false,
-        "gen_len": 272
+        "gen_len": 266
       },
       {
         "id": 264,
@@ -6944,7 +6944,7 @@
         "gold": "65960",
         "correct": true,
         "truncated": false,
-        "gen_len": 703
+        "gen_len": 765
       },
       {
         "id": 265,
@@ -6952,7 +6952,7 @@
         "gold": "18",
         "correct": true,
         "truncated": false,
-        "gen_len": 205
+        "gen_len": 153
       },
       {
         "id": 266,
@@ -6960,7 +6960,7 @@
         "gold": "310",
         "correct": true,
         "truncated": false,
-        "gen_len": 212
+        "gen_len": 182
       },
       {
         "id": 267,
@@ -6968,15 +6968,15 @@
         "gold": "40",
         "correct": true,
         "truncated": false,
-        "gen_len": 328
+        "gen_len": 291
       },
       {
         "id": 268,
-        "pred": "110",
+        "pred": "50",
         "gold": "50",
-        "correct": false,
+        "correct": true,
         "truncated": false,
-        "gen_len": 467
+        "gen_len": 382
       },
       {
         "id": 269,
@@ -6984,7 +6984,7 @@
         "gold": "2",
         "correct": false,
         "truncated": false,
-        "gen_len": 351
+        "gen_len": 302
       },
       {
         "id": 270,
@@ -6992,7 +6992,7 @@
         "gold": "5",
         "correct": true,
         "truncated": false,
-        "gen_len": 213
+        "gen_len": 488
       },
       {
         "id": 271,
@@ -7000,7 +7000,7 @@
         "gold": "17",
         "correct": true,
         "truncated": false,
-        "gen_len": 352
+        "gen_len": 342
       },
       {
         "id": 272,
@@ -7008,7 +7008,7 @@
         "gold": "36",
         "correct": true,
         "truncated": false,
-        "gen_len": 318
+        "gen_len": 333
       },
       {
         "id": 273,
@@ -7016,7 +7016,7 @@
         "gold": "1450000",
         "correct": true,
         "truncated": false,
-        "gen_len": 654
+        "gen_len": 553
       },
       {
         "id": 274,
@@ -7024,7 +7024,7 @@
         "gold": "6",
         "correct": true,
         "truncated": false,
-        "gen_len": 303
+        "gen_len": 197
       },
       {
         "id": 275,
@@ -7032,7 +7032,7 @@
         "gold": "6",
         "correct": true,
         "truncated": false,
-        "gen_len": 344
+        "gen_len": 285
       },
       {
         "id": 276,
@@ -7040,7 +7040,7 @@
         "gold": "27",
         "correct": true,
         "truncated": false,
-        "gen_len": 184
+        "gen_len": 219
       },
       {
         "id": 277,
@@ -7048,7 +7048,7 @@
         "gold": "16",
         "correct": false,
         "truncated": false,
-        "gen_len": 396
+        "gen_len": 410
       },
       {
         "id": 278,
@@ -7056,7 +7056,7 @@
         "gold": "440",
         "correct": true,
         "truncated": false,
-        "gen_len": 356
+        "gen_len": 390
       },
       {
         "id": 279,
@@ -7064,7 +7064,7 @@
         "gold": "20",
         "correct": true,
         "truncated": false,
-        "gen_len": 351
+        "gen_len": 257
       },
       {
         "id": 280,
@@ -7072,7 +7072,7 @@
         "gold": "21",
         "correct": true,
         "truncated": false,
-        "gen_len": 251
+        "gen_len": 246
       },
       {
         "id": 281,
@@ -7080,7 +7080,7 @@
         "gold": "54",
         "correct": true,
         "truncated": false,
-        "gen_len": 254
+        "gen_len": 200
       },
       {
         "id": 282,
@@ -7088,7 +7088,7 @@
         "gold": "17",
         "correct": true,
         "truncated": false,
-        "gen_len": 189
+        "gen_len": 232
       },
       {
         "id": 283,
@@ -7096,7 +7096,7 @@
         "gold": "31",
         "correct": true,
         "truncated": false,
-        "gen_len": 356
+        "gen_len": 405
       },
       {
         "id": 284,
@@ -7104,7 +7104,7 @@
         "gold": "84",
         "correct": true,
         "truncated": false,
-        "gen_len": 287
+        "gen_len": 292
       },
       {
         "id": 285,
@@ -7112,7 +7112,7 @@
         "gold": "15",
         "correct": true,
         "truncated": false,
-        "gen_len": 285
+        "gen_len": 283
       },
       {
         "id": 286,
@@ -7120,7 +7120,7 @@
         "gold": "64",
         "correct": false,
         "truncated": false,
-        "gen_len": 289
+        "gen_len": 387
       },
       {
         "id": 287,
@@ -7128,7 +7128,7 @@
         "gold": "15",
         "correct": true,
         "truncated": false,
-        "gen_len": 421
+        "gen_len": 410
       },
       {
         "id": 288,
@@ -7136,7 +7136,7 @@
         "gold": "67",
         "correct": true,
         "truncated": false,
-        "gen_len": 405
+        "gen_len": 355
       },
       {
         "id": 289,
@@ -7144,7 +7144,7 @@
         "gold": "38",
         "correct": true,
         "truncated": false,
-        "gen_len": 320
+        "gen_len": 300
       },
       {
         "id": 290,
@@ -7160,7 +7160,7 @@
         "gold": "300",
         "correct": true,
         "truncated": false,
-        "gen_len": 312
+        "gen_len": 322
       },
       {
         "id": 292,
@@ -7168,7 +7168,7 @@
         "gold": "28",
         "correct": true,
         "truncated": false,
-        "gen_len": 600
+        "gen_len": 546
       },
       {
         "id": 293,
@@ -7176,7 +7176,7 @@
         "gold": "16",
         "correct": true,
         "truncated": false,
-        "gen_len": 223
+        "gen_len": 203
       },
       {
         "id": 294,
@@ -7184,7 +7184,7 @@
         "gold": "3",
         "correct": true,
         "truncated": false,
-        "gen_len": 187
+        "gen_len": 171
       },
       {
         "id": 295,
@@ -7192,7 +7192,7 @@
         "gold": "9",
         "correct": false,
         "truncated": false,
-        "gen_len": 312
+        "gen_len": 334
       },
       {
         "id": 296,
@@ -7200,7 +7200,7 @@
         "gold": "48",
         "correct": true,
         "truncated": false,
-        "gen_len": 363
+        "gen_len": 351
       },
       {
         "id": 297,
@@ -7208,7 +7208,7 @@
         "gold": "88",
         "correct": true,
         "truncated": false,
-        "gen_len": 465
+        "gen_len": 457
       },
       {
         "id": 298,
@@ -7216,7 +7216,7 @@
         "gold": "25",
         "correct": true,
         "truncated": false,
-        "gen_len": 348
+        "gen_len": 196
       },
       {
         "id": 299,
@@ -7224,7 +7224,7 @@
         "gold": "30",
         "correct": true,
         "truncated": false,
-        "gen_len": 240
+        "gen_len": 222
       },
       {
         "id": 300,
@@ -7232,7 +7232,7 @@
         "gold": "14",
         "correct": true,
         "truncated": false,
-        "gen_len": 383
+        "gen_len": 278
       },
       {
         "id": 301,
@@ -7240,7 +7240,7 @@
         "gold": "30",
         "correct": true,
         "truncated": false,
-        "gen_len": 140
+        "gen_len": 174
       },
       {
         "id": 302,
@@ -7248,7 +7248,7 @@
         "gold": "8",
         "correct": false,
         "truncated": false,
-        "gen_len": 430
+        "gen_len": 382
       },
       {
         "id": 303,
@@ -7256,7 +7256,7 @@
         "gold": "4",
         "correct": true,
         "truncated": false,
-        "gen_len": 170
+        "gen_len": 179
       },
       {
         "id": 304,
@@ -7264,7 +7264,7 @@
         "gold": "5",
         "correct": true,
         "truncated": false,
-        "gen_len": 625
+        "gen_len": 601
       },
       {
         "id": 305,
@@ -7272,15 +7272,15 @@
         "gold": "7000",
         "correct": true,
         "truncated": false,
-        "gen_len": 366
+        "gen_len": 353
       },
       {
         "id": 306,
-        "pred": "30",
+        "pred": "24",
         "gold": "30",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 423
+        "gen_len": 370
       },
       {
         "id": 307,
@@ -7288,7 +7288,7 @@
         "gold": "5",
         "correct": true,
         "truncated": false,
-        "gen_len": 568
+        "gen_len": 515
       },
       {
         "id": 308,
@@ -7296,7 +7296,7 @@
         "gold": "330000",
         "correct": true,
         "truncated": false,
-        "gen_len": 426
+        "gen_len": 386
       },
       {
         "id": 309,
@@ -7304,7 +7304,7 @@
         "gold": "4",
         "correct": true,
         "truncated": false,
-        "gen_len": 697
+        "gen_len": 560
       },
       {
         "id": 310,
@@ -7312,15 +7312,15 @@
         "gold": "2",
         "correct": true,
         "truncated": false,
-        "gen_len": 324
+        "gen_len": 313
       },
       {
         "id": 311,
-        "pred": "4",
+        "pred": "262500",
         "gold": "262500",
-        "correct": false,
-        "truncated": true,
-        "gen_len": 1024
+        "correct": true,
+        "truncated": false,
+        "gen_len": 427
       },
       {
         "id": 312,
@@ -7336,7 +7336,7 @@
         "gold": "8",
         "correct": true,
         "truncated": false,
-        "gen_len": 396
+        "gen_len": 266
       },
       {
         "id": 314,
@@ -7344,7 +7344,7 @@
         "gold": "6",
         "correct": true,
         "truncated": false,
-        "gen_len": 483
+        "gen_len": 488
       },
       {
         "id": 315,
@@ -7352,15 +7352,15 @@
         "gold": "1000",
         "correct": true,
         "truncated": false,
-        "gen_len": 579
+        "gen_len": 571
       },
       {
         "id": 316,
-        "pred": "655",
+        "pred": "1630",
         "gold": "655",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 175
+        "gen_len": 222
       },
       {
         "id": 317,
@@ -7368,7 +7368,7 @@
         "gold": "3200",
         "correct": true,
         "truncated": false,
-        "gen_len": 236
+        "gen_len": 231
       },
       {
         "id": 318,
@@ -7376,7 +7376,7 @@
         "gold": "66",
         "correct": true,
         "truncated": false,
-        "gen_len": 322
+        "gen_len": 341
       },
       {
         "id": 319,
@@ -7384,7 +7384,7 @@
         "gold": "4",
         "correct": true,
         "truncated": false,
-        "gen_len": 236
+        "gen_len": 267
       },
       {
         "id": 320,
@@ -7392,7 +7392,7 @@
         "gold": "66",
         "correct": true,
         "truncated": false,
-        "gen_len": 309
+        "gen_len": 278
       },
       {
         "id": 321,
@@ -7400,7 +7400,7 @@
         "gold": "76",
         "correct": true,
         "truncated": false,
-        "gen_len": 270
+        "gen_len": 331
       },
       {
         "id": 322,
@@ -7408,7 +7408,7 @@
         "gold": "55",
         "correct": true,
         "truncated": false,
-        "gen_len": 382
+        "gen_len": 319
       },
       {
         "id": 323,
@@ -7416,7 +7416,7 @@
         "gold": "195",
         "correct": true,
         "truncated": false,
-        "gen_len": 424
+        "gen_len": 312
       },
       {
         "id": 324,
@@ -7424,7 +7424,7 @@
         "gold": "34",
         "correct": true,
         "truncated": false,
-        "gen_len": 218
+        "gen_len": 197
       },
       {
         "id": 325,
@@ -7432,7 +7432,7 @@
         "gold": "1520",
         "correct": true,
         "truncated": false,
-        "gen_len": 330
+        "gen_len": 324
       },
       {
         "id": 326,
@@ -7440,7 +7440,7 @@
         "gold": "15",
         "correct": true,
         "truncated": false,
-        "gen_len": 229
+        "gen_len": 199
       },
       {
         "id": 327,
@@ -7448,7 +7448,7 @@
         "gold": "11",
         "correct": true,
         "truncated": false,
-        "gen_len": 532
+        "gen_len": 418
       },
       {
         "id": 328,
@@ -7456,7 +7456,7 @@
         "gold": "14000",
         "correct": true,
         "truncated": false,
-        "gen_len": 492
+        "gen_len": 396
       },
       {
         "id": 329,
@@ -7464,7 +7464,7 @@
         "gold": "7",
         "correct": true,
         "truncated": false,
-        "gen_len": 227
+        "gen_len": 226
       },
       {
         "id": 330,
@@ -7472,7 +7472,7 @@
         "gold": "19",
         "correct": true,
         "truncated": false,
-        "gen_len": 203
+        "gen_len": 211
       },
       {
         "id": 331,
@@ -7480,7 +7480,7 @@
         "gold": "54",
         "correct": false,
         "truncated": false,
-        "gen_len": 301
+        "gen_len": 364
       },
       {
         "id": 332,
@@ -7488,7 +7488,7 @@
         "gold": "10",
         "correct": true,
         "truncated": false,
-        "gen_len": 189
+        "gen_len": 171
       },
       {
         "id": 333,
@@ -7496,7 +7496,7 @@
         "gold": "45",
         "correct": false,
         "truncated": false,
-        "gen_len": 650
+        "gen_len": 585
       },
       {
         "id": 334,
@@ -7504,15 +7504,15 @@
         "gold": "225",
         "correct": true,
         "truncated": false,
-        "gen_len": 285
+        "gen_len": 252
       },
       {
         "id": 335,
-        "pred": "19",
+        "pred": "38",
         "gold": "19",
-        "correct": true,
-        "truncated": false,
-        "gen_len": 541
+        "correct": false,
+        "truncated": true,
+        "gen_len": 1024
       },
       {
         "id": 336,
@@ -7520,7 +7520,7 @@
         "gold": "36",
         "correct": true,
         "truncated": false,
-        "gen_len": 299
+        "gen_len": 295
       },
       {
         "id": 337,
@@ -7528,7 +7528,7 @@
         "gold": "110",
         "correct": true,
         "truncated": false,
-        "gen_len": 351
+        "gen_len": 308
       },
       {
         "id": 338,
@@ -7536,7 +7536,7 @@
         "gold": "1375",
         "correct": true,
         "truncated": false,
-        "gen_len": 346
+        "gen_len": 343
       },
       {
         "id": 339,
@@ -7544,7 +7544,7 @@
         "gold": "350",
         "correct": true,
         "truncated": false,
-        "gen_len": 534
+        "gen_len": 615
       },
       {
         "id": 340,
@@ -7552,7 +7552,7 @@
         "gold": "100",
         "correct": true,
         "truncated": false,
-        "gen_len": 181
+        "gen_len": 270
       },
       {
         "id": 341,
@@ -7560,7 +7560,7 @@
         "gold": "3",
         "correct": true,
         "truncated": false,
-        "gen_len": 179
+        "gen_len": 162
       },
       {
         "id": 342,
@@ -7568,7 +7568,7 @@
         "gold": "245",
         "correct": true,
         "truncated": false,
-        "gen_len": 408
+        "gen_len": 351
       },
       {
         "id": 343,
@@ -7576,7 +7576,7 @@
         "gold": "50",
         "correct": true,
         "truncated": false,
-        "gen_len": 388
+        "gen_len": 348
       },
       {
         "id": 344,
@@ -7584,7 +7584,7 @@
         "gold": "20",
         "correct": true,
         "truncated": false,
-        "gen_len": 273
+        "gen_len": 280
       },
       {
         "id": 345,
@@ -7592,15 +7592,15 @@
         "gold": "87",
         "correct": true,
         "truncated": false,
-        "gen_len": 223
+        "gen_len": 173
       },
       {
         "id": 346,
-        "pred": "56",
+        "pred": "52",
         "gold": "56",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 457
+        "gen_len": 458
       },
       {
         "id": 347,
@@ -7608,7 +7608,7 @@
         "gold": "13",
         "correct": true,
         "truncated": false,
-        "gen_len": 326
+        "gen_len": 408
       },
       {
         "id": 348,
@@ -7616,7 +7616,7 @@
         "gold": "4",
         "correct": false,
         "truncated": false,
-        "gen_len": 293
+        "gen_len": 352
       },
       {
         "id": 349,
@@ -7624,7 +7624,7 @@
         "gold": "3",
         "correct": true,
         "truncated": false,
-        "gen_len": 446
+        "gen_len": 413
       },
       {
         "id": 350,
@@ -7632,7 +7632,7 @@
         "gold": "26",
         "correct": true,
         "truncated": false,
-        "gen_len": 205
+        "gen_len": 206
       },
       {
         "id": 351,
@@ -7640,7 +7640,7 @@
         "gold": "40000",
         "correct": true,
         "truncated": false,
-        "gen_len": 364
+        "gen_len": 260
       },
       {
         "id": 352,
@@ -7648,7 +7648,7 @@
         "gold": "2",
         "correct": true,
         "truncated": false,
-        "gen_len": 340
+        "gen_len": 377
       },
       {
         "id": 353,
@@ -7656,7 +7656,7 @@
         "gold": "3",
         "correct": true,
         "truncated": false,
-        "gen_len": 370
+        "gen_len": 357
       },
       {
         "id": 354,
@@ -7664,7 +7664,7 @@
         "gold": "80",
         "correct": true,
         "truncated": false,
-        "gen_len": 256
+        "gen_len": 258
       },
       {
         "id": 355,
@@ -7672,7 +7672,7 @@
         "gold": "18",
         "correct": true,
         "truncated": false,
-        "gen_len": 488
+        "gen_len": 377
       },
       {
         "id": 356,
@@ -7680,7 +7680,7 @@
         "gold": "44",
         "correct": true,
         "truncated": false,
-        "gen_len": 166
+        "gen_len": 147
       },
       {
         "id": 357,
@@ -7688,15 +7688,15 @@
         "gold": "7425",
         "correct": true,
         "truncated": false,
-        "gen_len": 323
+        "gen_len": 357
       },
       {
         "id": 358,
-        "pred": "8",
+        "pred": "00",
         "gold": "8",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 207
+        "gen_len": 182
       },
       {
         "id": 359,
@@ -7704,7 +7704,7 @@
         "gold": "3160",
         "correct": true,
         "truncated": false,
-        "gen_len": 366
+        "gen_len": 325
       },
       {
         "id": 360,
@@ -7712,7 +7712,7 @@
         "gold": "160",
         "correct": true,
         "truncated": false,
-        "gen_len": 263
+        "gen_len": 322
       },
       {
         "id": 361,
@@ -7720,7 +7720,7 @@
         "gold": "40",
         "correct": true,
         "truncated": false,
-        "gen_len": 253
+        "gen_len": 238
       },
       {
         "id": 362,
@@ -7728,7 +7728,7 @@
         "gold": "500",
         "correct": true,
         "truncated": false,
-        "gen_len": 501
+        "gen_len": 595
       },
       {
         "id": 363,
@@ -7736,7 +7736,7 @@
         "gold": "130000",
         "correct": true,
         "truncated": false,
-        "gen_len": 282
+        "gen_len": 223
       },
       {
         "id": 364,
@@ -7744,7 +7744,7 @@
         "gold": "120",
         "correct": false,
         "truncated": false,
-        "gen_len": 268
+        "gen_len": 277
       },
       {
         "id": 365,
@@ -7752,7 +7752,7 @@
         "gold": "9",
         "correct": true,
         "truncated": false,
-        "gen_len": 339
+        "gen_len": 230
       },
       {
         "id": 366,
@@ -7760,7 +7760,7 @@
         "gold": "9",
         "correct": true,
         "truncated": false,
-        "gen_len": 343
+        "gen_len": 362
       },
       {
         "id": 367,
@@ -7768,7 +7768,7 @@
         "gold": "50",
         "correct": false,
         "truncated": false,
-        "gen_len": 631
+        "gen_len": 459
       },
       {
         "id": 368,
@@ -7776,7 +7776,7 @@
         "gold": "2",
         "correct": true,
         "truncated": false,
-        "gen_len": 348
+        "gen_len": 286
       },
       {
         "id": 369,
@@ -7784,7 +7784,7 @@
         "gold": "48",
         "correct": true,
         "truncated": false,
-        "gen_len": 149
+        "gen_len": 111
       },
       {
         "id": 370,
@@ -7792,7 +7792,7 @@
         "gold": "360",
         "correct": true,
         "truncated": false,
-        "gen_len": 421
+        "gen_len": 470
       },
       {
         "id": 371,
@@ -7800,7 +7800,7 @@
         "gold": "90",
         "correct": true,
         "truncated": false,
-        "gen_len": 331
+        "gen_len": 289
       },
       {
         "id": 372,
@@ -7808,7 +7808,7 @@
         "gold": "94",
         "correct": true,
         "truncated": false,
-        "gen_len": 469
+        "gen_len": 398
       },
       {
         "id": 373,
@@ -7816,7 +7816,7 @@
         "gold": "15",
         "correct": true,
         "truncated": false,
-        "gen_len": 494
+        "gen_len": 467
       },
       {
         "id": 374,
@@ -7824,7 +7824,7 @@
         "gold": "112",
         "correct": true,
         "truncated": false,
-        "gen_len": 191
+        "gen_len": 161
       },
       {
         "id": 375,
@@ -7832,7 +7832,7 @@
         "gold": "240000",
         "correct": true,
         "truncated": false,
-        "gen_len": 418
+        "gen_len": 426
       },
       {
         "id": 376,
@@ -7840,7 +7840,7 @@
         "gold": "2400",
         "correct": true,
         "truncated": false,
-        "gen_len": 299
+        "gen_len": 264
       },
       {
         "id": 377,
@@ -7848,7 +7848,7 @@
         "gold": "15",
         "correct": true,
         "truncated": false,
-        "gen_len": 266
+        "gen_len": 277
       },
       {
         "id": 378,
@@ -7856,7 +7856,7 @@
         "gold": "101",
         "correct": true,
         "truncated": false,
-        "gen_len": 330
+        "gen_len": 332
       },
       {
         "id": 379,
@@ -7864,7 +7864,7 @@
         "gold": "70",
         "correct": true,
         "truncated": false,
-        "gen_len": 378
+        "gen_len": 368
       },
       {
         "id": 380,
@@ -7872,7 +7872,7 @@
         "gold": "100",
         "correct": true,
         "truncated": false,
-        "gen_len": 218
+        "gen_len": 206
       },
       {
         "id": 381,
@@ -7880,7 +7880,7 @@
         "gold": "1",
         "correct": true,
         "truncated": false,
-        "gen_len": 230
+        "gen_len": 211
       },
       {
         "id": 382,
@@ -7888,15 +7888,15 @@
         "gold": "30",
         "correct": false,
         "truncated": false,
-        "gen_len": 388
+        "gen_len": 297
       },
       {
         "id": 383,
-        "pred": "140",
+        "pred": "80",
         "gold": "140",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 289
+        "gen_len": 306
       },
       {
         "id": 384,
@@ -7904,7 +7904,7 @@
         "gold": "2450",
         "correct": true,
         "truncated": false,
-        "gen_len": 413
+        "gen_len": 309
       },
       {
         "id": 385,
@@ -7912,7 +7912,7 @@
         "gold": "3",
         "correct": true,
         "truncated": false,
-        "gen_len": 363
+        "gen_len": 258
       },
       {
         "id": 386,
@@ -7920,7 +7920,7 @@
         "gold": "72",
         "correct": true,
         "truncated": false,
-        "gen_len": 383
+        "gen_len": 489
       },
       {
         "id": 387,
@@ -7928,7 +7928,7 @@
         "gold": "140",
         "correct": true,
         "truncated": false,
-        "gen_len": 203
+        "gen_len": 235
       },
       {
         "id": 388,
@@ -7936,7 +7936,7 @@
         "gold": "5",
         "correct": true,
         "truncated": false,
-        "gen_len": 289
+        "gen_len": 270
       },
       {
         "id": 389,
@@ -7944,7 +7944,7 @@
         "gold": "4",
         "correct": true,
         "truncated": false,
-        "gen_len": 264
+        "gen_len": 241
       },
       {
         "id": 390,
@@ -7952,7 +7952,7 @@
         "gold": "240",
         "correct": true,
         "truncated": false,
-        "gen_len": 350
+        "gen_len": 522
       },
       {
         "id": 391,
@@ -7960,7 +7960,7 @@
         "gold": "375",
         "correct": true,
         "truncated": false,
-        "gen_len": 201
+        "gen_len": 191
       },
       {
         "id": 392,
@@ -7968,15 +7968,15 @@
         "gold": "114200",
         "correct": false,
         "truncated": false,
-        "gen_len": 890
+        "gen_len": 865
       },
       {
         "id": 393,
-        "pred": "30",
+        "pred": "35",
         "gold": "35",
-        "correct": false,
+        "correct": true,
         "truncated": false,
-        "gen_len": 171
+        "gen_len": 284
       },
       {
         "id": 394,
@@ -7984,7 +7984,7 @@
         "gold": "18",
         "correct": true,
         "truncated": false,
-        "gen_len": 194
+        "gen_len": 144
       },
       {
         "id": 395,
@@ -7992,7 +7992,7 @@
         "gold": "25",
         "correct": true,
         "truncated": false,
-        "gen_len": 245
+        "gen_len": 225
       },
       {
         "id": 396,
@@ -8000,7 +8000,7 @@
         "gold": "172",
         "correct": true,
         "truncated": false,
-        "gen_len": 500
+        "gen_len": 368
       },
       {
         "id": 397,
@@ -8008,7 +8008,7 @@
         "gold": "8",
         "correct": true,
         "truncated": false,
-        "gen_len": 194
+        "gen_len": 204
       },
       {
         "id": 398,
@@ -8016,7 +8016,7 @@
         "gold": "10",
         "correct": true,
         "truncated": false,
-        "gen_len": 135
+        "gen_len": 136
       },
       {
         "id": 399,
@@ -8024,7 +8024,7 @@
         "gold": "85",
         "correct": true,
         "truncated": false,
-        "gen_len": 193
+        "gen_len": 190
       },
       {
         "id": 400,
@@ -8032,7 +8032,7 @@
         "gold": "85",
         "correct": true,
         "truncated": false,
-        "gen_len": 176
+        "gen_len": 201
       },
       {
         "id": 401,
@@ -8040,7 +8040,7 @@
         "gold": "12",
         "correct": true,
         "truncated": false,
-        "gen_len": 287
+        "gen_len": 293
       },
       {
         "id": 402,
@@ -8048,7 +8048,7 @@
         "gold": "120",
         "correct": false,
         "truncated": false,
-        "gen_len": 324
+        "gen_len": 322
       },
       {
         "id": 403,
@@ -8056,7 +8056,7 @@
         "gold": "11",
         "correct": true,
         "truncated": false,
-        "gen_len": 170
+        "gen_len": 171
       },
       {
         "id": 404,
@@ -8064,7 +8064,7 @@
         "gold": "79",
         "correct": true,
         "truncated": false,
-        "gen_len": 379
+        "gen_len": 239
       },
       {
         "id": 405,
@@ -8072,7 +8072,7 @@
         "gold": "25",
         "correct": true,
         "truncated": false,
-        "gen_len": 357
+        "gen_len": 285
       },
       {
         "id": 406,
@@ -8080,15 +8080,15 @@
         "gold": "224000",
         "correct": true,
         "truncated": false,
-        "gen_len": 483
+        "gen_len": 568
       },
       {
         "id": 407,
-        "pred": "312",
+        "pred": "312.00",
         "gold": "312",
         "correct": true,
         "truncated": false,
-        "gen_len": 263
+        "gen_len": 267
       },
       {
         "id": 408,
@@ -8096,7 +8096,7 @@
         "gold": "68",
         "correct": true,
         "truncated": false,
-        "gen_len": 341
+        "gen_len": 280
       },
       {
         "id": 409,
@@ -8104,7 +8104,7 @@
         "gold": "3",
         "correct": true,
         "truncated": false,
-        "gen_len": 324
+        "gen_len": 313
       },
       {
         "id": 410,
@@ -8112,7 +8112,7 @@
         "gold": "7",
         "correct": true,
         "truncated": false,
-        "gen_len": 264
+        "gen_len": 308
       },
       {
         "id": 411,
@@ -8120,7 +8120,7 @@
         "gold": "54",
         "correct": true,
         "truncated": false,
-        "gen_len": 412
+        "gen_len": 392
       },
       {
         "id": 412,
@@ -8128,7 +8128,7 @@
         "gold": "23",
         "correct": true,
         "truncated": false,
-        "gen_len": 362
+        "gen_len": 360
       },
       {
         "id": 413,
@@ -8136,7 +8136,7 @@
         "gold": "650",
         "correct": true,
         "truncated": false,
-        "gen_len": 351
+        "gen_len": 276
       },
       {
         "id": 414,
@@ -8144,7 +8144,7 @@
         "gold": "335",
         "correct": true,
         "truncated": false,
-        "gen_len": 226
+        "gen_len": 215
       },
       {
         "id": 415,
@@ -8152,7 +8152,7 @@
         "gold": "3",
         "correct": true,
         "truncated": false,
-        "gen_len": 257
+        "gen_len": 237
       },
       {
         "id": 416,
@@ -8160,7 +8160,7 @@
         "gold": "10",
         "correct": true,
         "truncated": false,
-        "gen_len": 671
+        "gen_len": 585
       },
       {
         "id": 417,
@@ -8168,7 +8168,7 @@
         "gold": "80",
         "correct": true,
         "truncated": false,
-        "gen_len": 269
+        "gen_len": 355
       },
       {
         "id": 418,
@@ -8176,7 +8176,7 @@
         "gold": "105",
         "correct": true,
         "truncated": false,
-        "gen_len": 312
+        "gen_len": 236
       },
       {
         "id": 419,
@@ -8192,7 +8192,7 @@
         "gold": "24",
         "correct": true,
         "truncated": false,
-        "gen_len": 280
+        "gen_len": 364
       },
       {
         "id": 421,
@@ -8200,7 +8200,7 @@
         "gold": "5",
         "correct": false,
         "truncated": false,
-        "gen_len": 586
+        "gen_len": 508
       },
       {
         "id": 422,
@@ -8208,7 +8208,7 @@
         "gold": "70",
         "correct": true,
         "truncated": false,
-        "gen_len": 378
+        "gen_len": 425
       },
       {
         "id": 423,
@@ -8216,7 +8216,7 @@
         "gold": "72",
         "correct": true,
         "truncated": false,
-        "gen_len": 349
+        "gen_len": 387
       },
       {
         "id": 424,
@@ -8224,15 +8224,15 @@
         "gold": "21",
         "correct": false,
         "truncated": false,
-        "gen_len": 122
+        "gen_len": 113
       },
       {
         "id": 425,
-        "pred": "8",
+        "pred": "-7",
         "gold": "8",
-        "correct": true,
-        "truncated": false,
-        "gen_len": 434
+        "correct": false,
+        "truncated": true,
+        "gen_len": 1024
       },
       {
         "id": 426,
@@ -8240,15 +8240,15 @@
         "gold": "324",
         "correct": true,
         "truncated": false,
-        "gen_len": 518
+        "gen_len": 470
       },
       {
         "id": 427,
-        "pred": "2",
+        "pred": "110",
         "gold": "2",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 417
+        "gen_len": 394
       },
       {
         "id": 428,
@@ -8256,15 +8256,15 @@
         "gold": "32",
         "correct": true,
         "truncated": false,
-        "gen_len": 220
+        "gen_len": 203
       },
       {
         "id": 429,
-        "pred": "75",
+        "pred": "105",
         "gold": "75",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 348
+        "gen_len": 298
       },
       {
         "id": 430,
@@ -8272,7 +8272,7 @@
         "gold": "31800",
         "correct": true,
         "truncated": false,
-        "gen_len": 418
+        "gen_len": 442
       },
       {
         "id": 431,
@@ -8280,7 +8280,7 @@
         "gold": "24",
         "correct": true,
         "truncated": false,
-        "gen_len": 381
+        "gen_len": 323
       },
       {
         "id": 432,
@@ -8288,15 +8288,15 @@
         "gold": "175",
         "correct": true,
         "truncated": false,
-        "gen_len": 439
+        "gen_len": 427
       },
       {
         "id": 433,
-        "pred": "360",
+        "pred": "340",
         "gold": "360",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 429
+        "gen_len": 348
       },
       {
         "id": 434,
@@ -8304,7 +8304,7 @@
         "gold": "31",
         "correct": true,
         "truncated": false,
-        "gen_len": 372
+        "gen_len": 316
       },
       {
         "id": 435,
@@ -8312,15 +8312,15 @@
         "gold": "81",
         "correct": true,
         "truncated": false,
-        "gen_len": 419
+        "gen_len": 333
       },
       {
         "id": 436,
-        "pred": "25",
+        "pred": "2.00",
         "gold": "25",
-        "correct": true,
-        "truncated": false,
-        "gen_len": 351
+        "correct": false,
+        "truncated": true,
+        "gen_len": 1024
       },
       {
         "id": 437,
@@ -8336,7 +8336,7 @@
         "gold": "8",
         "correct": true,
         "truncated": false,
-        "gen_len": 254
+        "gen_len": 237
       },
       {
         "id": 439,
@@ -8344,7 +8344,7 @@
         "gold": "2",
         "correct": true,
         "truncated": false,
-        "gen_len": 287
+        "gen_len": 277
       },
       {
         "id": 440,
@@ -8352,7 +8352,7 @@
         "gold": "2325",
         "correct": true,
         "truncated": false,
-        "gen_len": 197
+        "gen_len": 225
       },
       {
         "id": 441,
@@ -8360,15 +8360,15 @@
         "gold": "840",
         "correct": true,
         "truncated": false,
-        "gen_len": 295
+        "gen_len": 213
       },
       {
         "id": 442,
-        "pred": "0.10",
+        "pred": "11",
         "gold": "36",
         "correct": false,
-        "truncated": true,
-        "gen_len": 1024
+        "truncated": false,
+        "gen_len": 642
       },
       {
         "id": 443,
@@ -8376,7 +8376,7 @@
         "gold": "4",
         "correct": true,
         "truncated": false,
-        "gen_len": 524
+        "gen_len": 479
       },
       {
         "id": 444,
@@ -8384,7 +8384,7 @@
         "gold": "140",
         "correct": true,
         "truncated": false,
-        "gen_len": 163
+        "gen_len": 159
       },
       {
         "id": 445,
@@ -8392,15 +8392,15 @@
         "gold": "75",
         "correct": false,
         "truncated": false,
-        "gen_len": 551
+        "gen_len": 527
       },
       {
         "id": 446,
-        "pred": "1",
+        "pred": "4800",
         "gold": "3200",
         "correct": false,
-        "truncated": true,
-        "gen_len": 1024
+        "truncated": false,
+        "gen_len": 313
       },
       {
         "id": 447,
@@ -8408,7 +8408,7 @@
         "gold": "17",
         "correct": true,
         "truncated": false,
-        "gen_len": 282
+        "gen_len": 274
       },
       {
         "id": 448,
@@ -8416,7 +8416,7 @@
         "gold": "4",
         "correct": false,
         "truncated": false,
-        "gen_len": 339
+        "gen_len": 323
       },
       {
         "id": 449,
@@ -8424,7 +8424,7 @@
         "gold": "20",
         "correct": true,
         "truncated": false,
-        "gen_len": 446
+        "gen_len": 496
       },
       {
         "id": 450,
@@ -8432,7 +8432,7 @@
         "gold": "92",
         "correct": true,
         "truncated": false,
-        "gen_len": 362
+        "gen_len": 379
       },
       {
         "id": 451,
@@ -8440,7 +8440,7 @@
         "gold": "1",
         "correct": true,
         "truncated": false,
-        "gen_len": 336
+        "gen_len": 304
       },
       {
         "id": 452,
@@ -8448,7 +8448,7 @@
         "gold": "7400",
         "correct": false,
         "truncated": false,
-        "gen_len": 466
+        "gen_len": 459
       },
       {
         "id": 453,
@@ -8456,7 +8456,7 @@
         "gold": "50",
         "correct": true,
         "truncated": false,
-        "gen_len": 243
+        "gen_len": 304
       },
       {
         "id": 454,
@@ -8464,7 +8464,7 @@
         "gold": "1",
         "correct": true,
         "truncated": false,
-        "gen_len": 196
+        "gen_len": 205
       },
       {
         "id": 455,
@@ -8472,7 +8472,7 @@
         "gold": "14",
         "correct": true,
         "truncated": false,
-        "gen_len": 200
+        "gen_len": 197
       },
       {
         "id": 456,
@@ -8480,7 +8480,7 @@
         "gold": "300",
         "correct": true,
         "truncated": false,
-        "gen_len": 263
+        "gen_len": 222
       },
       {
         "id": 457,
@@ -8488,15 +8488,15 @@
         "gold": "4",
         "correct": false,
         "truncated": false,
-        "gen_len": 209
+        "gen_len": 211
       },
       {
         "id": 458,
-        "pred": "16",
+        "pred": "19",
         "gold": "16",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 474
+        "gen_len": 570
       },
       {
         "id": 459,
@@ -8504,7 +8504,7 @@
         "gold": "163",
         "correct": true,
         "truncated": false,
-        "gen_len": 338
+        "gen_len": 352
       },
       {
         "id": 460,
@@ -8512,7 +8512,7 @@
         "gold": "27",
         "correct": true,
         "truncated": false,
-        "gen_len": 226
+        "gen_len": 122
       },
       {
         "id": 461,
@@ -8520,7 +8520,7 @@
         "gold": "93",
         "correct": true,
         "truncated": false,
-        "gen_len": 339
+        "gen_len": 351
       },
       {
         "id": 462,
@@ -8528,7 +8528,7 @@
         "gold": "160",
         "correct": true,
         "truncated": false,
-        "gen_len": 305
+        "gen_len": 256
       },
       {
         "id": 463,
@@ -8536,7 +8536,7 @@
         "gold": "100",
         "correct": true,
         "truncated": false,
-        "gen_len": 325
+        "gen_len": 307
       },
       {
         "id": 464,
@@ -8544,7 +8544,7 @@
         "gold": "42",
         "correct": true,
         "truncated": false,
-        "gen_len": 367
+        "gen_len": 339
       },
       {
         "id": 465,
@@ -8552,7 +8552,7 @@
         "gold": "2",
         "correct": true,
         "truncated": false,
-        "gen_len": 270
+        "gen_len": 236
       },
       {
         "id": 466,
@@ -8560,7 +8560,7 @@
         "gold": "31",
         "correct": true,
         "truncated": false,
-        "gen_len": 256
+        "gen_len": 181
       },
       {
         "id": 467,
@@ -8568,7 +8568,7 @@
         "gold": "30",
         "correct": true,
         "truncated": false,
-        "gen_len": 375
+        "gen_len": 313
       },
       {
         "id": 468,
@@ -8576,7 +8576,7 @@
         "gold": "6",
         "correct": true,
         "truncated": false,
-        "gen_len": 368
+        "gen_len": 262
       },
       {
         "id": 469,
@@ -8584,7 +8584,7 @@
         "gold": "6",
         "correct": true,
         "truncated": false,
-        "gen_len": 264
+        "gen_len": 248
       },
       {
         "id": 470,
@@ -8592,7 +8592,7 @@
         "gold": "20",
         "correct": true,
         "truncated": false,
-        "gen_len": 142
+        "gen_len": 139
       },
       {
         "id": 471,
@@ -8600,15 +8600,15 @@
         "gold": "3",
         "correct": true,
         "truncated": false,
-        "gen_len": 268
+        "gen_len": 335
       },
       {
         "id": 472,
-        "pred": "20",
+        "pred": "5",
         "gold": "20",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 340
+        "gen_len": 230
       },
       {
         "id": 473,
@@ -8616,7 +8616,7 @@
         "gold": "4",
         "correct": true,
         "truncated": false,
-        "gen_len": 268
+        "gen_len": 245
       },
       {
         "id": 474,
@@ -8624,7 +8624,7 @@
         "gold": "7",
         "correct": true,
         "truncated": false,
-        "gen_len": 240
+        "gen_len": 245
       },
       {
         "id": 475,
@@ -8640,7 +8640,7 @@
         "gold": "90",
         "correct": true,
         "truncated": false,
-        "gen_len": 274
+        "gen_len": 250
       },
       {
         "id": 477,
@@ -8648,7 +8648,7 @@
         "gold": "16",
         "correct": true,
         "truncated": false,
-        "gen_len": 124
+        "gen_len": 131
       },
       {
         "id": 478,
@@ -8656,15 +8656,15 @@
         "gold": "150",
         "correct": true,
         "truncated": false,
-        "gen_len": 793
+        "gen_len": 524
       },
       {
         "id": 479,
-        "pred": "24",
+        "pred": "76",
         "gold": "24",
-        "correct": true,
-        "truncated": false,
-        "gen_len": 666
+        "correct": false,
+        "truncated": true,
+        "gen_len": 1024
       },
       {
         "id": 480,
@@ -8672,7 +8672,7 @@
         "gold": "150",
         "correct": true,
         "truncated": false,
-        "gen_len": 397
+        "gen_len": 382
       },
       {
         "id": 481,
@@ -8680,7 +8680,7 @@
         "gold": "80",
         "correct": true,
         "truncated": false,
-        "gen_len": 374
+        "gen_len": 317
       },
       {
         "id": 482,
@@ -8688,7 +8688,7 @@
         "gold": "14",
         "correct": true,
         "truncated": false,
-        "gen_len": 173
+        "gen_len": 168
       },
       {
         "id": 483,
@@ -8696,7 +8696,7 @@
         "gold": "9500",
         "correct": true,
         "truncated": false,
-        "gen_len": 448
+        "gen_len": 405
       },
       {
         "id": 484,
@@ -8704,7 +8704,7 @@
         "gold": "842",
         "correct": true,
         "truncated": false,
-        "gen_len": 247
+        "gen_len": 244
       },
       {
         "id": 485,
@@ -8712,7 +8712,7 @@
         "gold": "18",
         "correct": true,
         "truncated": false,
-        "gen_len": 293
+        "gen_len": 232
       },
       {
         "id": 486,
@@ -8720,7 +8720,7 @@
         "gold": "45",
         "correct": true,
         "truncated": false,
-        "gen_len": 360
+        "gen_len": 320
       },
       {
         "id": 487,
@@ -8728,7 +8728,7 @@
         "gold": "12",
         "correct": true,
         "truncated": false,
-        "gen_len": 368
+        "gen_len": 318
       },
       {
         "id": 488,
@@ -8736,7 +8736,7 @@
         "gold": "10",
         "correct": true,
         "truncated": false,
-        "gen_len": 611
+        "gen_len": 385
       },
       {
         "id": 489,
@@ -8744,7 +8744,7 @@
         "gold": "162000",
         "correct": false,
         "truncated": false,
-        "gen_len": 253
+        "gen_len": 313
       },
       {
         "id": 490,
@@ -8752,7 +8752,7 @@
         "gold": "36",
         "correct": true,
         "truncated": false,
-        "gen_len": 339
+        "gen_len": 396
       },
       {
         "id": 491,
@@ -8760,7 +8760,7 @@
         "gold": "450",
         "correct": true,
         "truncated": false,
-        "gen_len": 241
+        "gen_len": 213
       },
       {
         "id": 492,
@@ -8768,7 +8768,7 @@
         "gold": "50",
         "correct": true,
         "truncated": false,
-        "gen_len": 264
+        "gen_len": 254
       },
       {
         "id": 493,
@@ -8776,15 +8776,15 @@
         "gold": "10",
         "correct": true,
         "truncated": false,
-        "gen_len": 244
+        "gen_len": 267
       },
       {
         "id": 494,
-        "pred": "9",
+        "pred": "15",
         "gold": "15",
-        "correct": false,
+        "correct": true,
         "truncated": false,
-        "gen_len": 298
+        "gen_len": 208
       },
       {
         "id": 495,
@@ -8792,7 +8792,7 @@
         "gold": "15",
         "correct": true,
         "truncated": false,
-        "gen_len": 341
+        "gen_len": 350
       },
       {
         "id": 496,
@@ -8800,7 +8800,7 @@
         "gold": "5",
         "correct": true,
         "truncated": false,
-        "gen_len": 361
+        "gen_len": 336
       },
       {
         "id": 497,
@@ -8808,7 +8808,7 @@
         "gold": "16",
         "correct": true,
         "truncated": false,
-        "gen_len": 114
+        "gen_len": 118
       },
       {
         "id": 498,
@@ -8816,15 +8816,15 @@
         "gold": "2280",
         "correct": false,
         "truncated": false,
-        "gen_len": 402
+        "gen_len": 417
       },
       {
         "id": 499,
-        "pred": "205",
+        "pred": "145",
         "gold": "205",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 382
+        "gen_len": 342
       },
       {
         "id": 500,
@@ -8832,7 +8832,7 @@
         "gold": "27",
         "correct": true,
         "truncated": false,
-        "gen_len": 278
+        "gen_len": 282
       },
       {
         "id": 501,
@@ -8840,7 +8840,7 @@
         "gold": "15400",
         "correct": true,
         "truncated": false,
-        "gen_len": 306
+        "gen_len": 366
       },
       {
         "id": 502,
@@ -8848,7 +8848,7 @@
         "gold": "38",
         "correct": true,
         "truncated": false,
-        "gen_len": 313
+        "gen_len": 330
       },
       {
         "id": 503,
@@ -8856,7 +8856,7 @@
         "gold": "90",
         "correct": true,
         "truncated": false,
-        "gen_len": 253
+        "gen_len": 217
       },
       {
         "id": 504,
@@ -8864,7 +8864,7 @@
         "gold": "45",
         "correct": true,
         "truncated": false,
-        "gen_len": 411
+        "gen_len": 433
       },
       {
         "id": 505,
@@ -8872,7 +8872,7 @@
         "gold": "6",
         "correct": true,
         "truncated": false,
-        "gen_len": 254
+        "gen_len": 237
       },
       {
         "id": 506,
@@ -8880,7 +8880,7 @@
         "gold": "7200",
         "correct": true,
         "truncated": false,
-        "gen_len": 277
+        "gen_len": 285
       },
       {
         "id": 507,
@@ -8888,7 +8888,7 @@
         "gold": "72000",
         "correct": false,
         "truncated": false,
-        "gen_len": 428
+        "gen_len": 368
       },
       {
         "id": 508,
@@ -8896,7 +8896,7 @@
         "gold": "15",
         "correct": true,
         "truncated": false,
-        "gen_len": 482
+        "gen_len": 370
       },
       {
         "id": 509,
@@ -8904,7 +8904,7 @@
         "gold": "40",
         "correct": true,
         "truncated": false,
-        "gen_len": 281
+        "gen_len": 285
       },
       {
         "id": 510,
@@ -8912,7 +8912,7 @@
         "gold": "96",
         "correct": true,
         "truncated": false,
-        "gen_len": 454
+        "gen_len": 409
       },
       {
         "id": 511,
@@ -8920,7 +8920,7 @@
         "gold": "15",
         "correct": true,
         "truncated": false,
-        "gen_len": 289
+        "gen_len": 263
       },
       {
         "id": 512,
@@ -8928,7 +8928,7 @@
         "gold": "10",
         "correct": true,
         "truncated": false,
-        "gen_len": 364
+        "gen_len": 376
       },
       {
         "id": 513,
@@ -8936,7 +8936,7 @@
         "gold": "50",
         "correct": true,
         "truncated": false,
-        "gen_len": 473
+        "gen_len": 509
       },
       {
         "id": 514,
@@ -8944,7 +8944,7 @@
         "gold": "43500",
         "correct": true,
         "truncated": false,
-        "gen_len": 561
+        "gen_len": 509
       },
       {
         "id": 515,
@@ -8952,15 +8952,15 @@
         "gold": "42",
         "correct": false,
         "truncated": false,
-        "gen_len": 366
+        "gen_len": 377
       },
       {
         "id": 516,
-        "pred": "600",
+        "pred": "12",
         "gold": "12",
-        "correct": false,
+        "correct": true,
         "truncated": false,
-        "gen_len": 378
+        "gen_len": 290
       },
       {
         "id": 517,
@@ -8968,7 +8968,7 @@
         "gold": "14",
         "correct": true,
         "truncated": false,
-        "gen_len": 212
+        "gen_len": 175
       },
       {
         "id": 518,
@@ -8976,7 +8976,7 @@
         "gold": "1600",
         "correct": true,
         "truncated": false,
-        "gen_len": 502
+        "gen_len": 391
       },
       {
         "id": 519,
@@ -8984,7 +8984,7 @@
         "gold": "88",
         "correct": true,
         "truncated": false,
-        "gen_len": 258
+        "gen_len": 207
       },
       {
         "id": 520,
@@ -8992,7 +8992,7 @@
         "gold": "120000",
         "correct": true,
         "truncated": false,
-        "gen_len": 427
+        "gen_len": 486
       },
       {
         "id": 521,
@@ -9000,7 +9000,7 @@
         "gold": "80",
         "correct": true,
         "truncated": false,
-        "gen_len": 226
+        "gen_len": 180
       },
       {
         "id": 522,
@@ -9008,7 +9008,7 @@
         "gold": "150",
         "correct": true,
         "truncated": false,
-        "gen_len": 314
+        "gen_len": 388
       },
       {
         "id": 523,
@@ -9016,7 +9016,7 @@
         "gold": "6",
         "correct": true,
         "truncated": false,
-        "gen_len": 398
+        "gen_len": 459
       },
       {
         "id": 524,
@@ -9024,7 +9024,7 @@
         "gold": "2",
         "correct": true,
         "truncated": false,
-        "gen_len": 307
+        "gen_len": 245
       },
       {
         "id": 525,
@@ -9032,7 +9032,7 @@
         "gold": "58",
         "correct": true,
         "truncated": false,
-        "gen_len": 451
+        "gen_len": 454
       },
       {
         "id": 526,
@@ -9040,7 +9040,7 @@
         "gold": "25",
         "correct": true,
         "truncated": false,
-        "gen_len": 464
+        "gen_len": 438
       },
       {
         "id": 527,
@@ -9048,7 +9048,7 @@
         "gold": "20",
         "correct": false,
         "truncated": false,
-        "gen_len": 328
+        "gen_len": 294
       },
       {
         "id": 528,
@@ -9056,7 +9056,7 @@
         "gold": "60",
         "correct": true,
         "truncated": false,
-        "gen_len": 268
+        "gen_len": 235
       },
       {
         "id": 529,
@@ -9064,7 +9064,7 @@
         "gold": "6",
         "correct": true,
         "truncated": false,
-        "gen_len": 261
+        "gen_len": 244
       },
       {
         "id": 530,
@@ -9072,7 +9072,7 @@
         "gold": "400",
         "correct": true,
         "truncated": false,
-        "gen_len": 476
+        "gen_len": 452
       },
       {
         "id": 531,
@@ -9080,7 +9080,7 @@
         "gold": "26",
         "correct": true,
         "truncated": false,
-        "gen_len": 500
+        "gen_len": 593
       },
       {
         "id": 532,
@@ -9088,7 +9088,7 @@
         "gold": "101",
         "correct": true,
         "truncated": false,
-        "gen_len": 241
+        "gen_len": 238
       },
       {
         "id": 533,
@@ -9096,7 +9096,7 @@
         "gold": "3",
         "correct": true,
         "truncated": false,
-        "gen_len": 366
+        "gen_len": 350
       },
       {
         "id": 534,
@@ -9104,7 +9104,7 @@
         "gold": "10",
         "correct": true,
         "truncated": false,
-        "gen_len": 270
+        "gen_len": 252
       },
       {
         "id": 535,
@@ -9112,7 +9112,7 @@
         "gold": "105",
         "correct": true,
         "truncated": false,
-        "gen_len": 495
+        "gen_len": 406
       },
       {
         "id": 536,
@@ -9120,7 +9120,7 @@
         "gold": "6",
         "correct": true,
         "truncated": false,
-        "gen_len": 264
+        "gen_len": 328
       },
       {
         "id": 537,
@@ -9128,7 +9128,7 @@
         "gold": "200",
         "correct": true,
         "truncated": false,
-        "gen_len": 189
+        "gen_len": 214
       },
       {
         "id": 538,
@@ -9136,7 +9136,7 @@
         "gold": "1596",
         "correct": true,
         "truncated": false,
-        "gen_len": 445
+        "gen_len": 407
       },
       {
         "id": 539,
@@ -9144,7 +9144,7 @@
         "gold": "4",
         "correct": true,
         "truncated": false,
-        "gen_len": 237
+        "gen_len": 238
       },
       {
         "id": 540,
@@ -9152,7 +9152,7 @@
         "gold": "540",
         "correct": true,
         "truncated": false,
-        "gen_len": 276
+        "gen_len": 261
       },
       {
         "id": 541,
@@ -9160,7 +9160,7 @@
         "gold": "120",
         "correct": true,
         "truncated": false,
-        "gen_len": 352
+        "gen_len": 411
       },
       {
         "id": 542,
@@ -9168,7 +9168,7 @@
         "gold": "100",
         "correct": true,
         "truncated": false,
-        "gen_len": 629
+        "gen_len": 598
       },
       {
         "id": 543,
@@ -9176,7 +9176,7 @@
         "gold": "6",
         "correct": true,
         "truncated": false,
-        "gen_len": 141
+        "gen_len": 155
       },
       {
         "id": 544,
@@ -9184,7 +9184,7 @@
         "gold": "30",
         "correct": true,
         "truncated": false,
-        "gen_len": 470
+        "gen_len": 480
       },
       {
         "id": 545,
@@ -9192,7 +9192,7 @@
         "gold": "19",
         "correct": true,
         "truncated": false,
-        "gen_len": 476
+        "gen_len": 403
       },
       {
         "id": 546,
@@ -9200,7 +9200,7 @@
         "gold": "145",
         "correct": true,
         "truncated": false,
-        "gen_len": 501
+        "gen_len": 475
       },
       {
         "id": 547,
@@ -9208,7 +9208,7 @@
         "gold": "16",
         "correct": true,
         "truncated": false,
-        "gen_len": 588
+        "gen_len": 411
       },
       {
         "id": 548,
@@ -9216,7 +9216,7 @@
         "gold": "720",
         "correct": true,
         "truncated": false,
-        "gen_len": 390
+        "gen_len": 266
       },
       {
         "id": 549,
@@ -9224,7 +9224,7 @@
         "gold": "36",
         "correct": true,
         "truncated": false,
-        "gen_len": 470
+        "gen_len": 624
       },
       {
         "id": 550,
@@ -9232,7 +9232,7 @@
         "gold": "110",
         "correct": true,
         "truncated": false,
-        "gen_len": 200
+        "gen_len": 234
       },
       {
         "id": 551,
@@ -9240,7 +9240,7 @@
         "gold": "10",
         "correct": false,
         "truncated": false,
-        "gen_len": 370
+        "gen_len": 335
       },
       {
         "id": 552,
@@ -9248,7 +9248,7 @@
         "gold": "90",
         "correct": true,
         "truncated": false,
-        "gen_len": 447
+        "gen_len": 326
       },
       {
         "id": 553,
@@ -9256,7 +9256,7 @@
         "gold": "255",
         "correct": true,
         "truncated": false,
-        "gen_len": 565
+        "gen_len": 466
       },
       {
         "id": 554,
@@ -9264,7 +9264,7 @@
         "gold": "112",
         "correct": true,
         "truncated": false,
-        "gen_len": 235
+        "gen_len": 231
       },
       {
         "id": 555,
@@ -9272,7 +9272,7 @@
         "gold": "24",
         "correct": true,
         "truncated": false,
-        "gen_len": 372
+        "gen_len": 241
       },
       {
         "id": 556,
@@ -9280,7 +9280,7 @@
         "gold": "14",
         "correct": true,
         "truncated": false,
-        "gen_len": 341
+        "gen_len": 383
       },
       {
         "id": 557,
@@ -9288,7 +9288,7 @@
         "gold": "348",
         "correct": true,
         "truncated": false,
-        "gen_len": 386
+        "gen_len": 384
       },
       {
         "id": 558,
@@ -9296,7 +9296,7 @@
         "gold": "26",
         "correct": true,
         "truncated": false,
-        "gen_len": 282
+        "gen_len": 281
       },
       {
         "id": 559,
@@ -9304,7 +9304,7 @@
         "gold": "35",
         "correct": true,
         "truncated": false,
-        "gen_len": 167
+        "gen_len": 187
       },
       {
         "id": 560,
@@ -9312,7 +9312,7 @@
         "gold": "18",
         "correct": true,
         "truncated": false,
-        "gen_len": 634
+        "gen_len": 606
       },
       {
         "id": 561,
@@ -9320,7 +9320,7 @@
         "gold": "7",
         "correct": false,
         "truncated": false,
-        "gen_len": 261
+        "gen_len": 232
       },
       {
         "id": 562,
@@ -9328,7 +9328,7 @@
         "gold": "120",
         "correct": true,
         "truncated": false,
-        "gen_len": 416
+        "gen_len": 427
       },
       {
         "id": 563,
@@ -9336,7 +9336,7 @@
         "gold": "18",
         "correct": false,
         "truncated": false,
-        "gen_len": 258
+        "gen_len": 252
       },
       {
         "id": 564,
@@ -9344,7 +9344,7 @@
         "gold": "142",
         "correct": true,
         "truncated": false,
-        "gen_len": 239
+        "gen_len": 240
       },
       {
         "id": 565,
@@ -9352,7 +9352,7 @@
         "gold": "60",
         "correct": false,
         "truncated": false,
-        "gen_len": 187
+        "gen_len": 189
       },
       {
         "id": 566,
@@ -9360,7 +9360,7 @@
         "gold": "6",
         "correct": true,
         "truncated": false,
-        "gen_len": 546
+        "gen_len": 452
       },
       {
         "id": 567,
@@ -9368,7 +9368,7 @@
         "gold": "48",
         "correct": true,
         "truncated": false,
-        "gen_len": 720
+        "gen_len": 709
       },
       {
         "id": 568,
@@ -9376,7 +9376,7 @@
         "gold": "24",
         "correct": true,
         "truncated": false,
-        "gen_len": 200
+        "gen_len": 222
       },
       {
         "id": 569,
@@ -9384,7 +9384,7 @@
         "gold": "2",
         "correct": true,
         "truncated": false,
-        "gen_len": 237
+        "gen_len": 351
       },
       {
         "id": 570,
@@ -9392,7 +9392,7 @@
         "gold": "5",
         "correct": true,
         "truncated": false,
-        "gen_len": 197
+        "gen_len": 195
       },
       {
         "id": 571,
@@ -9400,7 +9400,7 @@
         "gold": "93",
         "correct": true,
         "truncated": false,
-        "gen_len": 191
+        "gen_len": 194
       },
       {
         "id": 572,
@@ -9408,15 +9408,15 @@
         "gold": "20",
         "correct": true,
         "truncated": false,
-        "gen_len": 234
+        "gen_len": 330
       },
       {
         "id": 573,
-        "pred": "99076.92",
+        "pred": "13",
         "gold": "95200",
         "correct": false,
-        "truncated": false,
-        "gen_len": 961
+        "truncated": true,
+        "gen_len": 1024
       },
       {
         "id": 574,
@@ -9424,15 +9424,15 @@
         "gold": "1875",
         "correct": true,
         "truncated": false,
-        "gen_len": 523
+        "gen_len": 495
       },
       {
         "id": 575,
-        "pred": "140",
+        "pred": "100",
         "gold": "140",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 502
+        "gen_len": 456
       },
       {
         "id": 576,
@@ -9440,7 +9440,7 @@
         "gold": "27000",
         "correct": true,
         "truncated": false,
-        "gen_len": 345
+        "gen_len": 325
       },
       {
         "id": 577,
@@ -9456,7 +9456,7 @@
         "gold": "27",
         "correct": true,
         "truncated": false,
-        "gen_len": 249
+        "gen_len": 259
       },
       {
         "id": 579,
@@ -9464,7 +9464,7 @@
         "gold": "576",
         "correct": true,
         "truncated": false,
-        "gen_len": 291
+        "gen_len": 227
       },
       {
         "id": 580,
@@ -9472,7 +9472,7 @@
         "gold": "5",
         "correct": true,
         "truncated": false,
-        "gen_len": 311
+        "gen_len": 295
       },
       {
         "id": 581,
@@ -9480,15 +9480,15 @@
         "gold": "54",
         "correct": true,
         "truncated": false,
-        "gen_len": 423
+        "gen_len": 394
       },
       {
         "id": 582,
-        "pred": "4",
+        "pred": "5",
         "gold": "4",
-        "correct": true,
+        "correct": false,
         "truncated": false,
-        "gen_len": 264
+        "gen_len": 296
       },
       {
         "id": 583,
@@ -9496,7 +9496,7 @@
         "gold": "10",
         "correct": true,
         "truncated": false,
-        "gen_len": 308
+        "gen_len": 236
       },
       {
         "id": 584,
@@ -9504,7 +9504,7 @@
         "gold": "480",
         "correct": true,
         "truncated": false,
-        "gen_len": 218
+        "gen_len": 242
       },
       {
         "id": 585,
@@ -9512,15 +9512,15 @@
         "gold": "7",
         "correct": true,
         "truncated": false,
-        "gen_len": 236
+        "gen_len": 280
       },
       {
         "id": 586,
-        "pred": "160",
+        "pred": "5",
         "gold": "160",
-        "correct": true,
-        "truncated": true,
-        "gen_len": 1024
+        "correct": false,
+        "truncated": false,
+        "gen_len": 441
       },
       {
         "id": 587,
@@ -9528,7 +9528,7 @@
         "gold": "240",
         "correct": true,
         "truncated": false,
-        "gen_len": 241
+        "gen_len": 235
       },
       {
         "id": 588,
@@ -9536,7 +9536,7 @@
         "gold": "2",
         "correct": true,
         "truncated": false,
-        "gen_len": 376
+        "gen_len": 405
       },
       {
         "id": 589,
@@ -9544,7 +9544,7 @@
         "gold": "140",
         "correct": true,
         "truncated": false,
-        "gen_len": 422
+        "gen_len": 388
       },
       {
         "id": 590,
@@ -9552,7 +9552,7 @@
         "gold": "10",
         "correct": true,
         "truncated": false,
-        "gen_len": 316
+        "gen_len": 276
       },
       {
         "id": 591,
@@ -9560,7 +9560,7 @@
         "gold": "120",
         "correct": false,
         "truncated": false,
-        "gen_len": 224
+        "gen_len": 166
       },
       {
         "id": 592,
@@ -9568,23 +9568,23 @@
         "gold": "9",
         "correct": true,
         "truncated": false,
-        "gen_len": 327
+        "gen_len": 307
       },
       {
         "id": 593,
-        "pred": "760.42",
+        "pred": "803",
         "gold": "803",
-        "correct": false,
+        "correct": true,
         "truncated": false,
-        "gen_len": 515
+        "gen_len": 429
       },
       {
         "id": 594,
-        "pred": "826.00",
+        "pred": "826",
         "gold": "826",
         "correct": true,
         "truncated": false,
-        "gen_len": 504
+        "gen_len": 525
       },
       {
         "id": 595,
@@ -9592,11 +9592,11 @@
         "gold": "125",
         "correct": true,
         "truncated": false,
-        "gen_len": 292
+        "gen_len": 280
       },
       {
         "id": 596,
-        "pred": "5",
+        "pred": "1",
         "gold": "21",
         "correct": false,
         "truncated": true,
@@ -9608,7 +9608,7 @@
         "gold": "227",
         "correct": true,
         "truncated": false,
-        "gen_len": 312
+        "gen_len": 311
       },
       {
         "id": 598,
@@ -9616,7 +9616,7 @@
         "gold": "123",
         "correct": true,
         "truncated": false,
-        "gen_len": 336
+        "gen_len": 339
       },
       {
         "id": 599,

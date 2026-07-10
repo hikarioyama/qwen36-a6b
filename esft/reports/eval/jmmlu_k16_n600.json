@@ -5,8 +5,7 @@
     "patch": null,
     "topk": 16,
     "benchmarks": [
-      "mmlu",
-      "gsm8k"
+      "jmmlu"
     ],
     "n_per_benchmark": 600,
     "batch_size": 16,
@@ -23,34 +22,19 @@
     "note": "reasoning model; per-benchmark max_new may truncate <think>"
   },
   "results": {
-    "gsm8k": {
+    "jmmlu": {
       "model": "base",
       "topk": 16,
-      "benchmark": "gsm8k",
+      "benchmark": "jmmlu",
       "n": 600,
-      "acc": 0.8883,
-      "ci95": 0.0252,
-      "correct": 533,
-      "truncated_n": 9,
-      "gen_tokens": 207248,
-      "tok_s": 68.73,
-      "tok_s_parallel": 137.33,
-      "gen_time_sum_s": 3015.3,
-      "max_new": 1024
-    },
-    "mmlu": {
-      "model": "base",
-      "topk": 16,
-      "benchmark": "mmlu",
-      "n": 600,
-      "acc": 0.8283,
-      "ci95": 0.0302,
-      "correct": 497,
+      "acc": 0.7783,
+      "ci95": 0.0332,
+      "correct": 467,
       "truncated_n": 0,
       "gen_tokens": 0,
       "tok_s": 0.0,
       "tok_s_parallel": 0.0,
-      "gen_time_sum_s": 26.2,
+      "gen_time_sum_s": 23.8,
       "max_new": 1024
     }
   }

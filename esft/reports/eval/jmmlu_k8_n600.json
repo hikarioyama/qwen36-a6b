@@ -3,10 +3,9 @@
     "model": "base",
     "model_path": "~/.cache/huggingface/hub/models--Qwen--Qwen3.6-35B-A3B/snapshots/995ad96eacd98c81ed38be0c5b274b04031597b0",
     "patch": null,
-    "topk": 16,
+    "topk": 8,
     "benchmarks": [
-      "mmlu",
-      "gsm8k"
+      "jmmlu"
     ],
     "n_per_benchmark": 600,
     "batch_size": 16,
@@ -23,34 +22,19 @@
     "note": "reasoning model; per-benchmark max_new may truncate <think>"
   },
   "results": {
-    "gsm8k": {
+    "jmmlu": {
       "model": "base",
-      "topk": 16,
-      "benchmark": "gsm8k",
+      "topk": 8,
+      "benchmark": "jmmlu",
       "n": 600,
-      "acc": 0.8883,
-      "ci95": 0.0252,
-      "correct": 533,
-      "truncated_n": 9,
-      "gen_tokens": 207248,
-      "tok_s": 68.73,
-      "tok_s_parallel": 137.33,
-      "gen_time_sum_s": 3015.3,
-      "max_new": 1024
-    },
-    "mmlu": {
-      "model": "base",
-      "topk": 16,
-      "benchmark": "mmlu",
-      "n": 600,
-      "acc": 0.8283,
-      "ci95": 0.0302,
-      "correct": 497,
+      "acc": 0.7683,
+      "ci95": 0.0338,
+      "correct": 461,
       "truncated_n": 0,
       "gen_tokens": 0,
       "tok_s": 0.0,
       "tok_s_parallel": 0.0,
-      "gen_time_sum_s": 26.2,
+      "gen_time_sum_s": 20.5,
       "max_new": 1024
     }
   }

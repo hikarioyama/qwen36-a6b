@@ -1,0 +1,1504 @@
+{
+  "_meta": {
+    "model": "base",
+    "model_path": "~/esft-work/models/Qwen3.6-35B-A3B",
+    "patch": null,
+    "topk": 32,
+    "benchmarks": [
+      "humaneval"
+    ],
+    "n_per_benchmark": 164,
+    "batch_size": 16,
+    "max_new": 4096,
+    "seed": 0,
+    "shuffle": false,
+    "gpus": [
+      0,
+      1
+    ],
+    "no_think": false,
+    "choice_logprob": false,
+    "split": "first-N",
+    "note": "reasoning model; per-benchmark max_new may truncate <think>"
+  },
+  "items": {
+    "humaneval": [
+      {
+        "id": 0,
+        "pred": "from typing import List\n\ndef has_close_elements(numbers: List[float], threshold: float) -> bool:\n    \"\"\" Check if in given list of numbers, are any two numbers closer to each other than\n    given threshold.\n    >>> has_close_elements([1.0, 2.0, 3.0], 0.5)\n    False\n    >>> has_close_elements([1.0, 2.8, 3.0, 4.0, 5.0, 2.0], 0.3)\n    True\n    \"\"\"\n    sorted_numbers = sorted(numbers)\n    return any(abs(sorted_numbers[i + 1] - sorted_numbers[i]) < threshold for i in range(len(sorted_numbers) - 1))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2704,
+        "task_id": "HumanEval/0"
+      },
+      {
+        "id": 1,
+        "pred": "from typing import List\n\ndef separate_paren_groups(paren_string: str) -> List[str]:\n    result = []\n    current_group = []\n    balance = 0\n    for char in paren_string:\n        if char == ' ':\n            continue\n        if char == '(':\n            balance += 1\n            current_group.append(char)\n        elif char == ')':\n            balance -= 1\n            current_group.append(char)\n        if balance == 0 and current_group:\n            result.append(''.join(current_group))\n            current_group = []\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3542,
+        "task_id": "HumanEval/1"
+      },
+      {
+        "id": 2,
+        "pred": "import math\n\ndef truncate_number(number: float) -> float:\n    \"\"\" Given a positive floating point number, it can be decomposed into\n    and integer part (largest integer smaller than given number) and decimals\n    (leftover part always smaller than 1).\n\n    Return the decimal part of the number.\n    >>> truncate_number(3.5)\n    0.5\n    \"\"\"\n    return number - math.floor(number)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2457,
+        "task_id": "HumanEval/2"
+      },
+      {
+        "id": 3,
+        "pred": "from typing import List\n\ndef below_zero(operations: List[int]) -> bool:\n    balance = 0\n    for op in operations:\n        balance += op\n        if balance < 0:\n            return True\n    return False",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1032,
+        "task_id": "HumanEval/3"
+      },
+      {
+        "id": 4,
+        "pred": "from typing import List\n\ndef mean_absolute_deviation(numbers: List[float]) -> float:\n    \"\"\" For a given list of input numbers, calculate Mean Absolute Deviation\n    around the mean of this dataset.\n    Mean Absolute Deviation is the average absolute difference between each\n    element and a centerpoint (mean in this case):\n    MAD = average | x - x_mean |\n    >>> mean_absolute_deviation([1.0, 2.0, 3.0, 4.0])\n    1.0\n    \"\"\"\n    if not numbers:\n        return 0.0\n    mean = sum(numbers) / len(numbers)\n    return sum(abs(x - mean) for x in numbers) / len(numbers)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3007,
+        "task_id": "HumanEval/4"
+      },
+      {
+        "id": 5,
+        "pred": "from typing import List\n\ndef intersperse(numbers: List[int], delimeter: int) -> List[int]:\n    \"\"\" Insert a number 'delimeter' between every two consecutive elements of input list `numbers'\n    >>> intersperse([], 4)\n    []\n    >>> intersperse([1, 2, 3], 4)\n    [1, 4, 2, 4, 3]\n    \"\"\"\n    result = []\n    for i, num in enumerate(numbers):\n        result.append(num)\n        if i < len(numbers) - 1:\n            result.append(delimeter)\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2128,
+        "task_id": "HumanEval/5"
+      },
+      {
+        "id": 6,
+        "pred": "from typing import List\n\n\ndef parse_nested_parens(paren_string: str) -> List[int]:\n    \"\"\" Input to this function is a string represented multiple groups for nested parentheses separated by spaces.\n    For each of the group, output the deepest level of nesting of parentheses.\n    E.g. (()()) has maximum two levels of nesting while ((())) has three.\n\n    >>> parse_nested_parens('(()()) ((())) () ((())()())')\n    [2, 3, 1, 3]\n    \"\"\"\n    groups = paren_string.split()\n    result = []\n    for group in groups:\n        current_depth = 0\n        max_depth = 0\n        for char in group:\n            if char == '(':\n                current_depth += 1\n                if current_depth > max_depth:\n                    max_depth = current_depth\n            elif char == ')':\n                current_depth -= 1\n        result.append(max_depth)\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2168,
+        "task_id": "HumanEval/6"
+      },
+      {
+        "id": 7,
+        "pred": "from typing import List\n\ndef filter_by_substring(strings: List[str], substring: str) -> List[str]:\n    \"\"\" Filter an input list of strings only for ones that contain given substring\n    >>> filter_by_substring([], 'a')\n    []\n    >>> filter_by_substring(['abc', 'bacd', 'cde', 'array'], 'a')\n    ['abc', 'bacd', 'array']\n    \"\"\"\n    return [s for s in strings if substring in s]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1055,
+        "task_id": "HumanEval/7"
+      },
+      {
+        "id": 8,
+        "pred": "from typing import List, Tuple\n\ndef sum_product(numbers: List[int]) -> Tuple[int, int]:\n    \"\"\" For a given list of integers, return a tuple consisting of a sum and a product of all the integers in a list.\n    Empty sum should be equal to 0 and empty product should be equal to 1.\n    >>> sum_product([])\n    (0, 1)\n    >>> sum_product([1, 2, 3, 4])\n    (10, 24)\n    \"\"\"\n    total_sum = sum(numbers)\n    total_product = 1\n    for num in numbers:\n        total_product *= num\n    return total_sum, total_product",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1959,
+        "task_id": "HumanEval/8"
+      },
+      {
+        "id": 9,
+        "pred": "from typing import List, Tuple\n\ndef rolling_max(numbers: List[int]) -> List[int]:\n    \"\"\" From a given list of integers, generate a list of rolling maximum element found until given moment\n    in the sequence.\n    >>> rolling_max([1, 2, 3, 2, 3, 4, 2])\n    [1, 2, 3, 3, 3, 4, 4]\n    \"\"\"\n    result = []\n    current_max = -float('inf')\n    for num in numbers:\n        current_max = max(current_max, num)\n        result.append(current_max)\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2505,
+        "task_id": "HumanEval/9"
+      },
+      {
+        "id": 10,
+        "pred": "def make_palindrome(string: str) -> str:\n    \"\"\" Find the shortest palindrome that begins with a supplied string.\n    Algorithm idea is simple:\n    - Find the longest postfix of supplied string that is a palindrome.\n    - Append to the end of the string reverse of a string prefix that comes before the palindromic suffix.\n    >>> make_palindrome('')\n    ''\n    >>> make_palindrome('cat')\n    'catac'\n    >>> make_palindrome('cata')\n    'catac'\n    \"\"\"\n    for i in range(len(string) + 1):\n        if string[i:] == string[i:][::-1]:\n            return string + string[:i][::-1]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 4089,
+        "task_id": "HumanEval/10"
+      },
+      {
+        "id": 11,
+        "pred": "def string_xor(a: str, b: str) -> str:\n    \"\"\" Input are two strings a and b consisting only of 1s and 0s.\n    Perform binary XOR on these inputs and return result also as a string.\n    >>> string_xor('010', '110')\n    '100'\n    \"\"\"\n    return ''.join('1' if x != y else '0' for x, y in zip(a, b))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1953,
+        "task_id": "HumanEval/11"
+      },
+      {
+        "id": 12,
+        "pred": "from typing import List, Optional\n\ndef longest(strings: List[str]) -> Optional[str]:\n    \"\"\" Out of list of strings, return the longest one. Return the first one in case of multiple\n    strings of the same length. Return None in case the input list is empty.\n    >>> longest([])\n    None\n    >>> longest(['a', 'b', 'c'])\n    'a'\n    >>> longest(['a', 'bb', 'ccc'])\n    'ccc'\n    \"\"\"\n    if not strings:\n        return None\n    return max(strings, key=len)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1946,
+        "task_id": "HumanEval/12"
+      },
+      {
+        "id": 13,
+        "pred": "def greatest_common_divisor(a: int, b: int) -> int:\n    \"\"\" Return a greatest common divisor of two integers a and b\n    >>> greatest_common_divisor(3, 5)\n    1\n    >>> greatest_common_divisor(25, 15)\n    5\n    \"\"\"\n    while b != 0:\n        a, b = b, a % b\n    return abs(a)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2404,
+        "task_id": "HumanEval/13"
+      },
+      {
+        "id": 14,
+        "pred": "from typing import List\n\ndef all_prefixes(string: str) -> List[str]:\n    \"\"\" Return list of all prefixes from shortest to longest of the input string\n    >>> all_prefixes('abc')\n    ['a', 'ab', 'abc']\n    \"\"\"\n    return [string[:i] for i in range(1, len(string) + 1)]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1409,
+        "task_id": "HumanEval/14"
+      },
+      {
+        "id": 15,
+        "pred": "def string_sequence(n: int) -> str:\n    \"\"\" Return a string containing space-delimited numbers starting from 0 upto n inclusive.\n    >>> string_sequence(0)\n    '0'\n    >>> string_sequence(5)\n    '0 1 2 3 4 5'\n    \"\"\"\n    return ' '.join(str(i) for i in range(n + 1))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 934,
+        "task_id": "HumanEval/15"
+      },
+      {
+        "id": 16,
+        "pred": "def count_distinct_characters(string: str) -> int:\n    \"\"\" Given a string, find out how many distinct characters (regardless of case) does it consist of\n    >>> count_distinct_characters('xyzXYZ')\n    3\n    >>> count_distinct_characters('Jerry')\n    4\n    \"\"\"\n    return len(set(string.lower()))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1491,
+        "task_id": "HumanEval/16"
+      },
+      {
+        "id": 17,
+        "pred": "from typing import List\n\n\ndef parse_music(music_string: str) -> List[int]:\n    \"\"\" Input to this function is a string representing musical notes in a special ASCII format.\n    Your task is to parse this string and return list of integers corresponding to how many beats does each\n    not last.\n\n    Here is a legend:\n    'o' - whole note, lasts four beats\n    'o|' - half note, lasts two beats\n    '.|' - quater note, lasts one beat\n\n    >>> parse_music('o o| .| o| o| .| .| .| .| o o')\n    [4, 2, 1, 2, 2, 1, 1, 1, 1, 4, 4]\n    \"\"\"\n    note_map = {'o': 4, 'o|': 2, '.|': 1}\n    return [note_map[note] for note in music_string.split()]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2110,
+        "task_id": "HumanEval/17"
+      },
+      {
+        "id": 18,
+        "pred": "def how_many_times(string: str, substring: str) -> int:\n    \"\"\" Find how many times a given substring can be found in the original string. Count overlaping cases.\n    >>> how_many_times('', 'a')\n    0\n    >>> how_many_times('aaa', 'a')\n    3\n    >>> how_many_times('aaaa', 'aa')\n    3\n    \"\"\"\n    if not substring:\n        return 0\n    return sum(1 for i in range(len(string) - len(substring) + 1) if string[i:i+len(substring)] == substring)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2679,
+        "task_id": "HumanEval/18"
+      },
+      {
+        "id": 19,
+        "pred": "from typing import List\n\ndef sort_numbers(numbers: str) -> str:\n    \"\"\" Input is a space-delimited string of numberals from 'zero' to 'nine'.\n    Valid choices are 'zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight' and 'nine'.\n    Return the string with numbers sorted from smallest to largest\n    >>> sort_numbers('three one five')\n    'one three five'\n    \"\"\"\n    word_to_num = {\n        'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4,\n        'five': 5, 'six': 6, 'seven': 7, 'eight': 8, 'nine': 9\n    }\n    words = numbers.split()\n    sorted_words = sorted(words, key=lambda w: word_to_num[w])\n    return ' '.join(sorted_words)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2162,
+        "task_id": "HumanEval/19"
+      },
+      {
+        "id": 20,
+        "pred": "from typing import List, Tuple\n\ndef find_closest_elements(numbers: List[float]) -> Tuple[float, float]:\n    \"\"\" From a supplied list of numbers (of length at least two) select and return two that are the closest to each\n    other and return them in order (smaller number, larger number).\n    >>> find_closest_elements([1.0, 2.0, 3.0, 4.0, 5.0, 2.2])\n    (2.0, 2.2)\n    >>> find_closest_elements([1.0, 2.0, 3.0, 4.0, 5.0, 2.0])\n    (2.0, 2.0)\n    \"\"\"\n    sorted_nums = sorted(numbers)\n    return min(zip(sorted_nums, sorted_nums[1:]), key=lambda pair: abs(pair[1] - pair[0]))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3198,
+        "task_id": "HumanEval/20"
+      },
+      {
+        "id": 21,
+        "pred": "from typing import List\n\ndef rescale_to_unit(numbers: List[float]) -> List[float]:\n    \"\"\" Given list of numbers (of at least two elements), apply a linear transform to that list,\n    such that the smallest number will become 0 and the largest will become 1\n    >>> rescale_to_unit([1.0, 2.0, 3.0, 4.0, 5.0])\n    [0.0, 0.25, 0.5, 0.75, 1.0]\n    \"\"\"\n    min_val = min(numbers)\n    max_val = max(numbers)\n    range_val = max_val - min_val\n    if range_val == 0:\n        return [0.0] * len(numbers)\n    return [(x - min_val) / range_val for x in numbers]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2770,
+        "task_id": "HumanEval/21"
+      },
+      {
+        "id": 22,
+        "pred": "from typing import List, Any\n\ndef filter_integers(values: List[Any]) -> List[int]:\n    \"\"\" Filter given list of any python values only for integers\n    >>> filter_integers(['a', 3.14, 5])\n    [5]\n    >>> filter_integers([1, 2, 3, 'abc', {}, []])\n    [1, 2, 3]\n    \"\"\"\n    return [x for x in values if isinstance(x, int)]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2077,
+        "task_id": "HumanEval/22"
+      },
+      {
+        "id": 23,
+        "pred": "def strlen(string: str) -> int:\n    \"\"\" Return length of given string\n    >>> strlen('')\n    0\n    >>> strlen('abc')\n    3\n    \"\"\"\n    return len(string)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 652,
+        "task_id": "HumanEval/23"
+      },
+      {
+        "id": 24,
+        "pred": "def largest_divisor(n: int) -> int:\n    \"\"\" For a given number n, find the largest number that divides n evenly, smaller than n\n    >>> largest_divisor(15)\n    5\n    \"\"\"\n    if n <= 1:\n        return 1\n    for i in range(2, int(n**0.5) + 1):\n        if n % i == 0:\n            return n // i\n    return 1",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3191,
+        "task_id": "HumanEval/24"
+      },
+      {
+        "id": 25,
+        "pred": "from typing import List\n\ndef factorize(n: int) -> List[int]:\n    \"\"\" Return list of prime factors of given integer in the order from smallest to largest.\n    Each of the factors should be listed number of times corresponding to how many times it appeares in factorization.\n    Input number should be equal to the product of all factors\n    >>> factorize(8)\n    [2, 2, 2]\n    >>> factorize(25)\n    [5, 5]\n    >>> factorize(70)\n    [2, 5, 7]\n    \"\"\"\n    if n <= 1:\n        return []\n    factors = []\n    d = 2\n    while d * d <= n:\n        while n % d == 0:\n            factors.append(d)\n            n //= d\n        d += 1\n    if n > 1:\n        factors.append(n)\n    return factors",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2641,
+        "task_id": "HumanEval/25"
+      },
+      {
+        "id": 26,
+        "pred": "from typing import List\nfrom collections import Counter\n\ndef remove_duplicates(numbers: List[int]) -> List[int]:\n    \"\"\" From a list of integers, remove all elements that occur more than once.\n    Keep order of elements left the same as in the input.\n    >>> remove_duplicates([1, 2, 3, 2, 4])\n    [1, 3, 4]\n    \"\"\"\n    counts = Counter(numbers)\n    return [x for x in numbers if counts[x] == 1]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1711,
+        "task_id": "HumanEval/26"
+      },
+      {
+        "id": 27,
+        "pred": "def flip_case(string: str) -> str:\n    \"\"\" For a given string, flip lowercase characters to uppercase and uppercase to lowercase.\n    >>> flip_case('Hello')\n    'hELLO'\n    \"\"\"\n    return \"\".join(c.upper() if c.islower() else c.lower() for c in string)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1646,
+        "task_id": "HumanEval/27"
+      },
+      {
+        "id": 28,
+        "pred": "from typing import List\n\ndef concatenate(strings: List[str]) -> str:\n    \"\"\" Concatenate list of strings into a single string\n    >>> concatenate([])\n    ''\n    >>> concatenate(['a', 'b', 'c'])\n    'abc'\n    \"\"\"\n    return \"\".join(strings)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 955,
+        "task_id": "HumanEval/28"
+      },
+      {
+        "id": 29,
+        "pred": "from typing import List\n\ndef filter_by_prefix(strings: List[str], prefix: str) -> List[str]:\n    \"\"\" Filter an input list of strings only for ones that start with a given prefix.\n    >>> filter_by_prefix([], 'a')\n    []\n    >>> filter_by_prefix(['abc', 'bcd', 'cde', 'array'], 'a')\n    ['abc', 'array']\n    \"\"\"\n    return [s for s in strings if s.startswith(prefix)]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1363,
+        "task_id": "HumanEval/29"
+      },
+      {
+        "id": 30,
+        "pred": "def get_positive(l: list):\n    \"\"\"Return only positive numbers in the list.\n    >>> get_positive([-1, 2, -4, 5, 6])\n    [2, 5, 6]\n    >>> get_positive([5, 3, -5, 2, -3, 3, 9, 0, 123, 1, -10])\n    [5, 3, 2, 3, 9, 123, 1]\n    \"\"\"\n    return [x for x in l if x > 0]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1058,
+        "task_id": "HumanEval/30"
+      },
+      {
+        "id": 31,
+        "pred": "def is_prime(n):\n    \"\"\"Return true if a given number is prime, and false otherwise.\n    >>> is_prime(6)\n    False\n    >>> is_prime(101)\n    True\n    >>> is_prime(11)\n    True\n    >>> is_prime(13441)\n    True\n    >>> is_prime(61)\n    True\n    >>> is_prime(4)\n    False\n    >>> is_prime(1)\n    False\n    \"\"\"\n    if n <= 1:\n        return False\n    if n == 2:\n        return True\n    if n % 2 == 0:\n        return False\n    for i in range(3, int(n**0.5) + 1, 2):\n        if n % i == 0:\n            return False\n    return True",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1936,
+        "task_id": "HumanEval/31"
+      },
+      {
+        "id": 32,
+        "pred": "     import math\n\n     def poly(xs: list, x: float):\n         \"\"\"\n         Evaluates polynomial with coefficients xs at point x.\n         return xs[0] + xs[1] * x + xs[1] * x^2 + .... xs[n] * x^n\n         \"\"\"\n         return sum([coeff * math.pow(x, i) for i, coeff in enumerate(xs)])\n\n     def find_zero(xs: list):\n         \"\"\" xs are coefficients of a polynomial.\n         find_zero find x such that poly(x) = 0.\n         find_zero returns only only zero point, even if there are many.\n         Moreover, find_zero only takes list xs having even number of coefficients\n         and largest non zero coefficient as it guarantees\n         a solution.\n         >>> round(find_zero([1, 2]), 2) # f(x) = 1 + 2x\n         -0.5\n         >>> round(find_zero([-6, 11, -6, 1]), 2) # (x - 1) * (x - 2) * (x - 3) = -6 + 11x - 6x^2 + x^3\n         1.0\n         \"\"\"\n         x = 0.0\n         for _ in range(100):\n             x = x - poly(xs, x) / sum(i * coeff * math.pow(x, i - 1) for i, coeff in enumerate(xs) if i > 0)\n         return x\n     ",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": "HumanEval/32"
+      },
+      {
+        "id": 33,
+        "pred": "def sort_third(l: list):\n    \"\"\"This function takes a list l and returns a list l' such that\n    l' is identical to l in the indicies that are not divisible by three, while its values at the indicies that are divisible by three are equal\n    to the values of the corresponding indicies of l, but sorted.\n    >>> sort_third([1, 2, 3])\n    [1, 2, 3]\n    >>> sort_third([5, 6, 3, 4, 8, 9, 2])\n    [2, 6, 3, 4, 8, 9, 5]\n    \"\"\"\n    result = l.copy()\n    sorted_vals = sorted([l[i] for i in range(0, len(l), 3)])\n    for i, val in enumerate(sorted_vals):\n        result[i * 3] = val\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3505,
+        "task_id": "HumanEval/33"
+      },
+      {
+        "id": 34,
+        "pred": "def unique(l: list):\n    \"\"\"Return sorted unique elements in a list\n    >>> unique([5, 3, 5, 2, 3, 3, 9, 0, 123])\n    [0, 2, 3, 5, 9, 123]\n    \"\"\"\n    return sorted(set(l))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 943,
+        "task_id": "HumanEval/34"
+      },
+      {
+        "id": 35,
+        "pred": "def max_element(l: list):\n    \"\"\"Return maximum element in the list.\n    >>> max_element([1, 2, 3])\n    3\n    >>> max_element([5, 3, -5, 2, -3, 3, 9, 0, 123, 1, -10])\n    123\n    \"\"\"\n    return max(l)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 902,
+        "task_id": "HumanEval/35"
+      },
+      {
+        "id": 36,
+        "pred": "def fizz_buzz(n: int):\n    \"\"\"Return the number of times the digit 7 appears in integers less than n which are divisible by 11 or 13.\n    >>> fizz_buzz(50)\n    0\n    >>> fizz_buzz(78)\n    2\n    >>> fizz_buzz(79)\n    3\n    \"\"\"\n    count = 0\n    for i in range(n):\n        if i % 11 == 0 or i % 13 == 0:\n            count += str(i).count('7')\n    return count",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3548,
+        "task_id": "HumanEval/36"
+      },
+      {
+        "id": 37,
+        "pred": "def sort_even(l: list):\n    \"\"\"This function takes a list l and returns a list l' such that\n    l' is identical to l in the odd indicies, while its values at the even indicies are equal\n    to the values of the even indicies of l, but sorted.\n    >>> sort_even([1, 2, 3])\n    [1, 2, 3]\n    >>> sort_even([5, 6, 3, 4])\n    [3, 6, 5, 4]\n    \"\"\"\n    res = [None] * len(l)\n    res[0::2] = sorted(l[0::2])\n    res[1::2] = l[1::2]\n    return res",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3781,
+        "task_id": "HumanEval/37"
+      },
+      {
+        "id": 38,
+        "pred": "def decode_cyclic(s: str):\n    \"\"\"\n    takes as input string encoded with encode_cyclic function. Returns decoded string.\n    \"\"\"\n    # split string to groups. Each of length 3.\n    groups = [s[(3 * i):min((3 * i + 3), len(s))] for i in range((len(s) + 2) // 3)]\n    # cycle elements in each group in reverse. Unless group has fewer elements than 3.\n    groups = [(group[-1] + group[:-1]) if len(group) == 3 else group for group in groups]\n    return \"\".join(groups)",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 3196,
+        "task_id": "HumanEval/38"
+      },
+      {
+        "id": 39,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": "HumanEval/39"
+      },
+      {
+        "id": 40,
+        "pred": "def triples_sum_to_zero(l: list):\n    \"\"\"\n    triples_sum_to_zero takes a list of integers as an input.\n    it returns True if there are three distinct elements in the list that\n    sum to zero, and False otherwise.\n\n    >>> triples_sum_to_zero([1, 3, 5, 0])\n    False\n    >>> triples_sum_to_zero([1, 3, -2, 1])\n    True\n    >>> triples_sum_to_zero([1, 2, 3, 7])\n    False\n    >>> triples_sum_to_zero([2, 4, -5, 3, 9, 7])\n    True\n    >>> triples_sum_to_zero([1])\n    False\n    \"\"\"\n    for i in range(len(l)):\n        for j in range(i + 1, len(l)):\n            for k in range(j + 1, len(l)):\n                if l[i] + l[j] + l[k] == 0:\n                    return True\n    return False",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": "HumanEval/40"
+      },
+      {
+        "id": 41,
+        "pred": "def car_race_collision(n: int):\n    \"\"\"\n    Imagine a road that's a perfectly straight infinitely long line.\n    n cars are driving left to right;  simultaneously, a different set of n cars\n    are driving right to left.   The two sets of cars start out being very far from\n    each other.  All cars move in the same speed.  Two cars are said to collide\n    when a car that's moving left to right hits a car that's moving right to left.\n    However, the cars are infinitely sturdy and strong; as a result, they continue moving\n    in their trajectory as if they did not collide.\n\n    This function outputs the number of such collisions.\n    \"\"\"\n    return n * n",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1463,
+        "task_id": "HumanEval/41"
+      },
+      {
+        "id": 42,
+        "pred": "def incr_list(l: list):\n    \"\"\"Return list with elements incremented by 1.\n    >>> incr_list([1, 2, 3])\n    [2, 3, 4]\n    >>> incr_list([5, 3, 5, 2, 3, 3, 9, 0, 123])\n    [6, 4, 6, 3, 4, 4, 10, 1, 124]\n    \"\"\"\n    return [x + 1 for x in l]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1842,
+        "task_id": "HumanEval/42"
+      },
+      {
+        "id": 43,
+        "pred": "def pairs_sum_to_zero(l):\n    \"\"\"\n    pairs_sum_to_zero takes a list of integers as an input.\n    it returns True if there are two distinct elements in the list that\n    sum to zero, and False otherwise.\n    >>> pairs_sum_to_zero([1, 3, 5, 0])\n    False\n    >>> pairs_sum_to_zero([1, 3, -2, 1])\n    False\n    >>> pairs_sum_to_zero([1, 2, 3, 7])\n    False\n    >>> pairs_sum_to_zero([2, 4, -5, 3, 5, 7])\n    True\n    >>> pairs_sum_to_zero([1])\n    False\n    \"\"\"\n    seen = set()\n    for x in l:\n        if -x in seen:\n            return True\n        seen.add(x)\n    return False",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3163,
+        "task_id": "HumanEval/43"
+      },
+      {
+        "id": 44,
+        "pred": "def change_base(x: int, base: int):\n    \"\"\"Change numerical base of input number x to base.\n    return string representation after the conversion.\n    base numbers are less than 10.\n    >>> change_base(8, 3)\n    '22'\n    >>> change_base(8, 2)\n    '1000'\n    >>> change_base(7, 2)\n    '111'\n    \"\"\"\n    if x == 0:\n        return '0'\n    sign = '-' if x < 0 else ''\n    x = abs(x)\n    digits = []\n    while x > 0:\n        digits.append(str(x % base))\n        x //= base\n    return sign + ''.join(reversed(digits))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2982,
+        "task_id": "HumanEval/44"
+      },
+      {
+        "id": 45,
+        "pred": "def triangle_area(a, h):\n    \"\"\"Given length of a side and high return area for a triangle.\n    >>> triangle_area(5, 3)\n    7.5\n    \"\"\"\n    return (a * h) / 2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1084,
+        "task_id": "HumanEval/45"
+      },
+      {
+        "id": 46,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 4096,
+        "task_id": "HumanEval/46"
+      },
+      {
+        "id": 47,
+        "pred": "def median(l: list):\n    \"\"\"Return median of elements in the list l.\n    >>> median([3, 1, 2, 4, 5])\n    3\n    >>> median([-10, 4, 6, 1000, 10, 20])\n    15.0\n    \"\"\"\n    sorted_l = sorted(l)\n    n = len(sorted_l)\n    if n % 2 == 1:\n        return sorted_l[n // 2]\n    else:\n        return (sorted_l[n // 2 - 1] + sorted_l[n // 2]) / 2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1946,
+        "task_id": "HumanEval/47"
+      },
+      {
+        "id": 48,
+        "pred": "def is_palindrome(text: str):\n    \"\"\"\n    Checks if given string is a palindrome\n    >>> is_palindrome('')\n    True\n    >>> is_palindrome('aba')\n    True\n    >>> is_palindrome('aaaaa')\n    True\n    >>> is_palindrome('zbcd')\n    False\n    \"\"\"\n    return text == text[::-1]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 723,
+        "task_id": "HumanEval/48"
+      },
+      {
+        "id": 49,
+        "pred": "def modp(n: int, p: int):\n    \"\"\"Return 2^n modulo p (be aware of numerics).\n    >>> modp(3, 5)\n    3\n    >>> modp(1101, 101)\n    2\n    >>> modp(0, 101)\n    1\n    >>> modp(3, 11)\n    8\n    >>> modp(100, 101)\n    1\n    \"\"\"\n    return pow(2, n, p)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2079,
+        "task_id": "HumanEval/49"
+      },
+      {
+        "id": 50,
+        "pred": "def decode_shift(s: str):\n    \"\"\"\n    takes as input string encoded with encode_shift function. Returns decoded string.\n    \"\"\"\n    return \"\".join([chr(((ord(ch) - 5 - ord(\"a\")) % 26) + ord(\"a\")) for ch in s])",
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 1822,
+        "task_id": "HumanEval/50"
+      },
+      {
+        "id": 51,
+        "pred": "def remove_vowels(text):\n    \"\"\"\n    remove_vowels is a function that takes string and returns string without vowels.\n    >>> remove_vowels('')\n    ''\n    >>> remove_vowels(\"abcdef\\nghijklm\")\n    'bcdf\\nghjklm'\n    >>> remove_vowels('abcdef')\n    'bcdf'\n    >>> remove_vowels('aaaaa')\n    ''\n    >>> remove_vowels('aaBAA')\n    'B'\n    >>> remove_vowels('zbcd')\n    'zbcd'\n    \"\"\"\n    vowels = set('aeiouAEIOU')\n    return ''.join(char for char in text if char not in vowels)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1689,
+        "task_id": "HumanEval/51"
+      },
+      {
+        "id": 52,
+        "pred": "def below_threshold(l: list, t: int):\n    \"\"\"Return True if all numbers in the list l are below threshold t.\n    >>> below_threshold([1, 2, 4, 10], 100)\n    True\n    >>> below_threshold([1, 20, 4, 10], 5)\n    False\n    \"\"\"\n    return all(x < t for x in l)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1337,
+        "task_id": "HumanEval/52"
+      },
+      {
+        "id": 53,
+        "pred": "def add(x: int, y: int):\n    \"\"\"Add two numbers x and y\n    >>> add(2, 3)\n    5\n    >>> add(5, 7)\n    12\n    \"\"\"\n    return x + y",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 844,
+        "task_id": "HumanEval/53"
+      },
+      {
+        "id": 54,
+        "pred": "def same_chars(s0: str, s1: str):\n    \"\"\"\n    Check if two words have the same characters.\n    >>> same_chars('eabcdzzzz', 'dddzzzzzzzddeddabc')\n    True\n    >>> same_chars('abcd', 'dddddddabc')\n    True\n    >>> same_chars('dddddddabc', 'abcd')\n    True\n    >>> same_chars('eabcd', 'dddddddabc')\n    False\n    >>> same_chars('abcd', 'dddddddabce')\n    False\n    >>> same_chars('eabcdzzzz', 'dddzzzzzzzddddabc')\n    False\n    \"\"\"\n    return set(s0) == set(s1)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2506,
+        "task_id": "HumanEval/54"
+      },
+      {
+        "id": 55,
+        "pred": "def fib(n: int):\n    \"\"\"Return n-th Fibonacci number.\n    >>> fib(10)\n    55\n    >>> fib(1)\n    1\n    >>> fib(8)\n    21\n    \"\"\"\n    a, b = 0, 1\n    for _ in range(n):\n        a, b = b, a + b\n    return a",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2189,
+        "task_id": "HumanEval/55"
+      },
+      {
+        "id": 56,
+        "pred": "def correct_bracketing(brackets: str):\n    \"\"\" brackets is a string of \"<\" and \">\".\n    return True if every opening bracket has a corresponding closing bracket.\n\n    >>> correct_bracketing(\"<\")\n    False\n    >>> correct_bracketing(\"<>\")\n    True\n    >>> correct_bracketing(\"<<><>>\")\n    True\n    >>> correct_bracketing(\"><<>\")\n    False\n    \"\"\"\n    balance = 0\n    for char in brackets:\n        if char == '<':\n            balance += 1\n        elif char == '>':\n            balance -= 1\n        if balance < 0:\n            return False\n    return balance == 0",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2088,
+        "task_id": "HumanEval/56"
+      },
+      {
+        "id": 57,
+        "pred": "def monotonic(l: list):\n    \"\"\"Return True is list elements are monotonically increasing or decreasing.\n    >>> monotonic([1, 2, 4, 20])\n    True\n    >>> monotonic([1, 20, 4, 10])\n    False\n    >>> monotonic([4, 1, 0, -10])\n    True\n    \"\"\"\n    return all(x <= y for x, y in zip(l, l[1:])) or all(x >= y for x, y in zip(l, l[1:]))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3007,
+        "task_id": "HumanEval/57"
+      },
+      {
+        "id": 58,
+        "pred": "def common(l1: list, l2: list):\n    \"\"\"Return sorted unique common elements for two lists.\n    >>> common([1, 4, 3, 34, 653, 2, 5], [5, 7, 1, 5, 9, 653, 121])\n    [1, 5, 653]\n    >>> common([5, 3, 2, 8], [3, 2])\n    [2, 3]\n\n    \"\"\"\n    return sorted(set(l1) & set(l2))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1395,
+        "task_id": "HumanEval/58"
+      },
+      {
+        "id": 59,
+        "pred": "def largest_prime_factor(n: int):\n    \"\"\"Return the largest prime factor of n. Assume n > 1 and is not a prime.\n    >>> largest_prime_factor(13195)\n    29\n    >>> largest_prime_factor(2048)\n    2\n    \"\"\"\n    largest = 1\n    factor = 2\n    while factor * factor <= n:\n        while n % factor == 0:\n            n //= factor\n            largest = factor\n        factor += 1\n    if n > 1:\n        largest = n\n    return largest",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 4095,
+        "task_id": "HumanEval/59"
+      },
+      {
+        "id": 60,
+        "pred": "def sum_to_n(n: int):\n    \"\"\"sum_to_n is a function that sums numbers from 1 to n.\n    >>> sum_to_n(30)\n    465\n    >>> sum_to_n(100)\n    5050\n    >>> sum_to_n(5)\n    15\n    >>> sum_to_n(10)\n    55\n    >>> sum_to_n(1)\n    1\n    \"\"\"\n    return n * (n + 1) // 2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1748,
+        "task_id": "HumanEval/60"
+      },
+      {
+        "id": 61,
+        "pred": "def correct_bracketing(brackets: str):\n    \"\"\" brackets is a string of \"(\" and \")\".\n    return True if every opening bracket has a corresponding closing bracket.\n\n    >>> correct_bracketing(\"(\")\n    False\n    >>> correct_bracketing(\"()\")\n    True\n    >>> correct_bracketing(\"(()())\")\n    True\n    >>> correct_bracketing(\")(()\")\n    False\n    \"\"\"\n    balance = 0\n    for char in brackets:\n        if char == '(':\n            balance += 1\n        elif char == ')':\n            balance -= 1\n        if balance < 0:\n            return False\n    return balance == 0",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1674,
+        "task_id": "HumanEval/61"
+      },
+      {
+        "id": 62,
+        "pred": "def derivative(xs: list):\n    \"\"\" xs represent coefficients of a polynomial.\n    xs[0] + xs[1] * x + xs[2] * x^2 + ....\n     Return derivative of this polynomial in the same form.\n    >>> derivative([3, 1, 2, 4, 5])\n    [1, 4, 12, 20]\n    >>> derivative([1, 2, 3])\n    [2, 6]\n    \"\"\"\n    return [i * xs[i] for i in range(1, len(xs))]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3297,
+        "task_id": "HumanEval/62"
+      },
+      {
+        "id": 63,
+        "pred": "def fibfib(n: int):\n    \"\"\"The FibFib number sequence is a sequence similar to the Fibbonacci sequnece that's defined as follows:\n    fibfib(0) == 0\n    fibfib(1) == 0\n    fibfib(2) == 1\n    fibfib(n) == fibfib(n-1) + fibfib(n-2) + fibfib(n-3).\n    Please write a function to efficiently compute the n-th element of the fibfib number sequence.\n    >>> fibfib(1)\n    0\n    >>> fibfib(5)\n    4\n    >>> fibfib(8)\n    24\n    \"\"\"\n    if n == 0:\n        return 0\n    if n == 1:\n        return 0\n    if n == 2:\n        return 1\n    a, b, c = 0, 0, 1\n    for _ in range(3, n + 1):\n        a, b, c = b, c, a + b + c\n    return c",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3643,
+        "task_id": "HumanEval/63"
+      },
+      {
+        "id": 64,
+        "pred": "def vowels_count(s):\n    count = 0\n    for char in s:\n        if char.lower() in 'aeiou':\n            count += 1\n    if s and s[-1].lower() == 'y':\n        count += 1\n    return count",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2159,
+        "task_id": "HumanEval/64"
+      },
+      {
+        "id": 65,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 4096,
+        "task_id": "HumanEval/65"
+      },
+      {
+        "id": 66,
+        "pred": "def digitSum(s):\n    \"\"\"Task\n    Write a function that takes a string as input and returns the sum of the upper characters only'\n    ASCII codes.\n\n    Examples:\n        digitSum(\"\") => 0\n        digitSum(\"abAB\") => 131\n        digitSum(\"abcCd\") => 67\n        digitSum(\"helloE\") => 69\n        digitSum(\"woArBld\") => 131\n        digitSum(\"aAaaaXa\") => 153\n    \"\"\"\n    return sum(ord(c) for c in s if c.isupper())",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2024,
+        "task_id": "HumanEval/66"
+      },
+      {
+        "id": 67,
+        "pred": "import re\n\ndef fruit_distribution(s, n):\n    \"\"\"\n    In this task, you will be given a string that represents a number of apples and oranges \n    that are distributed in a basket of fruit this basket contains \n    apples, oranges, and mango fruits. Given the string that represents the total number of \n    the oranges and apples and an integer that represent the total number of the fruits \n    in the basket return the number of the mango fruits in the basket.\n    for examble:\n    fruit_distribution(\"5 apples and 6 oranges\", 19) ->19 - 5 - 6 = 8\n    fruit_distribution(\"0 apples and 1 oranges\",3) -> 3 - 0 - 1 = 2\n    fruit_distribution(\"2 apples and 3 oranges\", 100) -> 100 - 2 - 3 = 95\n    fruit_distribution(\"100 apples and 1 oranges\",120) -> 120 - 100 - 1 = 19\n    \"\"\"\n    numbers = re.findall(r'\\d+', s)\n    apples = int(numbers[0])\n    oranges = int(numbers[1])\n    return n - apples - oranges",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2954,
+        "task_id": "HumanEval/67"
+      },
+      {
+        "id": 68,
+        "pred": "def pluck(arr):\n    min_even_val = float('inf')\n    min_index = -1\n    for i, val in enumerate(arr):\n        if val % 2 == 0 and val < min_even_val:\n            min_even_val = val\n            min_index = i\n    return [min_even_val, min_index] if min_index != -1 else []",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1608,
+        "task_id": "HumanEval/68"
+      },
+      {
+        "id": 69,
+        "pred": "from collections import Counter\n\ndef search(lst):\n    '''\n    You are given a non-empty list of positive integers. Return the greatest integer that is greater than \n    zero, and has a frequency greater than or equal to the value of the integer itself. \n    The frequency of an integer is the number of times it appears in the list.\n    If no such a value exist, return -1.\n    Examples:\n        search([4, 1, 2, 2, 3, 1]) == 2\n        search([1, 2, 2, 3, 3, 3, 4, 4, 4]) == 3\n        search([5, 5, 4, 4, 4]) == -1\n    '''\n    counts = Counter(lst)\n    candidates = [val for val, count in counts.items() if count >= val]\n    return max(candidates) if candidates else -1",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3159,
+        "task_id": "HumanEval/69"
+      },
+      {
+        "id": 70,
+        "pred": "def strange_sort_list(lst):\n    '''\n    Given list of integers, return list in strange order.\n    Strange sorting, is when you start with the minimum value,\n    then maximum of the remaining integers, then minimum and so on.\n\n    Examples:\n    strange_sort_list([1, 2, 3, 4]) == [1, 4, 2, 3]\n    strange_sort_list([5, 5, 5, 5]) == [5, 5, 5, 5]\n    strange_sort_list([]) == []\n    '''\n    sorted_lst = sorted(lst)\n    res = []\n    left, right = 0, len(sorted_lst) - 1\n    while left <= right:\n        res.append(sorted_lst[left])\n        left += 1\n        if left <= right:\n            res.append(sorted_lst[right])\n            right -= 1\n    return res",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2938,
+        "task_id": "HumanEval/70"
+      },
+      {
+        "id": 71,
+        "pred": "import math\n\ndef triangle_area(a, b, c):\n    '''\n    Given the lengths of the three sides of a triangle. Return the area of\n    the triangle rounded to 2 decimal points if the three sides form a valid triangle. \n    Otherwise return -1\n    Three sides make a valid triangle when the sum of any two sides is greater \n    than the third side.\n    Example:\n    triangle_area(3, 4, 5) == 6.00\n    triangle_area(1, 2, 10) == -1\n    '''\n    if a + b > c and a + c > b and b + c > a:\n        s = (a + b + c) / 2\n        return round(math.sqrt(s * (s - a) * (s - b) * (s - c)), 2)\n    return -1",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2321,
+        "task_id": "HumanEval/71"
+      },
+      {
+        "id": 72,
+        "pred": "def will_it_fly(q, w):\n    return q == q[::-1] and sum(q) <= w",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1579,
+        "task_id": "HumanEval/72"
+      },
+      {
+        "id": 73,
+        "pred": "def smallest_change(arr):\n    \"\"\"\n    Given an array arr of integers, find the minimum number of elements that\n    need to be changed to make the array palindromic. A palindromic array is an array that\n    is read the same backwards and forwards. In one change, you can change one element to any other element.\n\n    For example:\n    smallest_change([1,2,3,5,4,7,9,6]) == 4\n    smallest_change([1, 2, 3, 4, 3, 2, 2]) == 1\n    smallest_change([1, 2, 3, 2, 1]) == 0\n    \"\"\"\n    count = 0\n    n = len(arr)\n    for i in range(n // 2):\n        if arr[i] != arr[n - 1 - i]:\n            count += 1\n    return count",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1926,
+        "task_id": "HumanEval/73"
+      },
+      {
+        "id": 74,
+        "pred": "def total_match(lst1, lst2):\n    '''\n    Write a function that accepts two lists of strings and returns the list that has \n    total number of chars in the all strings of the list less than the other list.\n\n    if the two lists have the same number of chars, return the first list.\n\n    Examples\n    total_match([], []) \u279e []\n    total_match(['hi', 'admin'], ['hI', 'Hi']) \u279e ['hI', 'Hi']\n    total_match(['hi', 'admin'], ['hi', 'hi', 'admin', 'project']) \u279e ['hi', 'admin']\n    total_match(['hi', 'admin'], ['hI', 'hi', 'hi']) \u279e ['hI', 'hi', 'hi']\n    total_match(['4'], ['1', '2', '3', '4', '5']) \u279e ['4']\n    '''\n    count1 = sum(len(s) for s in lst1)\n    count2 = sum(len(s) for s in lst2)\n    if count1 <= count2:\n        return lst1\n    else:\n        return lst2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3003,
+        "task_id": "HumanEval/74"
+      },
+      {
+        "id": 75,
+        "pred": "def is_multiply_prime(a):\n    \"\"\"Write a function that returns true if the given number is the multiplication of 3 prime numbers\n    and false otherwise.\n    Knowing that (a) is less then 100. \n    Example:\n    is_multiply_prime(30) == True\n    30 = 2 * 3 * 5\n    \"\"\"\n    if a <= 1:\n        return False\n    factors = []\n    n = a\n    d = 2\n    while d * d <= n:\n        while n % d == 0:\n            factors.append(d)\n            n //= d\n        d += 1\n    if n > 1:\n        factors.append(n)\n    return len(factors) == 3",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3815,
+        "task_id": "HumanEval/75"
+      },
+      {
+        "id": 76,
+        "pred": "def is_simple_power(x, n):\n    if x == 1:\n        return True\n    if n == 0:\n        return x == 0\n    if n == 1:\n        return x == 1\n    if n == -1:\n        return x == 1 or x == -1\n    \n    val = 1\n    while True:\n        val *= n\n        if val == x:\n            return True\n        if abs(val) > abs(x):\n            return False",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": "HumanEval/76"
+      },
+      {
+        "id": 77,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 4096,
+        "task_id": "HumanEval/77"
+      },
+      {
+        "id": 78,
+        "pred": "def hex_key(num):\n    \"\"\"You have been tasked to write a function that receives \n    a hexadecimal number as a string and counts the number of hexadecimal \n    digits that are primes (prime number, or a prime, is a natural number \n    greater than 1 that is not a product of two smaller natural numbers).\n    Hexadecimal digits are 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E, F.\n    Prime numbers are 2, 3, 5, 7, 11, 13, 17,...\n    So you have to determine a number of the following digits: 2, 3, 5, 7, \n    B (=decimal 11), D (=decimal 13).\n    Note: you may assume the input is always correct or empty string, \n    and symbols A,B,C,D,E,F are always uppercase.\n    Examples:\n    For num = \"AB\" the output should be 1.\n    For num = \"1077E\" the output should be 2.\n    For num = \"ABED1A33\" the output should be 4.\n    For num = \"123456789ABCDEF0\" the output should be 6.\n    For num = \"2020\" the output should be 2.\n    \"\"\"\n    prime_hex_digits = {'2', '3', '5', '7', 'B', 'D'}\n    return sum(1 for char in num if char in prime_hex_digits)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2983,
+        "task_id": "HumanEval/78"
+      },
+      {
+        "id": 79,
+        "pred": "def decimal_to_binary(decimal):\n    \"\"\"You will be given a number in decimal form and your task is to convert it to\n    binary format. The function should return a string, with each character representing a binary\n    number. Each character in the string will be '0' or '1'.\n\n    There will be an extra couple of characters 'db' at the beginning and at the end of the string.\n    The extra characters are there to help with the format.\n\n    Examples:\n    decimal_to_binary(15)   # returns \"db1111db\"\n    decimal_to_binary(32)   # returns \"db100000db\"\n    \"\"\"\n    return \"db\" + bin(decimal)[2:] + \"db\"",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1951,
+        "task_id": "HumanEval/79"
+      },
+      {
+        "id": 80,
+        "pred": "def is_happy(s):\n    if len(s) < 3:\n        return False\n    for i in range(len(s) - 2):\n        if len(set(s[i:i+3])) != 3:\n            return False\n    return True",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2231,
+        "task_id": "HumanEval/80"
+      },
+      {
+        "id": 81,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 4096,
+        "task_id": "HumanEval/81"
+      },
+      {
+        "id": 82,
+        "pred": "def prime_length(string):\n    \"\"\"Write a function that takes a string and returns True if the string\n    length is a prime number or False otherwise\n    Examples\n    prime_length('Hello') == True\n    prime_length('abcdcba') == True\n    prime_length('kittens') == True\n    prime_length('orange') == False\n    \"\"\"\n    n = len(string)\n    if n < 2:\n        return False\n    for i in range(2, int(n**0.5) + 1):\n        if n % i == 0:\n            return False\n    return True",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2208,
+        "task_id": "HumanEval/82"
+      },
+      {
+        "id": 83,
+        "pred": "def starts_one_ends(n):\n    \"\"\"\n    Given a positive integer n, return the count of the numbers of n-digit\n    positive integers that start or end with 1.\n    \"\"\"\n    if n == 1:\n        return 1\n    return 18 * 10**(n-2)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3296,
+        "task_id": "HumanEval/83"
+      },
+      {
+        "id": 84,
+        "pred": "def solve(N):\n    \"\"\"Given a positive integer N, return the total sum of its digits in binary.\n    \n    Example\n        For N = 1000, the sum of digits will be 1 the output should be \"1\".\n        For N = 150, the sum of digits will be 6 the output should be \"110\".\n        For N = 147, the sum of digits will be 12 the output should be \"1100\".\n    \n    Variables:\n        @N integer\n             Constraints: 0 \u2264 N \u2264 10000.\n    Output:\n         a string of binary number\n    \"\"\"\n    digit_sum = sum(int(d) for d in str(N))\n    return format(digit_sum, 'b')",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2688,
+        "task_id": "HumanEval/84"
+      },
+      {
+        "id": 85,
+        "pred": "def add(lst):\n    \"\"\"Given a non-empty list of integers lst. add the even elements that are at odd indices..\n\n    Examples:\n        add([4, 2, 6, 7]) ==> 2 \n    \"\"\"\n    return sum(val for i, val in enumerate(lst) if i % 2 != 0 and val % 2 == 0)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1751,
+        "task_id": "HumanEval/85"
+      },
+      {
+        "id": 86,
+        "pred": "  def anti_shuffle(s):\n      \"\"\"\n      Write a function that takes a string and returns an ordered version of it.\n      Ordered version of string, is a string where all words (separated by space)\n      are replaced by a new word where all the characters arranged in\n      ascending order based on ascii value.\n      Note: You should keep the order of words and blank spaces in the sentence.\n\n      For example:\n      anti_shuffle('Hi') returns 'Hi'\n      anti_shuffle('hello') returns 'ehllo'\n      anti_shuffle('Hello World!!!') returns 'Hello !!!Wdlor'\n      \"\"\"\n      result = []\n      current_word = []\n      for char in s:\n          if char == ' ':\n              if current_word:\n                  result.append(''.join(sorted(current_word)))\n                  current_word = []\n              result.append(char)\n          else:\n              current_word.append(char)\n      if current_word:\n          result.append(''.join(sorted(current_word)))\n      return ''.join(result)\n  ",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": "HumanEval/86"
+      },
+      {
+        "id": 87,
+        "pred": "def get_row(lst, x):\n    \"\"\"\n    You are given a 2 dimensional data, as a nested lists,\n    which is similar to matrix, however, unlike matrices,\n    each row may contain a different number of columns.\n    Given lst, and integer x, find integers x in the list,\n    and return list of tuples, [(x1, y1), (x2, y2) ...] such that\n    each tuple is a coordinate - (row, columns), starting with 0.\n    Sort coordinates initially by rows in ascending order.\n    Also, sort coordinates of the row by columns in descending order.\n    \n    Examples:\n    get_row([\n      [1,2,3,4,5,6],\n      [1,2,3,4,1,6],\n      [1,2,3,4,5,1]\n    ], 1) == [(0, 0), (1, 4), (1, 0), (2, 5), (2, 0)]\n    get_row([], 1) == []\n    get_row([[], [1], [1, 2, 3]], 3) == [(2, 2)]\n    \"\"\"\n    coords = []\n    for i, row in enumerate(lst):\n        for j, val in enumerate(row):\n            if val == x:\n                coords.append((i, j))\n    return sorted(coords, key=lambda t: (t[0], -t[1]))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3144,
+        "task_id": "HumanEval/87"
+      },
+      {
+        "id": 88,
+        "pred": "def sort_array(array):\n    \"\"\"\n    Given an array of non-negative integers, return a copy of the given array after sorting,\n    you will sort the given array in ascending order if the sum( first index value, last index value) is odd,\n    or sort it in descending order if the sum( first index value, last index value) is even.\n\n    Note:\n    * don't change the given array.\n\n    Examples:\n    * sort_array([]) => []\n    * sort_array([5]) => [5]\n    * sort_array([2, 4, 3, 0, 1, 5]) => [0, 1, 2, 3, 4, 5]\n    * sort_array([2, 4, 3, 0, 1, 5, 6]) => [6, 5, 4, 3, 2, 1, 0]\n    \"\"\"\n    if not array:\n        return []\n    if (array[0] + array[-1]) % 2 == 1:\n        return sorted(array)\n    else:\n        return sorted(array, reverse=True)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3109,
+        "task_id": "HumanEval/88"
+      },
+      {
+        "id": 89,
+        "pred": "def encrypt(s):\n    \"\"\"Create a function encrypt that takes a string as an argument and\n    returns a string encrypted with the alphabet being rotated. \n    The alphabet should be rotated in a manner such that the letters \n    shift down by two multiplied to two places.\n    For example:\n    encrypt('hi') returns 'lm'\n    encrypt('asdfghjkl') returns 'ewhjklnop'\n    encrypt('gf') returns 'kj'\n    encrypt('et') returns 'ix'\n    \"\"\"\n    result = []\n    for char in s:\n        if char.islower():\n            result.append(chr((ord(char) - ord('a') + 4) % 26 + ord('a')))\n        elif char.isupper():\n            result.append(chr((ord(char) - ord('A') + 4) % 26 + ord('A')))\n        else:\n            result.append(char)\n    return ''.join(result)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2942,
+        "task_id": "HumanEval/89"
+      },
+      {
+        "id": 90,
+        "pred": "def next_smallest(lst):\n    \"\"\"\n    You are given a list of integers.\n    Write a function next_smallest() that returns the 2nd smallest element of the list.\n    Return None if there is no such element.\n    \n    next_smallest([1, 2, 3, 4, 5]) == 2\n    next_smallest([5, 1, 4, 3, 2]) == 2\n    next_smallest([]) == None\n    next_smallest([1, 1]) == None\n    \"\"\"\n    unique_sorted = sorted(set(lst))\n    if len(unique_sorted) >= 2:\n        return unique_sorted[1]\n    return None",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2165,
+        "task_id": "HumanEval/90"
+      },
+      {
+        "id": 91,
+        "pred": "import re\n\ndef is_bored(S):\n    \"\"\"\n    You'll be given a string of words, and your task is to count the number\n    of boredoms. A boredom is a sentence that starts with the word \"I\".\n    Sentences are delimited by '.', '?' or '!'.\n   \n    For example:\n    >>> is_bored(\"Hello world\")\n    0\n    >>> is_bored(\"The sky is blue. The sun is shining. I love this weather\")\n    1\n    \"\"\"\n    sentences = re.split(r'[.!?]', S)\n    count = 0\n    for sentence in sentences:\n        sentence = sentence.strip()\n        if sentence:\n            words = sentence.split()\n            if words[0] == 'I':\n                count += 1\n    return count",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3472,
+        "task_id": "HumanEval/91"
+      },
+      {
+        "id": 92,
+        "pred": "def any_int(x, y, z):\n    return (isinstance(x, int) and isinstance(y, int) and isinstance(z, int)) and (x == y + z or y == x + z or z == x + y)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3568,
+        "task_id": "HumanEval/92"
+      },
+      {
+        "id": 93,
+        "pred": "def encode(message):\n    \"\"\"\n    Write a function that takes a message, and encodes in such a \n    way that it swaps case of all letters, replaces all vowels in \n    the message with the letter that appears 2 places ahead of that \n    vowel in the english alphabet. \n    Assume only letters. \n    \n    Examples:\n    >>> encode('test')\n    'TGST'\n    >>> encode('This is a message')\n    'tHKS KS C MGSSCGG'\n    \"\"\"\n    result = []\n    for char in message:\n        swapped = char.swapcase()\n        if swapped in 'aeiouAEIOU':\n            result.append(chr(ord(swapped) + 2))\n        else:\n            result.append(swapped)\n    return ''.join(result)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3636,
+        "task_id": "HumanEval/93"
+      },
+      {
+        "id": 94,
+        "pred": "def skjkasdkd(lst):\n    \"\"\"You are given a list of integers.\n    You need to find the largest prime value and return the sum of its digits.\n\n    Examples:\n    For lst = [0,3,2,1,3,5,7,4,5,5,5,2,181,32,4,32,3,2,32,324,4,3] the output should be 10\n    For lst = [1,0,1,8,2,4597,2,1,3,40,1,2,1,2,4,2,5,1] the output should be 25\n    For lst = [1,3,1,32,5107,34,83278,109,163,23,2323,32,30,1,9,3] the output should be 13\n    For lst = [0,724,32,71,99,32,6,0,5,91,83,0,5,6] the output should be 11\n    For lst = [0,81,12,3,1,21] the output should be 3\n    For lst = [0,8,1,2,1,7] the output should be 7\n    \"\"\"\n    def is_prime(n):\n        if n < 2:\n            return False\n        i = 2\n        while i * i <= n:\n            if n % i == 0:\n                return False\n            i += 1\n        return True\n    \n    primes = [x for x in lst if is_prime(x)]\n    if not primes:\n        return 0\n    max_prime = max(primes)\n    return sum(int(d) for d in str(max_prime))",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": "HumanEval/94"
+      },
+      {
+        "id": 95,
+        "pred": "def check_dict_case(dict):\n    if not dict:\n        return False\n    keys = dict.keys()\n    return all(isinstance(k, str) for k in keys) and (all(k.islower() for k in keys) or all(k.isupper() for k in keys))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3048,
+        "task_id": "HumanEval/95"
+      },
+      {
+        "id": 96,
+        "pred": "def count_up_to(n):\n    \"\"\"Implement a function that takes an non-negative integer and returns an array of the first n\n    integers that are prime numbers and less than n.\n    for example:\n    count_up_to(5) => [2,3]\n    count_up_to(11) => [2,3,5,7]\n    count_up_to(0) => []\n    count_up_to(20) => [2,3,5,7,11,13,17,19]\n    count_up_to(1) => []\n    count_up_to(18) => [2,3,5,7,11,13,17]\n    \"\"\"\n    if n <= 1:\n        return []\n    \n    primes = []\n    for i in range(2, n):\n        is_prime = True\n        for j in range(2, int(i**0.5) + 1):\n            if i % j == 0:\n                is_prime = False\n                break\n        if is_prime:\n            primes.append(i)\n    return primes",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3439,
+        "task_id": "HumanEval/96"
+      },
+      {
+        "id": 97,
+        "pred": "def multiply(a, b):\n    \"\"\"Complete the function that takes two integers and returns \n    the product of their unit digits.\n    Assume the input is always valid.\n    Examples:\n    multiply(148, 412) should return 16.\n    multiply(19, 28) should return 72.\n    multiply(2020, 1851) should return 0.\n    multiply(14,-15) should return 20.\n    \"\"\"\n    return (a % 10) * (b % 10)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2803,
+        "task_id": "HumanEval/97"
+      },
+      {
+        "id": 98,
+        "pred": "def count_upper(s):\n    \"\"\"\n    Given a string s, count the number of uppercase vowels in even indices.\n    \n    For example:\n    count_upper('aBCdEf') returns 1\n    count_upper('abcdefg') returns 0\n    count_upper('dBBE') returns 0\n    \"\"\"\n    return sum(1 for char in s[::2] if char in 'AEIOU')",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1955,
+        "task_id": "HumanEval/98"
+      },
+      {
+        "id": 99,
+        "pred": "   def closest_integer(value):\n       x = float(value)\n       if x >= 0:\n           return int(x + 0.5)\n       else:\n           return int(x - 0.5)\n   ",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": "HumanEval/99"
+      },
+      {
+        "id": 100,
+        "pred": "def make_a_pile(n):\n    \"\"\"\n    Given a positive integer n, you have to make a pile of n levels of stones.\n    The first level has n stones.\n    The number of stones in the next level is:\n        - the next odd number if n is odd.\n        - the next even number if n is even.\n    Return the number of stones in each level in a list, where element at index\n    i represents the number of stones in the level (i+1).\n\n    Examples:\n    >>> make_a_pile(3)\n    [3, 5, 7]\n    \"\"\"\n    return [n + 2 * i for i in range(n)]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2664,
+        "task_id": "HumanEval/100"
+      },
+      {
+        "id": 101,
+        "pred": "def words_string(s):\n    \"\"\"\n    You will be given a string of words separated by commas or spaces. Your task is\n    to split the string into words and return an array of the words.\n    \n    For example:\n    words_string(\"Hi, my name is John\") == [\"Hi\", \"my\", \"name\", \"is\", \"John\"]\n    words_string(\"One, two, three, four, five, six\") == [\"One\", \"two\", \"three\", \"four\", \"five\", \"six\"]\n    \"\"\"\n    return s.replace(',', ' ').split()",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1830,
+        "task_id": "HumanEval/101"
+      },
+      {
+        "id": 102,
+        "pred": "def choose_num(x, y):\n    if x > y:\n        return -1\n    if y % 2 == 0:\n        return y\n    else:\n        return y - 1 if y - 1 >= x else -1",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3107,
+        "task_id": "HumanEval/102"
+      },
+      {
+        "id": 103,
+        "pred": "def rounded_avg(n, m):\n    if n > m:\n        return -1\n    return bin(round((n + m) / 2))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2747,
+        "task_id": "HumanEval/103"
+      },
+      {
+        "id": 104,
+        "pred": "def unique_digits(x):\n    return sorted([num for num in x if all(int(d) % 2 != 0 for d in str(num))])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2018,
+        "task_id": "HumanEval/104"
+      },
+      {
+        "id": 105,
+        "pred": "def by_length(arr):\n    \"\"\"\n    Given an array of integers, sort the integers that are between 1 and 9 inclusive,\n    reverse the resulting array, and then replace each digit by its corresponding name from\n    \"One\", \"Two\", \"Three\", \"Four\", \"Five\", \"Six\", \"Seven\", \"Eight\", \"Nine\".\n\n    For example:\n      arr = [2, 1, 1, 4, 5, 8, 2, 3]   \n            -> sort arr -> [1, 1, 2, 2, 3, 4, 5, 8] \n            -> reverse arr -> [8, 5, 4, 3, 2, 2, 1, 1]\n      return [\"Eight\", \"Five\", \"Four\", \"Three\", \"Two\", \"Two\", \"One\", \"One\"]\n    \n      If the array is empty, return an empty array:\n      arr = []\n      return []\n    \n      If the array has any strange number ignore it:\n      arr = [1, -1 , 55] \n            -> sort arr -> [-1, 1, 55]\n            -> reverse arr -> [55, 1, -1]\n      return = ['One']\n    \"\"\"\n    names = [\"One\", \"Two\", \"Three\", \"Four\", \"Five\", \"Six\", \"Seven\", \"Eight\", \"Nine\"]\n    filtered = [x for x in arr if 1 <= x <= 9]\n    sorted_arr = sorted(filtered)\n    reversed_arr = sorted_arr[::-1]\n    return [names[x - 1] for x in reversed_arr]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2581,
+        "task_id": "HumanEval/105"
+      },
+      {
+        "id": 106,
+        "pred": "import math\n\ndef f(n):\n    \"\"\" Implement the function f that takes n as a parameter,\n    and returns a list of size n, such that the value of the element at index i is the factorial of i if i is even\n    or the sum of numbers from 1 to i otherwise.\n    i starts from 1.\n    the factorial of i is the multiplication of the numbers from 1 to i (1 * 2 * ... * i).\n    Example:\n    f(5) == [1, 2, 6, 24, 15]\n    \"\"\"\n    return [math.factorial(i) if i % 2 == 0 else i * (i + 1) // 2 for i in range(1, n + 1)]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2838,
+        "task_id": "HumanEval/106"
+      },
+      {
+        "id": 107,
+        "pred": "def even_odd_palindrome(n):\n    \"\"\"\n    Given a positive integer n, return a tuple that has the number of even and odd\n    integer palindromes that fall within the range(1, n), inclusive.\n\n    Example 1:\n\n        Input: 3\n        Output: (1, 2)\n        Explanation:\n        Integer palindrome are 1, 2, 3. one of them is even, and two of them are odd.\n\n    Example 2:\n\n        Input: 12\n        Output: (4, 6)\n        Explanation:\n        Integer palindrome are 1, 2, 3, 4, 5, 6, 7, 8, 9, 11. four of them are even, and 6 of them are odd.\n\n    Note:\n        1. 1 <= n <= 10^3\n        2. returned tuple has the number of even and odd integer palindromes respectively.\n    \"\"\"\n    even_count = 0\n    odd_count = 0\n    for i in range(1, n + 1):\n        s = str(i)\n        if s == s[::-1]:\n            if i % 2 == 0:\n                even_count += 1\n            else:\n                odd_count += 1\n    return (even_count, odd_count)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2367,
+        "task_id": "HumanEval/107"
+      },
+      {
+        "id": 108,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 4096,
+        "task_id": "HumanEval/108"
+      },
+      {
+        "id": 109,
+        "pred": "     def move_one_ball(arr):\n         if not arr:\n             return True\n         sorted_arr = sorted(arr)\n         return arr in (sorted_arr + sorted_arr)\n     ",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": "HumanEval/109"
+      },
+      {
+        "id": 110,
+        "pred": "def exchange(lst1, lst2):\n    \"\"\"In this problem, you will implement a function that takes two lists of numbers,\n    and determines whether it is possible to perform an exchange of elements\n    between them to make lst1 a list of only even numbers.\n    There is no limit on the number of exchanged elements between lst1 and lst2.\n    If it is possible to exchange elements between the lst1 and lst2 to make\n    all the elements of lst1 to be even, return \"YES\".\n    Otherwise, return \"NO\".\n    For example:\n    exchange([1, 2, 3, 4], [1, 2, 3, 4]) => \"YES\"\n    exchange([1, 2, 3, 4], [1, 5, 3, 4]) => \"NO\"\n    It is assumed that the input lists will be non-empty.\n    \"\"\"\n    odd_count = sum(1 for x in lst1 if x % 2 != 0)\n    even_count = sum(1 for x in lst2 if x % 2 == 0)\n    return \"YES\" if even_count >= odd_count else \"NO\"",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3310,
+        "task_id": "HumanEval/110"
+      },
+      {
+        "id": 111,
+        "pred": "def histogram(test):\n    \"\"\"Given a string representing a space separated lowercase letters, return a dictionary\n    of the letter with the most repetition and containing the corresponding count.\n    If several letters have the same occurrence, return all of them.\n    \n    Example:\n    histogram('a b c') == {'a': 1, 'b': 1, 'c': 1}\n    histogram('a b b a') == {'a': 2, 'b': 2}\n    histogram('a b c a b') == {'a': 2, 'b': 2}\n    histogram('b b b b a') == {'b': 4}\n    histogram('') == {}\n\n    \"\"\"\n    counts = {}\n    for char in test.split():\n        counts[char] = counts.get(char, 0) + 1\n    if not counts:\n        return {}\n    max_count = max(counts.values())\n    return {k: v for k, v in counts.items() if v == max_count}",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2695,
+        "task_id": "HumanEval/111"
+      },
+      {
+        "id": 112,
+        "pred": "def reverse_delete(s, c):\n    \"\"\"Task\n    We are given two strings s and c, you have to deleted all the characters in s that are equal to any character in c\n    then check if the result string is palindrome.\n    A string is called palindrome if it reads the same backward as forward.\n    You should return a tuple containing the result string and True/False for the check.\n    Example\n    For s = \"abcde\", c = \"ae\", the result should be ('bcd',False)\n    For s = \"abcdef\", c = \"b\"  the result should be ('acdef',False)\n    For s = \"abcdedcba\", c = \"ab\", the result should be ('cdedc',True)\n    \"\"\"\n    filtered_chars = [char for char in s if char not in c]\n    result_string = ''.join(filtered_chars)\n    is_palindrome = result_string == result_string[::-1]\n    return (result_string, is_palindrome)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1951,
+        "task_id": "HumanEval/112"
+      },
+      {
+        "id": 113,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": "HumanEval/113"
+      },
+      {
+        "id": 114,
+        "pred": "def minSubArraySum(nums):\n    \"\"\"\n    Given an array of integers nums, find the minimum sum of any non-empty sub-array\n    of nums.\n    Example\n    minSubArraySum([2, 3, 4, 1, 2, 4]) == 1\n    minSubArraySum([-1, -2, -3]) == -6\n    \"\"\"\n    if not nums:\n        return 0\n    current_min = nums[0]\n    global_min = nums[0]\n    for num in nums[1:]:\n        current_min = min(num, current_min + num)\n        global_min = min(global_min, current_min)\n    return global_min",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2792,
+        "task_id": "HumanEval/114"
+      },
+      {
+        "id": 115,
+        "pred": "import math\n\ndef max_fill(grid, capacity):\n    \"\"\"\n    You are given a rectangular grid of wells. Each row represents a single well,\n    and each 1 in a row represents a single unit of water.\n    Each well has a corresponding bucket that can be used to extract water from it, \n    and all buckets have the same capacity.\n    Your task is to use the buckets to empty the wells.\n    Output the number of times you need to lower the buckets.\n\n    Example 1:\n        Input: \n            grid : [[0,0,1,0], [0,1,0,0], [1,1,1,1]]\n            bucket_capacity : 1\n        Output: 6\n\n    Example 2:\n        Input: \n            grid : [[0,0,1,1], [0,0,0,0], [1,1,1,1], [0,1,1,1]]\n            bucket_capacity : 2\n        Output: 5\n    \n    Example 3:\n        Input: \n            grid : [[0,0,0], [0,0,0]]\n            bucket_capacity : 5\n        Output: 0\n\n    Constraints:\n        * all wells have the same length\n        * 1 <= grid.length <= 10^2\n        * 1 <= grid[:,1].length <= 10^2\n        * grid[i][j] -> 0 | 1\n        * 1 <= capacity <= 10\n    \"\"\"\n    total_drops = 0\n    for row in grid:\n        water_count = sum(row)\n        drops = math.ceil(water_count / capacity)\n        total_drops += drops\n    return total_drops",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": "HumanEval/115"
+      },
+      {
+        "id": 116,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 4096,
+        "task_id": "HumanEval/116"
+      },
+      {
+        "id": 117,
+        "pred": "def select_words(s, n):\n    vowels = set('aeiouAEIOU')\n    words = s.split()\n    return [word for word in words if sum(1 for char in word if char not in vowels) == n]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1994,
+        "task_id": "HumanEval/117"
+      },
+      {
+        "id": 118,
+        "pred": "def get_closest_vowel(word):\n    \"\"\"You are given a word. Your task is to find the closest vowel that stands between \n    two consonants from the right side of the word (case sensitive).\n    \n    Vowels in the beginning and ending doesn't count. Return empty string if you didn't\n    find any vowel met the above condition. \n\n    You may assume that the given string contains English letter only.\n\n    Example:\n    get_closest_vowel(\"yogurt\") ==> \"u\"\n    get_closest_vowel(\"FULL\") ==> \"U\"\n    get_closest_vowel(\"quick\") ==> \"\"\n    get_closest_vowel(\"ab\") ==> \"\"\n    \"\"\"\n    vowels = set('aeiouAEIOU')\n    for i in range(len(word) - 2, 0, -1):\n        if word[i] in vowels and word[i-1] not in vowels and word[i+1] not in vowels:\n            return word[i]\n    return \"\"",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3261,
+        "task_id": "HumanEval/118"
+      },
+      {
+        "id": 119,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 4096,
+        "task_id": "HumanEval/119"
+      },
+      {
+        "id": 120,
+        "pred": "def maximum(arr, k):\n    \"\"\"\n    Given an array arr of integers and a positive integer k, return a sorted list \n    of length k with the maximum k numbers in arr.\n\n    Example 1:\n\n        Input: arr = [-3, -4, 5], k = 3\n        Output: [-4, -3, 5]\n\n    Example 2:\n\n        Input: arr = [4, -4, 4], k = 2\n        Output: [4, 4]\n\n    Example 3:\n\n        Input: arr = [-3, 2, 1, 2, -1, -2, 1], k = 1\n        Output: [2]\n\n    Note:\n        1. The length of the array will be in the range of [1, 1000].\n        2. The elements in the array will be in the range of [-1000, 1000].\n        3. 0 <= k <= len(arr)\n    \"\"\"\n    if k == 0:\n        return []\n    return sorted(arr)[-k:]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3711,
+        "task_id": "HumanEval/120"
+      },
+      {
+        "id": 121,
+        "pred": "def solution(lst):\n    \"\"\"Given a non-empty list of integers, return the sum of all of the odd elements that are in even positions.\n    \n\n    Examples\n    solution([5, 8, 7, 1]) ==> 12\n    solution([3, 3, 3, 3, 3]) ==> 9\n    solution([30, 13, 24, 321]) ==>0\n    \"\"\"\n    return sum(x for i, x in enumerate(lst) if i % 2 == 0 and x % 2 != 0)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2675,
+        "task_id": "HumanEval/121"
+      },
+      {
+        "id": 122,
+        "pred": "def add_elements(arr, k):\n    \"\"\"\n    Given a non-empty array of integers arr and an integer k, return\n    the sum of the elements with at most two digits from the first k elements of arr.\n\n    Example:\n\n        Input: arr = [111,21,3,4000,5,6,7,8,9], k = 4\n        Output: 24 # sum of 21 + 3\n\n    Constraints:\n        1. 1 <= len(arr) <= 100\n        2. 1 <= k <= len(arr)\n    \"\"\"\n    return sum(x for x in arr[:k] if abs(x) < 100)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3699,
+        "task_id": "HumanEval/122"
+      },
+      {
+        "id": 123,
+        "pred": "def get_odd_collatz(n):\n    \"\"\"\n    Given a positive integer n, return a sorted list that has the odd numbers in collatz sequence.\n\n    The Collatz conjecture is a conjecture in mathematics that concerns a sequence defined\n    as follows: start with any positive integer n. Then each term is obtained from the \n    previous term as follows: if the previous term is even, the next term is one half of \n    the previous term. If the previous term is odd, the next term is 3 times the previous\n    term plus 1. The conjecture is that no matter what value of n, the sequence will always reach 1.\n\n    Note: \n        1. Collatz(1) is [1].\n        2. returned list sorted in increasing order.\n\n    For example:\n    get_odd_collatz(5) returns [1, 5] # The collatz sequence for 5 is [5, 16, 8, 4, 2, 1], so the odd numbers are only 1, and 5.\n    \"\"\"\n    odds = []\n    while n != 1:\n        if n % 2 != 0:\n            odds.append(n)\n        if n % 2 == 0:\n            n = n // 2\n        else:\n            n = 3 * n + 1\n    odds.append(1)\n    return sorted(odds)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2985,
+        "task_id": "HumanEval/123"
+      },
+      {
+        "id": 124,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 4096,
+        "task_id": "HumanEval/124"
+      },
+      {
+        "id": 125,
+        "pred": "def split_words(txt):\n    '''\n    Given a string of words, return a list of words split on whitespace, if no whitespaces exists in the text you\n    should split on commas ',' if no commas exists you should return the number of lower-case letters with odd order in the\n    alphabet, ord('a') = 0, ord('b') = 1, ... ord('z') = 25\n    Examples\n    split_words(\"Hello world!\") \u279e [\"Hello\", \"world!\"]\n    split_words(\"Hello,world!\") \u279e [\"Hello\", \"world!\"]\n    split_words(\"abcdef\") == 3 \n    '''\n    if ' ' in txt:\n        return txt.split()\n    elif ',' in txt:\n        return txt.split(',')\n    else:\n        return sum(1 for c in txt if c.islower() and (ord(c) - ord('a')) % 2 == 1)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3771,
+        "task_id": "HumanEval/125"
+      },
+      {
+        "id": 126,
+        "pred": "def is_sorted(lst):\n    '''\n    Given a list of numbers, return whether or not they are sorted\n    in ascending order. If list has more than 1 duplicate of the same\n    number, return False. Assume no negative numbers and only integers.\n\n    Examples\n    is_sorted([5]) \u279e True\n    is_sorted([1, 2, 3, 4, 5]) \u279e True\n    is_sorted([1, 3, 2, 4, 5]) \u279e False\n    is_sorted([1, 2, 3, 4, 5, 6]) \u279e True\n    is_sorted([1, 2, 3, 4, 5, 6, 7]) \u279e True\n    is_sorted([1, 3, 2, 4, 5, 6, 7]) \u279e False\n    is_sorted([1, 2, 2, 3, 3, 4]) \u279e True\n    is_sorted([1, 2, 2, 2, 3, 4]) \u279e False\n    '''\n    if len(lst) <= 1:\n        return True\n    \n    # Check ascending order\n    for i in range(len(lst) - 1):\n        if lst[i] > lst[i + 1]:\n            return False\n    \n    # Check duplicate constraint (max 2 occurrences per number)\n    counts = {}\n    for num in lst:\n        counts[num] = counts.get(num, 0) + 1\n        if counts[num] > 2:\n            return False\n    \n    return True",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3154,
+        "task_id": "HumanEval/126"
+      },
+      {
+        "id": 127,
+        "pred": "def intersection(interval1, interval2):\n    start1, end1 = interval1\n    start2, end2 = interval2\n    intersect_start = max(start1, start2)\n    intersect_end = min(end1, end2)\n    \n    if intersect_start > intersect_end:\n        return \"NO\"\n    \n    length = intersect_end - intersect_start\n    if length <= 1:\n        return \"NO\"\n    \n    for i in range(2, int(length**0.5) + 1):\n        if length % i == 0:\n            return \"NO\"\n    \n    return \"YES\"",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3072,
+        "task_id": "HumanEval/127"
+      },
+      {
+        "id": 128,
+        "pred": "def prod_signs(arr):\n    if not arr:\n        return None\n    sum_mags = sum(abs(x) for x in arr)\n    sign_product = 1\n    for x in arr:\n        sign_product *= (1 if x > 0 else -1 if x < 0 else 0)\n    return sum_mags * sign_product",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2782,
+        "task_id": "HumanEval/128"
+      },
+      {
+        "id": 129,
+        "pred": "   def minPath(grid, k):\n       N = len(grid)\n       start_r, start_c = 0, 0\n       for r in range(N):\n           for c in range(N):\n               if grid[r][c] == 1:\n                   start_r, start_c = r, c\n                   break\n       path = [1]\n       curr_r, curr_c = start_r, start_c\n       directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]\n       for _ in range(k - 1):\n           min_val = float('inf')\n           next_r, next_c = curr_r, curr_c\n           for dr, dc in directions:\n               nr, nc = curr_r + dr, curr_c + dc\n               if 0 <= nr < N and 0 <= nc < N:\n                   val = grid[nr][nc]\n                   if val < min_val:\n                       min_val = val\n                       next_r, next_c = nr, nc\n           path.append(min_val)\n           curr_r, curr_c = next_r, next_c\n       return path\n   ",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": "HumanEval/129"
+      },
+      {
+        "id": 130,
+        "pred": "   def tri(n):\n       \"\"\"Everyone knows Fibonacci sequence, it was studied deeply by mathematicians in \n       the last couple centuries. However, what people don't know is Tribonacci sequence.\n       Tribonacci sequence is defined by the recurrence:\n       tri(1) = 3\n       tri(n) = 1 + n / 2, if n is even.\n       tri(n) =  tri(n - 1) + tri(n - 2) + tri(n + 1), if n is odd.\n       For example:\n       tri(2) = 1 + (2 / 2) = 2\n       tri(4) = 3\n       tri(3) = tri(2) + tri(1) + tri(4)\n              = 2 + 3 + 3 = 8 \n       You are given a non-negative integer number n, you have to a return a list of the \n       first n + 1 numbers of the Tribonacci sequence.\n       Examples:\n       tri(3) = [1, 3, 2, 8]\n       \"\"\"\n       res = [0] * (n + 1)\n       res[0] = 1\n       if n >= 1:\n           res[1] = 3\n       for i in range(2, n + 1):\n           if i % 2 == 0:\n               res[i] = 1 + i // 2\n           else:\n               res[i] = res[i-1] + res[i-2] + 1 + (i + 1) // 2\n       return res\n   ",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": "HumanEval/130"
+      },
+      {
+        "id": 131,
+        "pred": "def digits(n):\n    \"\"\"Given a positive integer n, return the product of the odd digits.\n    Return 0 if all digits are even.\n    For example:\n    digits(1)  == 1\n    digits(4)  == 0\n    digits(235) == 15\n    \"\"\"\n    odd_digits = [int(d) for d in str(n) if int(d) % 2 != 0]\n    if not odd_digits:\n        return 0\n    product = 1\n    for d in odd_digits:\n        product *= d\n    return product",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2453,
+        "task_id": "HumanEval/131"
+      },
+      {
+        "id": 132,
+        "pred": "   def is_nested(string):\n       '''\n       Create a function that takes a string as input which contains only square brackets.\n       The function should return True if and only if there is a valid subsequence of brackets \n       where at least one bracket in the subsequence is nested.\n\n       is_nested('[[]]') \u279e True\n       is_nested('[]]]]]]][[[[[]') \u279e False\n       is_nested('[][]') \u279e False\n       is_nested('[]') \u279e False\n       is_nested('[[][]]') \u279e True\n       is_nested('[[]][[') \u279e True\n       '''\n       first_open = string.find('[')\n       if first_open == -1:\n           return False\n       inner_pair = string.find('[]', first_open + 1)\n       if inner_pair == -1:\n           return False\n       last_close = string.find(']', inner_pair + 2)\n       if last_close == -1:\n           return False\n       return True\n   ",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": "HumanEval/132"
+      },
+      {
+        "id": 133,
+        "pred": "import math\n\ndef sum_squares(lst):\n    \"\"\"You are given a list of numbers.\n    You need to return the sum of squared numbers in the given list,\n    round each element in the list to the upper int(Ceiling) first.\n    Examples:\n    For lst = [1,2,3] the output should be 14\n    For lst = [1,4,9] the output should be 98\n    For lst = [1,3,5,7] the output should be 84\n    For lst = [1.4,4.2,0] the output should be 29\n    For lst = [-2.4,1,1] the output should be 6\n    \"\"\"\n    return sum(math.ceil(x) ** 2 for x in lst)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2209,
+        "task_id": "HumanEval/133"
+      },
+      {
+        "id": 134,
+        "pred": "def check_if_last_char_is_a_letter(txt):\n    '''\n    Create a function that returns True if the last character\n    of a given string is an alphabetical character and is not\n    a part of a word, and False otherwise.\n    Note: \"word\" is a group of characters separated by space.\n\n    Examples:\n    check_if_last_char_is_a_letter(\"apple pie\") \u279e False\n    check_if_last_char_is_a_letter(\"apple pi e\") \u279e True\n    check_if_last_char_is_a_letter(\"apple pi e \") \u279e False\n    check_if_last_char_is_a_letter(\"\") \u279e False \n    '''\n    if not txt:\n        return False\n    if not txt[-1].isalpha():\n        return False\n    if len(txt) == 1 or txt[-2] == ' ':\n        return True\n    return False",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2719,
+        "task_id": "HumanEval/134"
+      },
+      {
+        "id": 135,
+        "pred": "def can_arrange(arr):\n    \"\"\"Create a function which returns the largest index of an element which\n    is not greater than or equal to the element immediately preceding it. If\n    no such element exists then return -1. The given array will not contain\n    duplicate values.\n\n    Examples:\n    can_arrange([1,2,4,3,5]) = 3\n    can_arrange([1,2,3]) = -1\n    \"\"\"\n    for i in range(len(arr) - 1, 0, -1):\n        if arr[i] < arr[i-1]:\n            return i\n    return -1",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2031,
+        "task_id": "HumanEval/135"
+      },
+      {
+        "id": 136,
+        "pred": "def largest_smallest_integers(lst):\n    '''\n    Create a function that returns a tuple (a, b), where 'a' is\n    the largest of negative integers, and 'b' is the smallest\n    of positive integers in a list.\n    If there is no negative or positive integers, return them as None.\n\n    Examples:\n    largest_smallest_integers([2, 4, 1, 3, 5, 7]) == (None, 1)\n    largest_smallest_integers([]) == (None, None)\n    largest_smallest_integers([0]) == (None, None)\n    '''\n    negatives = [x for x in lst if x < 0]\n    positives = [x for x in lst if x > 0]\n    a = max(negatives) if negatives else None\n    b = min(positives) if positives else None\n    return (a, b)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2555,
+        "task_id": "HumanEval/136"
+      },
+      {
+        "id": 137,
+        "pred": "def compare_one(a, b):\n    def to_float(val):\n        if isinstance(val, str):\n            return float(val.replace(',', '.'))\n        return float(val)\n\n    num_a = to_float(a)\n    num_b = to_float(b)\n\n    if num_a > num_b:\n        return a\n    elif num_b > num_a:\n        return b\n    else:\n        return None",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3023,
+        "task_id": "HumanEval/137"
+      },
+      {
+        "id": 138,
+        "pred": "def is_equal_to_sum_even(n):\n    \"\"\"Evaluate whether the given number n can be written as the sum of exactly 4 positive even numbers\n    Example\n    is_equal_to_sum_even(4) == False\n    is_equal_to_sum_even(6) == False\n    is_equal_to_sum_even(8) == True\n    \"\"\"\n    return n >= 8 and n % 2 == 0",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2389,
+        "task_id": "HumanEval/138"
+      },
+      {
+        "id": 139,
+        "pred": "def special_factorial(n):\n    \"\"\"The Brazilian factorial is defined as:\n    brazilian_factorial(n) = n! * (n-1)! * (n-2)! * ... * 1!\n    where n > 0\n\n    For example:\n    >>> special_factorial(4)\n    288\n\n    The function will receive an integer as input and should return the special\n    factorial of this integer.\n    \"\"\"\n    result = 1\n    current_fact = 1\n    for k in range(1, n + 1):\n        current_fact *= k\n        result *= current_fact\n    return result",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2087,
+        "task_id": "HumanEval/139"
+      },
+      {
+        "id": 140,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 4096,
+        "task_id": "HumanEval/140"
+      },
+      {
+        "id": 141,
+        "pred": "def file_name_check(file_name):\n    if file_name.count('.') != 1:\n        return 'No'\n    \n    prefix, suffix = file_name.split('.')\n    \n    if not prefix or not prefix[0].isalpha():\n        return 'No'\n    \n    if suffix not in ['txt', 'exe', 'dll']:\n        return 'No'\n    \n    if sum(1 for c in file_name if c.isdigit()) > 3:\n        return 'No'\n    \n    return 'Yes'",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3765,
+        "task_id": "HumanEval/141"
+      },
+      {
+        "id": 142,
+        "pred": "def sum_squares(lst):\n    \"\"\"\n    This function will take a list of integers. For all entries in the list, the function shall square the integer entry if its index is a \n    multiple of 3 and will cube the integer entry if its index is a multiple of 4 and not a multiple of 3. The function will not \n    change the entries in the list whose indexes are not a multiple of 3 or 4. The function shall then return the sum of all entries. \n    \n    Examples:\n    For lst = [1,2,3] the output should be 6\n    For lst = []  the output should be 0\n    For lst = [-1,-5,2,-1,-5]  the output should be -126\n    \"\"\"\n    total = 0\n    for i, val in enumerate(lst):\n        if i % 3 == 0:\n            total += val ** 2\n        elif i % 4 == 0:\n            total += val ** 3\n        else:\n            total += val\n    return total",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2507,
+        "task_id": "HumanEval/142"
+      },
+      {
+        "id": 143,
+        "pred": "def words_in_sentence(sentence):\n    \"\"\"\n    You are given a string representing a sentence,\n    the sentence contains some words separated by a space,\n    and you have to return a string that contains the words from the original sentence,\n    whose lengths are prime numbers,\n    the order of the words in the new string should be the same as the original one.\n\n    Example 1:\n        Input: sentence = \"This is a test\"\n        Output: \"is\"\n\n    Example 2:\n        Input: sentence = \"lets go for swimming\"\n        Output: \"go for\"\n\n    Constraints:\n        * 1 <= len(sentence) <= 100\n        * sentence contains only letters\n    \"\"\"\n    def is_prime(n):\n        if n < 2:\n            return False\n        for i in range(2, int(n**0.5) + 1):\n            if n % i == 0:\n                return False\n        return True\n    \n    words = sentence.split()\n    result = [w for w in words if is_prime(len(w))]\n    return \" \".join(result)",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": "HumanEval/143"
+      },
+      {
+        "id": 144,
+        "pred": "def simplify(x, n):\n    x_num, x_den = map(int, x.split('/'))\n    n_num, n_den = map(int, n.split('/'))\n    return (x_num * n_num) % (x_den * n_den) == 0",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2145,
+        "task_id": "HumanEval/144"
+      },
+      {
+        "id": 145,
+        "pred": "   def order_by_points(nums):\n       return [x for _, x in sorted(enumerate(nums), key=lambda e: (sum(int(d) for d in str(abs(e[1])), e[0])))]\n   ",
+        "gold": null,
+        "correct": false,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": "HumanEval/145"
+      },
+      {
+        "id": 146,
+        "pred": "def specialFilter(nums):\n    \"\"\"Write a function that takes an array of numbers as input and returns \n    the number of elements in the array that are greater than 10 and both \n    first and last digits of a number are odd (1, 3, 5, 7, 9).\n    For example:\n    specialFilter([15, -73, 14, -15]) => 1 \n    specialFilter([33, -2, -3, 45, 21, 109]) => 2\n    \"\"\"\n    return sum(1 for num in nums if num > 10 and str(abs(num))[0] in '13579' and str(abs(num))[-1] in '13579')",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2913,
+        "task_id": "HumanEval/146"
+      },
+      {
+        "id": 147,
+        "pred": "def get_max_triples(n):\n    c0 = (n + 1) // 3\n    c1 = n - c0\n    return c0 * (c0 - 1) * (c0 - 2) // 6 + c1 * (c1 - 1) * (c1 - 2) // 6",
+        "gold": null,
+        "correct": true,
+        "truncated": true,
+        "gen_len": 4096,
+        "task_id": "HumanEval/147"
+      },
+      {
+        "id": 148,
+        "pred": "def bf(planet1, planet2):\n    '''\n    There are eight planets in our solar system: the closerst to the Sun \n    is Mercury, the next one is Venus, then Earth, Mars, Jupiter, Saturn, \n    Uranus, Neptune.\n    Write a function that takes two planet names as strings planet1 and planet2. \n    The function should return a tuple containing all planets whose orbits are \n    located between the orbit of planet1 and the orbit of planet2, sorted by \n    the proximity to the sun. \n    The function should return an empty tuple if planet1 or planet2\n    are not correct planet names. \n    Examples\n    bf(\"Jupiter\", \"Neptune\") ==> (\"Saturn\", \"Uranus\")\n    bf(\"Earth\", \"Mercury\") ==> (\"Venus\")\n    bf(\"Mercury\", \"Uranus\") ==> (\"Venus\", \"Earth\", \"Mars\", \"Jupiter\", \"Saturn\")\n    '''\n    planets = [\"Mercury\", \"Venus\", \"Earth\", \"Mars\", \"Jupiter\", \"Saturn\", \"Uranus\", \"Neptune\"]\n    if planet1 not in planets or planet2 not in planets:\n        return ()\n    idx1 = planets.index(planet1)\n    idx2 = planets.index(planet2)\n    return tuple(planets[min(idx1, idx2) + 1 : max(idx1, idx2)])",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2362,
+        "task_id": "HumanEval/148"
+      },
+      {
+        "id": 149,
+        "pred": "def sorted_list_sum(lst):\n    \"\"\"Write a function that accepts a list of strings as a parameter,\n    deletes the strings that have odd lengths from it,\n    and returns the resulted list with a sorted order,\n    The list is always a list of strings and never an array of numbers,\n    and it may contain duplicates.\n    The order of the list should be ascending by length of each word, and you\n    should return the list sorted by that rule.\n    If two words have the same length, sort the list alphabetically.\n    The function should return a list of strings in sorted order.\n    You may assume that all words will have the same length.\n    For example:\n    assert list_sort([\"aa\", \"a\", \"aaa\"]) => [\"aa\"]\n    assert list_sort([\"ab\", \"a\", \"aaa\", \"cd\"]) => [\"ab\", \"cd\"]\n    \"\"\"\n    filtered = [s for s in lst if len(s) % 2 == 0]\n    return sorted(filtered, key=lambda x: (len(x), x))",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2384,
+        "task_id": "HumanEval/149"
+      },
+      {
+        "id": 150,
+        "pred": "def x_or_y(n, x, y):\n    \"\"\"A simple program which should return the value of x if n is \n    a prime number and should return the value of y otherwise.\n\n    Examples:\n    for x_or_y(7, 34, 12) == 34\n    for x_or_y(15, 8, 5) == 5\n    \n    \"\"\"\n    if n <= 1:\n        return y\n    if n == 2:\n        return x\n    if n % 2 == 0:\n        return y\n    for i in range(3, int(n**0.5) + 1, 2):\n        if n % i == 0:\n            return y\n    return x",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2634,
+        "task_id": "HumanEval/150"
+      },
+      {
+        "id": 151,
+        "pred": "def double_the_difference(lst):\n    return sum(x**2 for x in lst if isinstance(x, int) and x > 0 and x % 2 == 1)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2569,
+        "task_id": "HumanEval/151"
+      },
+      {
+        "id": 152,
+        "pred": "def compare(game,guess):\n    \"\"\"I think we all remember that feeling when the result of some long-awaited\n    event is finally known. The feelings and thoughts you have at that moment are\n    definitely worth noting down and comparing.\n    Your task is to determine if a person correctly guessed the results of a number of matches.\n    You are given two arrays of scores and guesses of equal length, where each index shows a match. \n    Return an array of the same length denoting how far off each guess was. If they have guessed correctly,\n    the value is 0, and if not, the value is the absolute difference between the guess and the score.\n    \n    \n    example:\n\n    compare([1,2,3,4,5,1],[1,2,3,4,2,-2]) -> [0,0,0,0,3,3]\n    compare([0,5,0,0,0,4],[4,1,1,0,0,-2]) -> [4,4,1,0,0,6]\n    \"\"\"\n    return [abs(g - j) for g, j in zip(game, guess)]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2165,
+        "task_id": "HumanEval/152"
+      },
+      {
+        "id": 153,
+        "pred": "def Strongest_Extension(class_name, extensions):\n    best_strength = -float('inf')\n    strongest_ext = None\n    for ext in extensions:\n        cap = sum(1 for char in ext if char.isupper())\n        sm = sum(1 for char in ext if char.islower())\n        strength = cap - sm\n        if strength > best_strength:\n            best_strength = strength\n            strongest_ext = ext\n    return f\"{class_name}.{strongest_ext}\"",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3346,
+        "task_id": "HumanEval/153"
+      },
+      {
+        "id": 154,
+        "pred": null,
+        "gold": null,
+        "correct": false,
+        "truncated": false,
+        "gen_len": 4096,
+        "task_id": "HumanEval/154"
+      },
+      {
+        "id": 155,
+        "pred": "def even_odd_count(num):\n    \"\"\"Given an integer. return a tuple that has the number of even and odd digits respectively.\n\n     Example:\n        even_odd_count(-12) ==> (1, 1)\n        even_odd_count(123) ==> (1, 2)\n    \"\"\"\n    digits = str(abs(num))\n    even_count = 0\n    odd_count = 0\n    for digit in digits:\n        if int(digit) % 2 == 0:\n            even_count += 1\n        else:\n            odd_count += 1\n    return (even_count, odd_count)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2245,
+        "task_id": "HumanEval/155"
+      },
+      {
+        "id": 156,
+        "pred": "def int_to_mini_roman(number):\n    \"\"\"\n    Given a positive integer, obtain its roman numeral equivalent as a string,\n    and return it in lowercase.\n    Restrictions: 1 <= num <= 1000\n\n    Examples:\n    >>> int_to_mini_roman(19) == 'xix'\n    >>> int_to_mini_roman(152) == 'clii'\n    >>> int_to_mini_roman(426) == 'cdxxvi'\n    \"\"\"\n    roman_map = [\n        (1000, 'M'),\n        (900, 'CM'),\n        (500, 'D'),\n        (400, 'CD'),\n        (100, 'C'),\n        (90, 'XC'),\n        (50, 'L'),\n        (40, 'XL'),\n        (10, 'X'),\n        (9, 'IX'),\n        (5, 'V'),\n        (4, 'IV'),\n        (1, 'I')\n    ]\n    result = []\n    for value, symbol in roman_map:\n        while number >= value:\n            result.append(symbol)\n            number -= value\n    return ''.join(result).lower()",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2463,
+        "task_id": "HumanEval/156"
+      },
+      {
+        "id": 157,
+        "pred": "def right_angle_triangle(a, b, c):\n    '''\n    Given the lengths of the three sides of a triangle. Return True if the three\n    sides form a right-angled triangle, False otherwise.\n    A right-angled triangle is a triangle in which one angle is right angle or \n    90 degree.\n    Example:\n    right_angle_triangle(3, 4, 5) == True\n    right_angle_triangle(1, 2, 3) == False\n    '''\n    sides = sorted([a, b, c])\n    return sides[0]**2 + sides[1]**2 == sides[2]**2",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3034,
+        "task_id": "HumanEval/157"
+      },
+      {
+        "id": 158,
+        "pred": "def find_max(words):\n    \"\"\"Write a function that accepts a list of strings.\n    The list contains different words. Return the word with maximum number\n    of unique characters. If multiple strings have maximum number of unique\n    characters, return the one which comes first in lexicographical order.\n\n    find_max([\"name\", \"of\", \"string\"]) == \"string\"\n    find_max([\"name\", \"enam\", \"game\"]) == \"enam\"\n    find_max([\"aaaaaaa\", \"bb\" ,\"cc\"]) == \"aaaaaaa\"\n    \"\"\"\n    if not words:\n        return \"\"\n    return sorted(words, key=lambda w: (-len(set(w)), w))[0]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2934,
+        "task_id": "HumanEval/158"
+      },
+      {
+        "id": 159,
+        "pred": "def eat(number, need, remaining):\n    \"\"\"\n    You're a hungry rabbit, and you already have eaten a certain number of carrots,\n    but now you need to eat more carrots to complete the day's meals.\n    you should return an array of [ total number of eaten carrots after your meals,\n                                    the number of carrots left after your meals ]\n    if there are not enough remaining carrots, you will eat all remaining carrots, but will still be hungry.\n    \n    Example:\n    * eat(5, 6, 10) -> [11, 4]\n    * eat(4, 8, 9) -> [12, 1]\n    * eat(1, 10, 10) -> [11, 0]\n    * eat(2, 11, 5) -> [7, 0]\n    \n    Variables:\n    @number : integer\n        the number of carrots that you have eaten.\n    @need : integer\n        the number of carrots that you need to eat.\n    @remaining : integer\n        the number of remaining carrots thet exist in stock\n    \n    Constrain:\n    * 0 <= number <= 1000\n    * 0 <= need <= 1000\n    * 0 <= remaining <= 1000\n\n    Have fun :)\n    \"\"\"\n    eaten = min(need, remaining)\n    return [number + eaten, remaining - eaten]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2146,
+        "task_id": "HumanEval/159"
+      },
+      {
+        "id": 160,
+        "pred": "def do_algebra(operator, operand):\n    \"\"\"\n    Given two lists operator, and operand. The first list has basic algebra operations, and \n    the second list is a list of integers. Use the two given lists to build the algebric \n    expression and return the evaluation of this expression.\n\n    The basic algebra operations:\n    Addition ( + ) \n    Subtraction ( - ) \n    Multiplication ( * ) \n    Floor division ( // ) \n    Exponentiation ( ** ) \n\n    Example:\n    operator['+', '*', '-']\n    array = [2, 3, 4, 5]\n    result = 2 + 3 * 4 - 5\n    => result = 9\n\n    Note:\n        The length of operator list is equal to the length of operand list minus one.\n        Operand is a list of of non-negative integers.\n        Operator list has at least one operator, and operand list has at least two operands.\n\n    \"\"\"\n    expression = str(operand[0])\n    for i in range(len(operator)):\n        expression += operator[i] + str(operand[i + 1])\n    return eval(expression)",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2831,
+        "task_id": "HumanEval/160"
+      },
+      {
+        "id": 161,
+        "pred": "def solve(s):\n    if not any(c.isalpha() for c in s):\n        return s[::-1]\n    return s.swapcase()",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 2250,
+        "task_id": "HumanEval/161"
+      },
+      {
+        "id": 162,
+        "pred": "import hashlib\n\ndef string_to_md5(text):\n    \"\"\"\n    Given a string 'text', return its md5 hash equivalent string.\n    If 'text' is an empty string, return None.\n\n    >>> string_to_md5('Hello world') == '3e25960a79dbc69b674cd4ec67a72c62'\n    \"\"\"\n    if not text:\n        return None\n    return hashlib.md5(text.encode()).hexdigest()",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 1104,
+        "task_id": "HumanEval/162"
+      },
+      {
+        "id": 163,
+        "pred": "def generate_integers(a, b):\n    \"\"\"\n    Given two positive integers a and b, return the even digits between a\n    and b, in ascending order.\n\n    For example:\n    generate_integers(2, 8) => [2, 4, 6, 8]\n    generate_integers(8, 2) => [2, 4, 6, 8]\n    generate_integers(10, 14) => []\n    \"\"\"\n    return [i for i in range(min(a, b), max(a, b) + 1) if i % 2 == 0 and i < 10]",
+        "gold": null,
+        "correct": true,
+        "truncated": false,
+        "gen_len": 3345,
+        "task_id": "HumanEval/163"
+      }
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "_meta": {
+    "model": "patched",
+    "model_path": "~/esft-work/models/Qwen3.6-35B-A3B",
+    "patch": "~/esft/runs/mixed_v1_esft_k32/expert_patch.safetensors",
+    "topk": 32,
+    "benchmarks": [
+      "gsm8k"
+    ],
+    "n_per_benchmark": 600,
+    "batch_size": 16,
+    "max_new": null,
+    "seed": 0,
+    "shuffle": false,
+    "gpus": [
+      0,
+      1
+    ],
+    "no_think": false,
+    "choice_logprob": false,
+    "split": "first-N",
+    "note": "reasoning model; per-benchmark max_new may truncate <think>"
+  },
+  "results": {
+    "gsm8k": {
+      "model": "patched",
+      "topk": 32,
+      "benchmark": "gsm8k",
+      "n": 600,
+      "acc": 0.8767,
+      "ci95": 0.0263,
+      "correct": 526,
+      "truncated_n": 29,
+      "gen_tokens": 539928,
+      "tok_s": 46.24,
+      "tok_s_parallel": 92.48,
+      "gen_time_sum_s": 11676.8,
+      "max_new": null
+    }
+  }
+}

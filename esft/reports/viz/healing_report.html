@@ -436,8 +436,8 @@
         var cls=b.sig?"critf":"goodf";
         var path=el("path",{d:roundedDownBar(cx-bw/2,bw,y0,yBot,4),"class":cls},svg);
         // value + p labels below the bar tip
-        txt(svg,cx,yBot+18,fmtDelta(b.d)+" pt","dlabel","middle");
-        txt(svg,cx,yBot+33,"p = "+b.p.toFixed(3),"dlabel sec","middle");
+        txt(svg,cx,yBot+22,fmtDelta(b.d)+" pt","dlabel","middle");
+        txt(svg,cx,yBot+37,"p = "+b.p.toFixed(3),"dlabel sec","middle");
         // x labels below the panel
         txt(svg,cx,m.t+ph+22,b.gen,"tick","middle");
         txt(svg,cx,m.t+ph+37,b.sub,"anno","middle");
@@ -461,7 +461,7 @@
     var pts=[
       {name:"base@k8",           x:3086,y:0.866,cls:"s1",trunc:"32 truncated", lab:"left"},
       {name:"naive k32",         x:2588,y:0.841,cls:"s3",trunc:"", lab:"below"},
-      {name:"agentic patch",     x:1064,y:0.902,cls:"s2",trunc:"7 truncated", lab:"above"},
+      {name:"agentic patch",     x:1064,y:0.902,cls:"s2",trunc:"7 truncated", lab:"left"},
       {name:"coding-only patch", x:186, y:0.762,cls:"s6",trunc:"collapse", lab:"right"}
     ];
     // grid
@@ -501,7 +501,7 @@
                (pnt.trunc?"<br><span class='muted'>"+pnt.trunc+"</span>":""));
     });
     // callout for the winner
-    txt(svg,px(aG.x),py(aG.y)-34,"beats naive k32, p = 0.041","anno","middle");
+    txt(svg,px(aG.x),py(aG.y)-24,"beats naive k32, p = 0.041","anno","middle");
   })();
 
   // ---- theme toggle ----
