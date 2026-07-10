@@ -554,6 +554,15 @@ def generation_worker(gpu: int, seeds: list[dict[str, Any]], spec: GenerationSpe
                 calls, reasons, chosen = select_candidate(raws, expected, tool_map)
                 if calls is None:
                     failures.extend(reasons)
+                    # Diagnostics only: keep the raw candidates of a failed stage so the
+                    # reject reason can be inspected post hoc. Off by default.
+                    if os.environ.get("SELFGEN_DEBUG_RAW") == "1":
+                        debug = checkpoint.parent / f"debug_failures_gpu{gpu}.jsonl"
+                        with debug.open("a", encoding="utf-8") as fh:
+                            fh.write(json.dumps(
+                                {"seed_id": seed["seed_id"], "pattern": seed["pattern"],
+                                 "stage": stage, "reasons": reasons, "raws": raws},
+                                ensure_ascii=False) + "\n")
                     break
                 results = [mock_execute(call, stage, seed["pattern"]) for call in calls]
                 selected.append(calls)

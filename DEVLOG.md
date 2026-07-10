@@ -296,3 +296,15 @@
 - 外部コーパス DL 開始 (→ /mnt/vault/corpora/): **Toucan-1.5M (21.8GB, 136 parquet: Kimi-K2/OSS/Qwen3/SFT の teacher 別サブセット)** + **ToolMind (4.0GB: graphsyn.jsonl 2.3GB + open_datasets)**。注意: ToolMind の open_datasets には APIGen-MT (CC-BY-NC) 由来の query ファイルが含まれる — 訓練混合時は B 群分離規律の対象。
 - Git 整理+図解ワークフロー完了: コミット 6 本 (feat/data/docs×2/chore + viz)、監査 4 基準クリア (件名整合・巨大/秘匿ファイル混入ゼロ・トレーラ完備・working tree クリーン)。ブランチ `agent/sanitize-codex-operations`、**push はしていない** (ユーザー判断待ち)。軽微 issue 1 件: .gitignore 追記が feat コミットに同梱 (実害なし)。図解 `esft/reports/viz/fullffn_pipeline_20260711.html` は敵対検証で 14 issues を修正済み。生成後に進んだ 2 点 (gradgate v3 GPU PASS / selfgen 走行開始) は Fable が反映。
 - selfgen pilot500 はローカル GPU0/1 で走行継続 (このエントリ時点 ~50/250×2、新規エラーなし)。
+
+## 2026-07-11 (午後) — selfgen pilot500 完走: acceptance 0.648、multi_turn だけ 19% で診断へ
+
+- pilot500 完走 (n=500、both GPU、truncation 0): **accepted 324/500 = 64.8%**。層別 (accepted/generated): single 103/125 (82.4%) / parallel 112/125 (89.6%) / error_recovery 85/125 (68.0%) / **multi_turn 24/125 (19.2%)**。BFCL 20 sources との 8-gram 汚染照合実施済み、train.jsonl は 324 行で summary と一致。
+- multi_turn の失敗内訳 (best-of-4 の全候補ベース): json_parse 215 + plan_alignment 189。**v1 は失敗した生成 raw を保存しない設計で死因の実物検分が不能** → `SELFGEN_DEBUG_RAW=1` で失敗 stage の raw candidates を保存する診断パッチを追加し、multi_turn 24 seeds の診断 run (`20260711_mt_diag_r1`、訓練データには使わない) を起動。
+- 採用例の目視: 構造は完璧 (OpenAI 互換 tool_calls、mock receipt 連鎖、validator 5 項目 true)。ただし**足場設計ゆえ user 指示文が「call X with field_1_1=1.75」という答え明記の直訳調** — 形式学習には有効だが「自然な要求→tool 推論」の信号は薄い。Toucan (実 MCP 由来の自然指示) との補完前提のデータと位置づける。
+- 量産判断は保留: Toucan 165万行の入手で v1 合成データの限界効用が低下。multi_turn 診断の結果を見て v1.1 (改善版) で量産するか判断。自己生成の主戦場は外部データが存在しない「日本語 verifiable 指示追従」へ移す (v2 実装を Codex に委譲済み)。
+
+## 2026-07-11 (午後) — 外部コーパス全量 scan 実測 + intake クラッシュ修正
+
+- 全量 scan (n=2,015,157 rows / 142 files、complete): **Toucan 1,646,546 rows (公称一致)** — Kimi-K2 518,516 / OSS 457,130 / Qwen3 551,613 / SFT 119,287、**ToolMind 368,611 rows (公称一致)**。chars/4 近似で総計 ~18.8B tokens 相当 (JSON serialize 込みの過大側近似)。Toucan の messages/tools は parquet string 列内の JSON エンコード (ingestor は二重パース必須)。
+- 初回 scan がコーパス行内の 9,546 桁整数リテラルで即死 (CPython の int↔str 4300 桁ガード、json decode 時)。`sys.set_int_max_str_digits(0)` で解除して再走 → scan 12 分で完走、decontam (8-gram 除去) 走行中。
