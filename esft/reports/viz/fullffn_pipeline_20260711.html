@@ -1,0 +1,411 @@
+<title>Full-FFN パイプライン</title>
+<style>
+  :root{
+    /* light — dataviz reference surfaces & ink */
+    --page:#f9f9f7; --surface:#fcfcfb; --surface-2:#f4f3ef;
+    --ink:#0b0b0b; --ink2:#52514e; --muted:#6c6a63;
+    --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+    --conn:#b3b2ab;
+    /* validated categorical hues (identity = accent + dot + label, never color-alone) */
+    --data:#2a78d6; --train:#4a3aa7; --eval:#1baf7a; --gate:#eb6834;
+    /* reserved status */
+    --good:#0ca30c; --good-ink:#006300; --warning:#fab219; --serious:#ec835a; --critical:#d03b3b;
+    --shadow:0 1px 2px rgba(11,11,11,.05),0 6px 22px rgba(11,11,11,.045);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --page:#0d0d0d; --surface:#1a1a19; --surface-2:#141413;
+      --ink:#ffffff; --ink2:#c3c2b7; --muted:#8f8d86;
+      --grid:#2c2c2a; --axis:#3d3d3a; --border:rgba(255,255,255,.11);
+      --conn:#4d4d49;
+      --data:#3987e5; --train:#9085e9; --eval:#199e70; --gate:#d95926;
+      --good:#0ca30c; --good-ink:#33c14a; --warning:#fab219; --serious:#ec835a; --critical:#e46464;
+      --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 22px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="light"]{
+    --page:#f9f9f7; --surface:#fcfcfb; --surface-2:#f4f3ef;
+    --ink:#0b0b0b; --ink2:#52514e; --muted:#6c6a63;
+    --grid:#e1e0d9; --axis:#c3c2b7; --border:rgba(11,11,11,.10);
+    --conn:#b3b2ab;
+    --data:#2a78d6; --train:#4a3aa7; --eval:#1baf7a; --gate:#eb6834;
+    --good:#0ca30c; --good-ink:#006300; --warning:#fab219; --serious:#ec835a; --critical:#d03b3b;
+    --shadow:0 1px 2px rgba(11,11,11,.05),0 6px 22px rgba(11,11,11,.045);
+  }
+  :root[data-theme="dark"]{
+    --page:#0d0d0d; --surface:#1a1a19; --surface-2:#141413;
+    --ink:#ffffff; --ink2:#c3c2b7; --muted:#8f8d86;
+    --grid:#2c2c2a; --axis:#3d3d3a; --border:rgba(255,255,255,.11);
+    --conn:#4d4d49;
+    --data:#3987e5; --train:#9085e9; --eval:#199e70; --gate:#d95926;
+    --good:#0ca30c; --good-ink:#33c14a; --warning:#fab219; --serious:#ec835a; --critical:#e46464;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 22px rgba(0,0,0,.4);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--page); color:var(--ink); overflow-x:hidden;
+    font:15px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,"Hiragino Sans","Noto Sans JP",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1160px;margin:0 auto;padding:30px 22px 70px;}
+
+  .titlerow{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;}
+  h1{font-size:25px;line-height:1.2;margin:0 0 6px;letter-spacing:-.01em;}
+  .lead{color:var(--ink2);font-size:14.5px;margin:0 0 12px;max-width:78ch;}
+  .goal{
+    background:var(--surface-2);border:1px solid var(--border);border-left:3px solid var(--data);
+    border-radius:10px;padding:9px 13px;font-size:12.5px;color:var(--ink2);margin:0 0 22px;
+  }
+  .goal b{color:var(--ink);}
+  .themebtn{
+    flex:none;background:var(--surface);color:var(--ink2);border:1px solid var(--border);
+    border-radius:8px;padding:6px 11px;font:inherit;font-size:12px;cursor:pointer;box-shadow:var(--shadow);
+  }
+  .themebtn:hover{color:var(--ink);}
+
+  /* legend */
+  .legend{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;margin:0 0 12px;
+    font-size:11.5px;color:var(--ink2);}
+  .legend .grp{display:flex;align-items:center;gap:6px;}
+  .legend .dot{width:11px;height:11px;border-radius:3px;flex:none;}
+  .legend .chk{color:var(--good-ink);font-weight:800;}
+  .legend .dash{width:20px;height:0;border-top:1.5px dashed var(--axis);flex:none;}
+
+  /* figure */
+  .figwrap{overflow-x:auto;background:var(--surface);border:1px solid var(--border);
+    border-radius:16px;box-shadow:var(--shadow);padding:6px 6px 2px;margin:0 0 20px;}
+  .pipeline{display:block;width:100%;min-width:1140px;height:auto;}
+  .pipeline path.flow,.pipeline path.loop{fill:none;stroke:var(--conn);stroke-width:2.4;}
+  .pipeline marker path{fill:var(--conn);}
+  .pipeline .alab{fill:var(--muted);font-size:10px;font-family:inherit;}
+  .pipeline .looplab{fill:var(--ink2);font-size:12px;font-weight:600;font-family:inherit;}
+
+  .svgcard{box-sizing:border-box;height:100%;width:100%;padding:11px 13px;border-radius:12px;
+    background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--stage);
+    overflow:hidden;display:flex;flex-direction:column;gap:5px;}
+  .svgcard .hd{display:flex;align-items:center;gap:7px;}
+  .svgcard .dot{width:11px;height:11px;border-radius:3px;flex:none;background:var(--stage);}
+  .svgcard h3{font-size:14px;font-weight:700;color:var(--ink);margin:0;line-height:1.18;}
+  .svgcard .sub{font-size:11px;color:var(--muted);margin:0;}
+  .svgcard ul{margin:2px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:3px;}
+  .svgcard li{font-size:11.5px;color:var(--ink2);line-height:1.3;}
+  .svgcard li b{color:var(--ink);font-weight:650;}
+  .svgcard li .mono{font-variant-numeric:tabular-nums;}
+
+  .gpill{display:flex;align-items:center;gap:8px;padding:5px 9px;border-radius:8px;font-size:11px;line-height:1.2;}
+  .gpill .mk{flex:none;font-weight:800;font-size:12px;}
+  .gpill .lbl{color:var(--ink2);}
+  .gpill .lbl b{color:var(--ink);font-weight:650;}
+  .gpill.done{background:color-mix(in srgb,var(--good) 13%,var(--surface));
+    border:1px solid color-mix(in srgb,var(--good) 32%,var(--border));}
+  .gpill.done .mk{color:var(--good-ink);}
+  .gpill.pending{background:transparent;border:1.5px dashed var(--axis);}
+  .gpill.pending .mk{color:var(--muted);}
+
+  /* lesson aside */
+  .lesson{background:color-mix(in srgb,var(--critical) 7%,var(--surface));
+    border:1px solid color-mix(in srgb,var(--critical) 28%,var(--border));
+    border-left:4px solid var(--critical);border-radius:14px;padding:14px 18px;margin:0 0 26px;}
+  .lesson h2{font-size:14px;margin:0 0 7px;color:var(--ink);display:flex;align-items:center;gap:8px;}
+  .lesson .badge{font-size:10.5px;font-weight:700;color:#fff;background:#b3302b;
+    border-radius:6px;padding:2px 7px;letter-spacing:.02em;}
+  .lesson ul{margin:0;padding:0 0 0 2px;list-style:none;display:flex;flex-direction:column;gap:5px;}
+  .lesson li{font-size:12.5px;color:var(--ink2);line-height:1.42;padding-left:16px;position:relative;}
+  .lesson li::before{content:"–";position:absolute;left:0;color:var(--critical);font-weight:700;}
+  .lesson li b{color:var(--ink);}
+  .lesson .pt{margin-top:9px;font-size:12.5px;color:var(--ink);font-weight:600;}
+  .lesson .pt span{color:var(--critical);}
+
+  /* detail panels */
+  .details{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  .panel{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--stage);
+    border-radius:14px;padding:15px 18px;box-shadow:var(--shadow);min-width:0;}
+  .panel.wide{grid-column:1 / -1;}
+  .panel h2{font-size:15px;margin:0 0 2px;color:var(--ink);display:flex;align-items:center;gap:8px;}
+  .panel h2 .dot{width:11px;height:11px;border-radius:3px;background:var(--stage);flex:none;}
+  .panel .role{font-size:11.5px;color:var(--muted);margin:0 0 10px;}
+
+  .sub-h{font-size:12px;font-weight:700;color:var(--ink);margin:13px 0 3px;display:flex;gap:7px;align-items:baseline;flex-wrap:wrap;}
+  .sub-h .k{font-size:10.5px;color:var(--muted);font-weight:600;}
+  .sub-h:first-of-type{margin-top:4px;}
+
+  .ds{display:flex;flex-wrap:wrap;align-items:baseline;gap:5px 7px;padding:5px 0;border-top:1px solid var(--grid);}
+  .ds:first-of-type{border-top:none;}
+  .ds .nm{font-weight:650;color:var(--ink);font-size:12.5px;}
+  .ds .rows{color:var(--ink2);font-size:12px;font-variant-numeric:tabular-nums;}
+  .ds .note{color:var(--muted);font-size:11px;width:100%;line-height:1.35;}
+
+  .tag{display:inline-flex;align-items:center;gap:3px;padding:0 7px;border-radius:999px;
+    font-size:10px;font-weight:650;line-height:1.7;white-space:nowrap;}
+  .tag.ok{background:color-mix(in srgb,var(--good) 15%,var(--surface));color:var(--good-ink);
+    border:1px solid color-mix(in srgb,var(--good) 30%,var(--border));}
+  .tag.warn{background:color-mix(in srgb,var(--warning) 22%,var(--surface));color:var(--ink);
+    border:1px solid color-mix(in srgb,var(--warning) 45%,var(--border));}
+  .tag.caution{background:color-mix(in srgb,var(--serious) 20%,var(--surface));color:var(--ink);
+    border:1px solid color-mix(in srgb,var(--serious) 42%,var(--border));}
+  .tag.stop{background:color-mix(in srgb,var(--critical) 15%,var(--surface));color:#9e2626;
+    border:1px solid color-mix(in srgb,var(--critical) 35%,var(--border));}
+  @media (prefers-color-scheme: dark){ .tag.stop{color:#e77b7b;} }
+  :root[data-theme="dark"] .tag.stop{color:#e77b7b;}
+  :root[data-theme="light"] .tag.stop{color:#9e2626;}
+  .tag.neutral{background:var(--surface-2);color:var(--ink2);border:1px solid var(--border);}
+
+  .kv{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 4px;}
+  .kv .m{background:color-mix(in srgb,var(--stage) 9%,var(--surface));
+    border:1px solid color-mix(in srgb,var(--stage) 24%,var(--border));border-radius:9px;padding:6px 10px;}
+  .kv .m .n{font-size:15px;font-weight:750;color:var(--ink);font-variant-numeric:tabular-nums;display:block;line-height:1.15;}
+  .kv .m .l{font-size:10px;color:var(--ink2);}
+
+  .plist{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:6px;}
+  .plist li{font-size:12.5px;color:var(--ink2);line-height:1.45;padding-left:15px;position:relative;}
+  .plist li::before{content:"";position:absolute;left:2px;top:8px;width:5px;height:5px;border-radius:50%;background:var(--stage);}
+  .plist li b{color:var(--ink);font-weight:650;}
+  .plist code,.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11.5px;
+    background:var(--surface-2);border:1px solid var(--border);border-radius:4px;padding:0 4px;
+    overflow-wrap:anywhere;}
+
+  .glist{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;}
+  .glist li{display:flex;gap:9px;padding:9px 11px;border-radius:10px;align-items:flex-start;}
+  .glist li.pass{background:color-mix(in srgb,var(--good) 10%,var(--surface));
+    border:1px solid color-mix(in srgb,var(--good) 28%,var(--border));}
+  .glist li.pending{background:transparent;border:1.5px dashed var(--axis);}
+  .glist .ic{font-weight:800;font-size:15px;line-height:1.25;flex:none;}
+  .glist li.pass .ic{color:var(--good-ink);}
+  .glist li.pending .ic{color:var(--muted);}
+  .glist .tt{font-size:12.5px;color:var(--ink2);line-height:1.4;}
+  .glist .tt b{color:var(--ink);}
+  .glist .meas{display:block;font-size:10.5px;color:var(--muted);margin-top:2px;}
+
+  footer{margin-top:30px;padding-top:14px;border-top:1px solid var(--grid);
+    font-size:11px;color:var(--muted);line-height:1.6;}
+  footer code{font-family:ui-monospace,Menlo,Consolas,monospace;overflow-wrap:anywhere;}
+
+  @media (max-width:720px){ .details{grid-template-columns:1fr;} }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="titlerow">
+      <div>
+        <h1>Full-FFN パイプライン</h1>
+        <p class="lead">35B-A6B を <b>ツールコール・コーディング・一貫性(指示追従)・日本語</b>の4軸で base から有意強化する Full-FFN 訓練パイプライン。データ生成(ローカル)→ 訓練(gpu-host 8×96GB)→ 評価(ローカル)→ 判定ゲート → 反復ループの全体像と、通過済み(✓)/直前(点線)のゲートを示す。</p>
+      </div>
+      <button id="tt" class="themebtn" type="button" aria-label="ライト/ダーク切替">◐ テーマ切替</button>
+    </div>
+    <div class="goal"><b>究極目標:</b> 4軸で base から「有意」(同一問題・同一 seed の paired、CI95 が 0 を跨がない) 強化。<b>一般能力 (MMLU / GSM8K) は非劣化ゲート</b>で守る。マシン分担: <b>ローカル</b>=2×RTX PRO 6000(生成工場+eval 計測室)／ <b>gpu-host</b>=8×96GB(訓練炉)／ <b>aux-host</b>=停止中。</div>
+  </header>
+
+  <div class="legend" aria-hidden="false">
+    <span class="grp"><span class="dot" style="background:var(--data)"></span>データ層</span>
+    <span class="grp"><span class="dot" style="background:var(--train)"></span>訓練層 (gpu-host)</span>
+    <span class="grp"><span class="dot" style="background:var(--eval)"></span>評価層 (ローカル)</span>
+    <span class="grp"><span class="dot" style="background:var(--gate)"></span>判定ゲート</span>
+    <span class="grp"><span class="chk">✓</span> 通過済み (measured, gpu-host 実機)</span>
+    <span class="grp"><span class="chk">✓</span> 技術ゲート4本 全通過 → 200-step probe 走行中</span>
+  </div>
+
+  <figure class="figwrap">
+    <svg class="pipeline" viewBox="0 0 1240 472" role="img"
+         aria-label="データ層から訓練層(gpu-host)、評価層(ローカル)、判定ゲートへ左から右に流れ、反復ループで戻るフロー図">
+      <defs>
+        <marker id="ah" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto" markerUnits="userSpaceOnUse">
+          <path d="M0,0 L9,4.5 L0,9 Z"/>
+        </marker>
+      </defs>
+
+      <!-- connectors (behind cards) -->
+      <path class="flow" d="M252,139 L298,139" marker-end="url(#ah)"/>
+      <path class="flow" d="M528,139 L574,139" marker-end="url(#ah)"/>
+      <path class="flow" d="M804,139 L850,139" marker-end="url(#ah)"/>
+      <text class="alab" x="275" y="129" text-anchor="middle">訓練投入</text>
+      <text class="alab" x="551" y="129" text-anchor="middle">候補ckpt</text>
+      <text class="alab" x="827" y="129" text-anchor="middle">4軸スコア</text>
+
+      <!-- feedback loop -->
+      <path class="loop" d="M1020,336 C1020,398 958,410 878,410 L192,410 C138,410 138,382 138,214"
+            marker-end="url(#ah)"/>
+      <text class="looplab" x="535" y="432" text-anchor="middle">反復ループ： 混合比 200-step probe → 本走 → eval → 判定 → 次イテレーション</text>
+
+      <!-- data card -->
+      <foreignObject x="24" y="64" width="228" height="150">
+        <div class="svgcard" xmlns="http://www.w3.org/1999/xhtml" style="--stage:var(--data)">
+          <div class="hd"><span class="dot"></span><h3>データ層</h3></div>
+          <p class="sub">生成: ローカル ／ 投入: gpu-host</p>
+          <ul>
+            <li><b>A.</b> 外部検証済 (A群 商用可)</li>
+            <li><b>B.</b> 自己生成 v1 pilot500 <b>生成走行中</b>(GPU0/1)</li>
+            <li><b>C.</b> 汚染除去 (n-gram 照合)</li>
+            <li><b>D.</b> A/B ライセンス群管理</li>
+          </ul>
+        </div>
+      </foreignObject>
+
+      <!-- train card -->
+      <foreignObject x="300" y="64" width="228" height="150">
+        <div class="svgcard" xmlns="http://www.w3.org/1999/xhtml" style="--stage:var(--train)">
+          <div class="hd"><span class="dot"></span><h3>訓練層 · gpu-host 8×96GB</h3></div>
+          <p class="sub">Full-FFN ＋ router 可動 joint</p>
+          <ul>
+            <li>trainable <b class="mono">32.2B</b> ・ k=<b class="mono">32</b></li>
+            <li>expert grad union <b class="mono">80/80</b></li>
+            <li>決定論 env <b class="mono">+8.9%</b></li>
+            <li>GA4 + sync_each_batch</li>
+          </ul>
+        </div>
+      </foreignObject>
+
+      <!-- eval card -->
+      <foreignObject x="576" y="64" width="228" height="150">
+        <div class="svgcard" xmlns="http://www.w3.org/1999/xhtml" style="--stage:var(--eval)">
+          <div class="hd"><span class="dot"></span><h3>評価層 · ローカル 2×PRO6000</h3></div>
+          <p class="sub">4軸 paired eval (GPU0/1)</p>
+          <ul>
+            <li>BFCL v4 ／ HumanEval</li>
+            <li>JMMLU ／ M-IFEval日</li>
+            <li>非劣化: MMLU ／ GSM8K</li>
+            <li>paired + CI95 + McNemar</li>
+          </ul>
+        </div>
+      </foreignObject>
+
+      <!-- gate card (taller, holds 4 pills) -->
+      <foreignObject x="852" y="64" width="336" height="272">
+        <div class="svgcard" xmlns="http://www.w3.org/1999/xhtml" style="--stage:var(--gate);gap:7px;">
+          <div class="hd"><span class="dot"></span><h3>判定ゲート</h3></div>
+          <p class="sub">measured のみ信用 ／ 単発・条件違いは参考値</p>
+          <div class="gpill done"><span class="mk">✓</span><span class="lbl"><b>OOM 解消</b> — peak 63.59 GiB (&lt;70)</span></div>
+          <div class="gpill done"><span class="mk">✓</span><span class="lbl"><b>決定論 GREEN</b> — 6段階アサート 全 MATCH</span></div>
+          <div class="gpill done"><span class="mk">✓</span><span class="lbl"><b>grad ゲート</b> — expert union 80/80</span></div>
+          <div class="gpill done"><span class="mk">✓</span><span class="lbl"><b>router-joint grad</b> — GPU 実機 40/40 + resume bit一致</span></div>
+        </div>
+      </foreignObject>
+    </svg>
+  </figure>
+
+  <aside class="lesson">
+    <h2><span class="badge">教訓ボックス</span> 自己生成 B 系列 — measured と hypothesized を分ける</h2>
+    <ul>
+      <li>スクリプト <span class="mono">esft/selfgen_toolcall_v1.py</span>：500 task / 197 synthetic mock API schema / 20 domain、single・parallel・multi-turn・error recovery 各 <b>125 件</b>、再帰1周を run <span class="mono">20260711_toolcall_v1_pilot500_r3</span> として凍結。</li>
+      <li><b>measured (CPU only):</b> 構造テスト <b>5/5 PASS</b>。</li>
+      <li><b>GPU:</b> cx 内 preflight が <span class="mono">nvidia-smi exit 9</span> で BLOCKED(cx sandbox は GPU 不可視)→ <b>Fable 直轄で detached 再起動し生成走行中</b>(GPU0/1)。accepted / rejected / 採用率は <b>完走後に測定</b>(数字を作らない)。</li>
+      <li><b>だが戦略上は死んでいない:</b> verifiable な日本語指示追従の外部データはほぼ存在しない(検証済み)ため、この軸は自己生成が主力。</li>
+    </ul>
+    <p class="pt"><span>教訓:</span> n=0 の系列を「効いている」と数えない。GPU 実走で採用率が出るまでは <b>hypothesized</b> 扱い。</p>
+  </aside>
+
+  <section class="details">
+
+    <!-- DATA -->
+    <div class="panel wide" style="--stage:var(--data)">
+      <h2><span class="dot"></span>データ層 <span style="font-size:11px;color:var(--muted);font-weight:500;">(生成=ローカル ／ 訓練投入=gpu-host、方針ユーザー承認済み)</span></h2>
+      <p class="role">A 外部検証済 ／ B 自己生成+機械選別 ／ C 汚染除去 ／ D A/B ライセンス群管理</p>
+
+      <div class="sub-h">A. 外部の検証済みデータ <span class="k">Grok 調査 → Opus 2体で一次ソース裏取り、Grok 誤り2点是正済み</span></div>
+      <div style="font-size:11px;font-weight:700;color:var(--ink2);margin:6px 0 2px;">ツールコール</div>
+      <div class="ds"><span class="nm">Toucan-1.5M</span><span class="rows">1,646,546 rows</span><span class="tag ok">商用可 Apache-2.0</span><span class="note">実 MCP 環境由来、495 servers / 2000+ tools。最有力、filtering 推奨。</span></div>
+      <div class="ds"><span class="nm">ToolMind</span><span class="rows">368,611 rows</span><span class="tag ok">商用可 Apache-2.0</span><span class="note">160k 合成 + 200k augmented、multi-turn reasoning。</span></div>
+      <div class="ds"><span class="nm">ToolACE</span><span class="rows">~11.3k</span><span class="tag ok">商用可 Apache-2.0</span><span class="note">26,507 API。高質だが小規模。</span></div>
+      <div class="ds"><span class="nm">APIGen-MT-5k</span><span class="rows">5k</span><span class="tag warn">B群 非商用 CC-BY-NC-4.0 + OpenAI条項</span><span class="note">既定で混ぜない。</span></div>
+      <div style="font-size:11px;font-weight:700;color:var(--ink2);margin:10px 0 2px;">コーディング</div>
+      <div class="ds"><span class="nm">Magicoder-OSS-Instruct-75K</span><span class="rows">75,197</span><span class="tag caution">要判断 MIT表記/GPT-3.5生成→OpenAI ToS</span></div>
+      <div class="ds"><span class="nm">swallow-code-v2</span><span class="rows">—</span><span class="tag ok">商用可 Apache-2.0</span><span class="note">コード CPT 用。</span></div>
+      <div class="ds"><span class="nm">LiveCodeBench</span><span class="rows">—</span><span class="tag stop">訓練禁止 · eval 隔離</span><span class="note">逆に訓練コーパスから LCB 出典を除外フィルタ。</span></div>
+      <div style="font-size:11px;font-weight:700;color:var(--ink2);margin:10px 0 2px;">日本語</div>
+      <div class="ds"><span class="nm">llm-jp-corpus-v4</span><span class="rows">ja ~0.69T tokens</span><span class="tag neutral">サブセット毎にライセンス異なる</span><span class="note">高品質サブセット抽出して CPT 混合。</span></div>
+      <div class="ds"><span class="nm">llm-jp-instructions</span><span class="rows">1,000 件 人手</span><span class="tag ok">商用可 CC-BY-4.0</span><span class="note">小さいが商用可・最高品質。</span></div>
+      <div class="ds"><span class="nm">AnswerCarefully v2.2</span><span class="rows">~千規模</span><span class="tag neutral">安全 QA</span></div>
+      <div class="ds"><span class="nm">ichikara-instruction</span><span class="rows">~4.8k</span><span class="tag warn">B群 非商用 CC-BY-NC-SA-4.0</span></div>
+      <div class="ds"><span class="note" style="color:var(--serious);">Grok 誤り是正: Swallow Corpus 本体は再配布されていない。派生の swallow-code のみ公開。</span></div>
+      <div style="font-size:11px;font-weight:700;color:var(--ink2);margin:10px 0 2px;">一貫性 / 長対話</div>
+      <div class="ds"><span class="nm">PersonaAtlas</span><span class="rows">10,462 multi-turn</span><span class="tag ok">商用可 MIT</span><span class="note">persona 一貫性合成、実在確認済み。</span></div>
+
+      <div class="sub-h">B. 足場付き自己生成 + 機械選別 <span class="k">v1、生成=ローカル → 詳細は上の教訓ボックス</span></div>
+      <ul class="plist">
+        <li><b>選別:</b> strict JSON + schema (required/type/enum) + 決定的 mock executor 再実行 + 凍結 plan 一致 + multi-turn receipt/recovery 連鎖 + BFCL/ACEBench 汚染照合。合格のみ <span class="mono">train.jsonl</span>。system prompt / few-shot は保存しない。</li>
+        <li><b>状態:</b> CPU structural test <b>5/5 PASS</b>／ pilot500 を detached で<b>生成走行中</b>(GPU0/1、採用率は完走後測定)。</li>
+        <li>verifiable な日本語指示追従の外部データはほぼ存在しない(検証済み)ため、この軸は<b>自己生成が主力</b>。</li>
+      </ul>
+
+      <div class="sub-h">C. 汚染除去</div>
+      <ul class="plist">
+        <li>MMLU / GSM8K / HumanEval / JMMLU / BFCL / M-IFEval /(LiveCodeBench)と <b>n-gram 照合</b>、除去ログを manifest 保存。</li>
+        <li>機械検証済み(実行成功 / テスト通過 / ルール合格)のみ投入。</li>
+      </ul>
+
+      <div class="sub-h">D. A/B ライセンス群管理</div>
+      <ul class="plist">
+        <li><b>A群 = 商用可</b>(Apache / MIT / CC-BY)。<b>B群 = 非商用</b>(ichikara, APIGen-MT)。B群は既定で混ぜない、使用可否はユーザー判断。</li>
+        <li>混合比は <b>200-step 級 probe</b> で振ってから本走(70/30 決め打ちしない)。</li>
+      </ul>
+    </div>
+
+    <!-- TRAIN -->
+    <div class="panel" style="--stage:var(--train)">
+      <h2><span class="dot"></span>訓練層</h2>
+      <p class="role">gpu-host 8×96GB Blackwell — Full-FFN 本走炉</p>
+      <div class="kv">
+        <div class="m"><span class="n">32.2B</span><span class="l">trainable (32,212,254,720)</span></div>
+        <div class="m"><span class="n">k = 32</span><span class="l">active experts</span></div>
+        <div class="m"><span class="n">+8.9%</span><span class="l">決定論 env コスト</span></div>
+      </div>
+      <ul class="plist">
+        <li><b>手法:</b> Full-FFN。expert grad union <b>80/80</b>(frozen grad なし、実測)。</li>
+        <li><b>router 可動 joint (二重 opt-in):</b> <code>--method full-ffn --train-router --allow-router-joint-fullffn</code>。単独 flag は拒否、full-ffn 以外との併用も拒否。</li>
+        <li><b>router LR</b> = router_lr_mult × learning_rate = <b>0.08 × 1e-5 = 8e-7</b>、weight decay 0 の独立 param group。</li>
+        <li><b>anchor KL λ = 0.15</b> (<code>--router-anchor-weight</code>)、base 256-way pre-top-k router snapshot に対する KL。<b>k 非依存</b>(top-k 選択の前に softmax=分布全体を base に近く保つ、毎 step 1回、二重 forward 不要)。</li>
+        <li><b>決定論 env コスト +8.9%</b>：det on 61.96 s/it vs off 56.87 s/it <span class="mono">(n=2/腕, ABBA, same-condition, gpu-host GPU0-7, ckpt-5 resume, GA4/seq7168/adafactor)</span>。腕内ばらつき ≤±0.9%。200-step は on 推奨(+約17分)、本走 on/off はユーザー判断(72h 換算 +6.4h)。</li>
+        <li><b>決定論設定:</b> <span class="mono">CUBLAS_WORKSPACE_CONFIG=:4096:8</span> + NCCL_ALGO=Ring + NCCL_PROTO=Simple + torch deterministic core + TF32 off。</li>
+        <li><b>GA4 + sync_each_batch=true</b>(Transformers 5.7 accelerator_config、Full-FFN 限定):各 microbatch で勾配を shard/reduce し full-gradient 常駐を防止(OOM 対策の本丸)。global batch 32 維持。</li>
+        <li><b>FSDP full-shard 安全化 (07-11 修正):</b> joint anchor が全 rank で vec(0) クラッシュ(gate.weight を forward 外参照)→ Qwen3_5MoeTopKRouter の forward hook で top-k 前 full 256-expert router_logits を捕獲、base gate weight は CPU snapshot に保持、live parameter を後段参照しない。grad-checkpoint 再計算 hook は無視。</li>
+        <li><b>checkpoint:</b> DCP marker schema 3 に router_joint 設定(enabled / router LR mult / effective LR / anchor weight / stride)を保存。joint resume は同一設定を要求、旧 frozen marker からの joint resume は拒否(frozen→frozen resume は互換)。</li>
+        <li><b>load-balancing aux loss は joint でも混入しない</b>(<code>--fused-ce</code>/FLCE は backbone hidden から直接構成、gate への補助目的は明示した anchor KL のみ)。</li>
+      </ul>
+    </div>
+
+    <!-- EVAL -->
+    <div class="panel" style="--stage:var(--eval)">
+      <h2><span class="dot"></span>評価層</h2>
+      <p class="role">ローカル 2×RTX PRO 6000(GPU0/1 のみ)— base→候補 直列 paired</p>
+      <ul class="plist">
+        <li><b>ツールコール = BFCL v4</b>：非 live / 非 external-API AST、pinned Gorilla + local bfcl-eval wheel、公式 AST parser/checker。</li>
+        <li><b>コーディング = HumanEval</b>：bubblewrap isolated。</li>
+        <li><b>日本語知識 = JMMLU</b>：choice-logprob。</li>
+        <li><b>日本語指示追従/一貫性 = M-IFEval日</b>：strict scorer、seed 分散 + seed 間一致率。</li>
+        <li><b>一般能力 (非劣化ゲート):</b> MMLU (choice-logprob) / GSM8K。</li>
+        <li><b>判定規律:</b> 同一問題・同一 seed の paired + <b>CI95 + McNemar</b> のみ信用。単発・条件違いは参考値。4軸 protocol はまだ未凍結(パイロット段階)。</li>
+      </ul>
+    </div>
+
+    <!-- GATES -->
+    <div class="panel wide" style="--stage:var(--gate)">
+      <h2><span class="dot"></span>判定ゲート</h2>
+      <p class="role">4ゲート全通過 (measured / gpu-host 実機) → 200-step probe 発射済み (2026-07-11)</p>
+      <ul class="glist">
+        <li class="pass"><span class="ic">✓</span><span class="tt"><b>OOM 解消</b> — Full-FFN DCP probe v2 で 8GPU peak <b>max_memory_allocated 63.59 GiB</b>(&lt;70 GiB 目標)。決定論 probe(arm A)でも peak 63.64 GiB。<span class="meas">measured, gpu-host 実機(v2=63.59 GiB / 決定論 arm A=63.64 GiB)。v1 は各 GPU 93–94 GiB で全 rank OOM → sync_each_batch で解決。</span></span></li>
+        <li class="pass"><span class="ic">✓</span><span class="tt"><b>決定論 GREEN (exact-resume)</b> — arm A/B cold/cold、<b>6段階アサート 全 MATCH</b>(load_model / load_optimizer / RNG / batch_loss ×32 microbatch / clip 後 gradient / post_optimizer、各 8 rank)。<span class="meas">bit 不一致源 = grouped-mm backward / NCCL reduction の再起動間非決定性で確定、決定論 env で消える → 200-step の技術的ブロッカーなし。</span></span></li>
+        <li class="pass"><span class="ic">✓</span><span class="tt"><b>grad ゲート (frozen Full-FFN)</b> — expert grad union <b>80/80</b>、frozen (router/attn/embed) grad は all None。<span class="meas">measured, GPU 実測。</span></span></li>
+        <li class="pass"><span class="ic">✓</span><span class="tt"><b>router-joint grad ゲート (gradgate v3, 2026-07-11)</b> — GPU 実機 8 rank で <b>router union coverage 40/40</b>(全 40 層の gate が勾配受領)、expert union 80/80、attn/embed grad all None、router group LR = <b>8e-7</b>(0.08 × 1e-5)を実測確認。加えて fresh 6-step vs checkpoint-5 resume の <b>STEP6_POST_OPT digest(model / optimizer_tensors / optimizer_scalars)が全 8 rank で bit 一致</b>。<span class="meas">measured, gpu-host 実機 (fresh vs resume, same-condition)。CPU predicate test 4/4 PASS(<span class="mono">test_fullffn_joint_trainer.py</span>)。v1=anchor KL の FSDP vec(0) クラッシュ→ forward hook 修正、v2=<span class="mono">--skip-final-checkpoint</span> が save-steps ごと無効化する罠→ fresh 段から除去、v3 で PASS。</span></span></li>
+      </ul>
+    </div>
+
+  </section>
+
+  <footer>
+    更新日 <b>2026-07-11</b>(昼基準)。出典: 「FULL-FFN パイプライン ファクトシート (2026-07-11 昼)」。<br>
+    図: <code>esft/reports/viz/fullffn_pipeline_20260711.html</code> ／ 全数値は同一条件・(n, 条件) 付き実測に基づく。measured と hypothesized は区別、自己生成 B 系列は現状 n=0(未測定)。
+  </footer>
+</div>
+
+<script>
+  (function(){
+    var btn=document.getElementById('tt');
+    btn.addEventListener('click',function(){
+      var r=document.documentElement;
+      var cur=r.getAttribute('data-theme');
+      if(!cur){ cur=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'; }
+      r.setAttribute('data-theme', cur==='dark'?'light':'dark');
+    });
+  })();
+</script>
