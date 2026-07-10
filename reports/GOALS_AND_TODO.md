@@ -1,6 +1,6 @@
 # 35B-A6B 最終目標とやることリスト (living document)
 
-更新: 2026-07-10 22:00 JST(状況が変わり次第このファイルを書き換える。最新の判断はここを正とする)
+更新: 2026-07-11 15:30 JST(状況が変わり次第このファイルを書き換える。最新の判断はここを正とする)
 
 ## 究極の目標
 
@@ -9,18 +9,18 @@
 - 「有意」= 同一問題・同一seed の paired 比較で CI95 が 0 を跨がない改善。盛りなし、`(n=?, same-condition?)` を常に添える。
 - 一般能力(MMLU/GSM8K 等)は非劣化ゲートで守る。4軸を上げて一般を落とすのは不採用。
 
-## 現在地 (2026-07-11 昼前更新)
+## 現在地 (2026-07-11 午後更新)
 
 - **B2 系列は死亡確定**(ユーザー確認済み)。4軸プロファイル: ツールコール +4.0pt 有意↑ / 指示追従 −13.7pt 有意↓ / MMLU 有意↓。死因 = router 凍結 + k32。
-- **Full-FFN 200-step probe はユーザー GO 済み**(router 可動 joint 構成)。trainer の joint × full-ffn 対応を実装 → grad ゲート probe で anchor KL が FSDP full shard と衝突しクラッシュ(gate.weight を forward 外参照、vec(0))→ forward hook 方式への修正を Codex が実施中。修正後: grad ゲート probe 再走 → 200-step 発射。
-- **データ戦略確定**(ユーザー承認): ①足場付き自己生成 + 機械選別(生成=ローカル、各軸の合格判定器が本体、1周のみ、eval 汚染除去必須)+ ②外部の検証済みデータを混合。**訓練は gpu-host、データ生成はローカル**。
+- **joint grad ゲート v3 PASS (GPU 実機)**: router union 40/40、expert 80/80、attn/embed 凍結クリーン、router LR 8e-7、fresh vs resume digest 全 8 rank bit 一致。→ **200-step probe 発射済み (2026-07-11 午後、gpu-host、決定論 on、eval-steps 50 / save-steps 100、最後に HF full model export)**。完了後は kill 基準表 (DEVLOG 2026-07-08(4)) で判定。
+- **データ戦略確定**(ユーザー承認): ①足場付き自己生成 + 機械選別(生成=ローカル、各軸の合格判定器が本体、1周のみ、eval 汚染除去必須)+ ②外部の検証済みデータを混合。**訓練は gpu-host、データ生成はローカル**。selfgen pilot500 はローカル GPU0/1 で生成走行中。外部主力候補 Toucan-1.5M + ToolMind は vault へ DL 中。
 
 ## リソース方針 (2026-07-10 夜、ユーザー指示)
 
 - **GPU はできるだけ余らせない。空いたら究極目標に寄与する作業を即割り当てる。**
 - aux-host は当面使用不可。使えるのは **gpu-host(8×96GB)とホームラボ(RTX PRO 6000 ×2)** のみ。GPU 2(5070Ti)は表示用で計算に使わない。
 - **恒久分担 (07-11 確定): ローカル = データ生成工場 + eval 計測室 / gpu-host = 訓練炉。**
-- 現在の割当 (07-11 昼前): gpu-host = trainer 修正待ち(grad ゲート probe 再走 → 200-step) / ローカル 0,1 = 自己生成パイプライン v1(ツールコール軸、Codex 実装中) / CPU = 外部データ候補の Grok 調査。
+- 現在の割当 (07-11 午後): gpu-host 8GPU = **200-step joint probe 走行中** / ローカル GPU 0,1 = **selfgen pilot500 生成走行中** / ネットワーク = Toucan-1.5M (21.8GB) + ToolMind (4.0GB) を /mnt/vault/corpora/ へ DL 中。
 - **決定論 env 速度コスト実測済み**: overhead **+8.9%**(det on 61.96 vs off 56.87 s/it、n=2/腕、ABBA、same-condition)。200-step は on 推奨(+17分)、本走の on/off は選択肢3案でユーザー判断 → `reports/FULLFFN_DET_SPEED_AB_20260711.md`。
 
 ## やることリスト(優先順)
@@ -34,11 +34,24 @@
 - 検分の結果、**arm B は 2026-07-10 05:31–05:38 UTC に実行済みで GREEN** と判明(前セッションが実行、DEVLOG 反映前に引き継ぎ境界を跨いだ)。Codex の「SSH BLOCKED」は新規再実行の試行が塞がれただけで、実体は完了済み。
 - 6段階アサート全 MATCH: load_model / load_optimizer / RNG / batch_loss(32) / clip後 gradient / post_optimizer(各8 rank)。決定論設定は per-rank ログで確認。証跡と解釈は `reports/FULLFFN_DETERMINISM_ARMB_20260710.md`。
 - 結論: bit 不一致の発生源は grouped-mm backward / NCCL reduction の再起動間非決定性で確定し、決定論 env で消える。**exact-resume ゲート GREEN、200-step 本番の技術的ブロッカーなし**。
-- 残: 200-step GO/NO-GO はユーザー承認待ち。開始時に決定論 env の速度コストを同一条件 A/B で1回計測して維持可否を決める。
+- 速度コスト計測済み (+8.9%)、200-step はユーザー GO 済みで**発射済み** → T6 へ。
 
-### T3. Full-FFN 本走の準備メモ更新 【計算不要、随時】
-- DEVLOG 2026-07-08(4) の router可動 joint モード(`--train-router` 実装済・未配備)と kill 基準表を、B2 の結末を踏まえて最新化。
-- 文献確定知見(RL は容量を elicit するだけ、容量獲得は SFT 側)に沿って、4軸強化の主戦場は Full-FFN(router可動)+ 蒸留である前提を維持。
+### T3. Full-FFN joint trainer 配備 【完了 — grad ゲート v3 PASS】
+- trainer 改修 (二重 opt-in の joint、router LR group、anchor KL forward hook 方式) を gpu-host に配備。gradgate v3 で GPU 実機 PASS: router union 40/40 / expert 80/80 / attn/embed 凍結クリーン / fresh vs resume digest 全 8 rank bit 一致。詳細 `reports/FULLFFN_JOINT_TRAINER_20260711.md` + DEVLOG 2026-07-11 午後。
+
+### T6. 200-step joint probe の完了検分と paired 評価 【走行中 — 最優先】
+- 走行構成: gradgate fresh 段と同一条件 + max-steps 200 / eval-steps 50 / save-steps 100 / 決定論 on / FULLFFN_PROBE off。出力 `gpu-host:codex_runs/fullffn_joint_200step_20260711/`、完了マーカー `JOINT_200STEP_DONE`。
+- 完了検分: eval_loss 軌跡 (50/100/150/200)、checkpoint-100/200 の実在、HF full model export の完全性。
+- 評価: HF export をローカルへ転送 → 4軸 + MMLU/GSM8K の paired 評価 (k32 と k8 の両方)。
+- **kill 基準表 (DEVLOG 2026-07-08(4))**: k32 MMLU ≥0.832 かつ k8 劣化 ≤0.8pt → 4a 続行 / k32 MMLU <0.825 → 4b full-FFN 増強 / k8 劣化 >1.5pt → router 再凍結。
+
+### T7. selfgen pilot500 の検分と量産判断 【生成走行中、ローカル GPU0/1】
+- 完走後: `reports/SELFGEN_TOOLCALL_V1_20260711.md` 更新、採用/棄却例の品質検分 (accepted/rejected/採用率は完走後にのみ記録)、良ければ量産 (n=5000 級) 起動。
+- 次軸のパイプライン (日本語 verifiable 指示、一貫性) は pilot 検分後に設計。
+
+### T8. 外部コーパスの取得と汚染除去 【DL 走行中 → vault】
+- Toucan-1.5M (21.8GB) + ToolMind (4.0GB) → `/mnt/vault/corpora/`。DL 後: eval セット (MMLU/GSM8K/HumanEval/JMMLU/BFCL/M-IFEval) との n-gram 汚染照合 + 除去ログ manifest 化。
+- 注意: ToolMind open_datasets には APIGen-MT (CC-BY-NC) 由来ファイルあり — B 群分離規律の対象。
 
 ### T4. 4軸評価ハーネスの整備 【バックログ、着手前にユーザー相談】
 - 究極目標の4軸(ツールコール / コーディング / 一貫性 / 日本語)のうち、いま paired で測れるのはコーディング(HumanEval)だけ。残り3軸の評価セット選定が未着手:

@@ -284,3 +284,15 @@
 
 - データ戦略 (ユーザー承認): 足場付き自己生成+機械選別を柱に外部検証済みデータを混合。生成=ローカル/訓練=gpu-host。
 - 外部候補を Grok 調査 → Opus 2体で一次ソース裏取り。**Toucan-1.5M (Apache-2.0, 165万件) と ToolMind (Apache-2.0, 37万件) がツールコール軸の主力候補**。日本語は llm-jp-corpus-v4 (実在確認) + llm-jp-instructions。Grok の誤り2点是正: Swallow Corpus 本体は再配布されていない / arXiv:2511.00222 は日本語文脈でない。**LiveCodeBench は訓練禁止・eval 隔離** (自家 eval 汚染の逆リスク)。ライセンスは A 群 (商用可) / B 群 (非商用: ichikara, APIGen-MT) に分離、B 群は既定で混ぜない。詳細: reports/CORPUS_PLAN_20260711.md
+
+## 2026-07-11 (午後) — joint grad ゲート v3 PASS → 200-step probe 発射
+
+- gradgate v3 (fresh 6 step + checkpoint-5 → resume 5→6、FULLFFN_PROBE=1、決定論 env): **router union coverage 40/40**(全 8 rank)、expert union 80/80、attn/embed grad all None、router group LR 8e-7 (0.08×1e-5) を実機確認。**fresh vs resume の STEP6_POST_OPT digest (model / optimizer_tensors / optimizer_scalars) が全 8 rank で bit 一致** — joint 構成でも exact-resume GREEN (n=1 run、fresh/resume same-condition)。失敗履歴: v1 = anchor KL が FSDP full shard で vec(0) クラッシュ → router forward hook 方式に修正 / v2 = `--skip-final-checkpoint` が save_strategy=no にして save-steps ごと無効化する罠 (checkpoint-5 不在で resume 失敗) → fresh 段から除去。
+- **200-step probe 発射** (gpu-host、PID 3434611、`run_fullffn_joint_200step.sh`): gradgate fresh 段と同一条件 (v3.jsonl + mixed_v2 replay 0.30 / seq 7168 / GA4 / adafactor / k32 / joint args / 決定論 on)、max-steps 200 / eval-steps 50 / save-steps 100。FULLFFN_PROBE は外した (per-step digest+coverage 計算は純 overhead、ゲートは通過済み)。最終成果物 = resumable DCP checkpoint-200 + HF full model export (~70GB、`--model base --model-path <dir> --topk 32` でローカル eval 可能な形式)。step 1: loss 0.7954 / grad_norm 0.7917 / joint optimizer groups=2 確認。粗い見積 2-2.5h (定常 23 s/it×200 + init + export)。
+- 完了後の判定は kill 基準表 (DEVLOG 2026-07-08(4)) を適用: k32 MMLU ≥0.832 かつ k8 劣化 ≤0.8pt → 4a 続行 / k32 MMLU <0.825 → 4b full-FFN 増強 / k8 劣化 >1.5pt → router 再凍結。
+
+## 2026-07-11 (午後) — 外部コーパス DL 開始 + Git/図解ワークフロー完了
+
+- 外部コーパス DL 開始 (→ /mnt/vault/corpora/): **Toucan-1.5M (21.8GB, 136 parquet: Kimi-K2/OSS/Qwen3/SFT の teacher 別サブセット)** + **ToolMind (4.0GB: graphsyn.jsonl 2.3GB + open_datasets)**。注意: ToolMind の open_datasets には APIGen-MT (CC-BY-NC) 由来の query ファイルが含まれる — 訓練混合時は B 群分離規律の対象。
+- Git 整理+図解ワークフロー完了: コミット 6 本 (feat/data/docs×2/chore + viz)、監査 4 基準クリア (件名整合・巨大/秘匿ファイル混入ゼロ・トレーラ完備・working tree クリーン)。ブランチ `agent/sanitize-codex-operations`、**push はしていない** (ユーザー判断待ち)。軽微 issue 1 件: .gitignore 追記が feat コミットに同梱 (実害なし)。図解 `esft/reports/viz/fullffn_pipeline_20260711.html` は敵対検証で 14 issues を修正済み。生成後に進んだ 2 点 (gradgate v3 GPU PASS / selfgen 走行開始) は Fable が反映。
+- selfgen pilot500 はローカル GPU0/1 で走行継続 (このエントリ時点 ~50/250×2、新規エラーなし)。
