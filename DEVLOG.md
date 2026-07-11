@@ -354,3 +354,9 @@
 - 副効果: no-think 化で生成が大幅高速化 (think トークンを吐かないため)。5,000 件が約 2.5h で完走 (見積 13h → 実測 ~2.5h)。
 - vault 回収済み (`corpora/selfgen/qwen36-a6b/20260711_toolcall_v11_prod5000`、train.jsonl diff 一致)。**第 2 弾 (seed 20260712、5,000 件、第 1 弾との user_request 重複 0.8%) を発射** — 大量生成 → Codex 厳選方針 (ユーザー指示) の母集団づくり。
 - checkpoint 転送実測: gpu-host→vault 28MB/s (17.2GB shard、n=1、Tailscale direct)。249GB checkpoint ≈ 2.5h/個で本走の 300-step 間隔 (≈6.4h) に成立。`esft/vault_pull_checkpoint.sh` (再開可能 + SHA 照合) を整備、試走 checkpoint-100 の回収走行中。
+
+## 2026-07-11 (夜) — 汚染除去・修正版 完走: 除去 7.1%、clean_v2 で確定
+
+- 二重フィルタ (DF≤2 + min_hits=2) の全量再走: **removed 143,487 / 2,015,157 = 7.1%** (誤除去版 31.7% → 1/4.5)。kept 1,871,670 rows。eval 別は bfcl 単独 131k (91%) が残存。
+- 除去例の目視 (n=3): マッチ gram は「one currency to another using the latest exchange」「location parameters type object properties location type string」等 — **eval 問題の転写ではなく、同一 API ドメイン (為替/天気系) の説明文・schema 断片の偶然一致が主**。さらに精密化 (schema フィールド除外照合) は可能だが、kept 187 万行で本走選別には十分 + 保守側除去は BFCL 評価の解釈健全性に寄与するため、**clean_v2 で確定・再々走なし** (13 万行の追加救出は限界効用低と判断)。
+- 本走コーパスの入力確定: `clean_v2/` (Toucan 4 サブセット + ToolMind、ライセンスラベル付き manifest)。次工程 = trainer offsets 改修完了後に native tools 形式で全量変換 → Codex 厳選。
