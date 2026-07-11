@@ -377,3 +377,17 @@
 - 読み (mechanism): joint 訓練は「router を壊さない」を実証したが、「k32 を活かす」方向には 200 step で全く進まず。k32 は出発点からマイナス (−3.2pt) で、それを埋める前に v3 コーパス方向への適応が k32 tail を僅かに悪化させた形。
 - eval 運用の教訓: ①訓練完了直後の発射は GPU メモリ解放前で OOM する (数分待つ/nvidia-smi 確認)、②eval_harness の kill は本体でなく `nvidia-smi --query-compute-apps` で孤児ワーカーまで掃除、③protocol は既存 manifest と突き合わせ (mmlu は choice-logprob が正、生成方式 max_new 1536 は trunc 81% で使用不能)、④paired-verdict CLI は model_path 不一致を拒否する設計のため cross-model 比較は per-item 手動計算 (今回実装した手順を踏襲)。
 - 次: HF export をローカルへ転送し、**4軸パイロット (BFCL 最優先) を joint@k8 / joint@k32 で paired 測定** — v3 コーパスは標的 (ツールコール) 寄りなので、標的軸が k8 で動いていれば「k 拡張なしの full-FFN joint 本走」(選択肢 A) が浮上する。B2 の BFCL +4.0pt は k32 と訓練の交絡があった — joint@k8 なら交絡なしで測れる。
+
+## 2026-07-11 (午後) — データ品質戦略の確定: 敵対的パネル 5 腕 + Grok 文献調査 + 実測 3 点
+
+- **実測 3 点 (最初の 1 時間で潰した未知数)**: ①wave1 の単発合格率 **93.3%** (candidate_index 分布、stage 単位 n=7,411) — ZPD 帯がほぼ空、現行 selfgen は request に正解コールを全記載する「転写タスク」だったことの定量確認 (`make_seed` L347-380)。②replay (mixed_v2、385k 行) の分布 = math 44% / coding 24% / toolcall 18% / agentic 10% / **general+knowledge ~2%** — k32 借金返済用の general 矯正信号が replay にほぼ無い。③v3 (240k 行) = japanese 39% / code 37% / knowledge_en 24%、実効 general 比率 ≈17%。
+- **敵対的パネル (Opus 5 腕、wf_fe5c6bb0-c48)**: S5 級 = 借金返済機構の欠落 (rank 9-32 への general 勾配なし + router-health 指標ゼロ) / eval 床が base@k32 で低すぎ (実の床 = base@k8) / コーパスと trainer offsets 改修のスキーマレース / n-gram decontam は teacher の paraphrase 再構成を塞げない / judge-eval 同一 family の Goodhart 化。ops 裁定 = 「フル漏斗は 24h に収まらない、A 群 de-scope 版なら余裕」。有望ハック = expert-gate 標的選別 (借金機構の直撃、一晩パイロット可) / counterfactual tool-result 注入 (検証可能な失敗の尾) / candidate_index = 無料の難易度ラベル / loss-mask byte-exact 監査。
+- **Grok 文献調査**: PoLL 多審制 (2404.18796) / judge バイアス定量 (2410.02736) / Superfiltering 弱 proxy loss フィルタ (2402.00530) / taxonomy 駆動多様性 LAB (2403.01081) / Phi-4 self-revision (2412.08905) — 2024-25 の ID は実在確認済み、2026 群は未検証扱い。
+- **確定戦略**: `reports/DATA_QUALITY_STRATEGY_20260711.md`。今区間 v4 = A 群 de-scope (v3 継承 + selfgen 層別 + Toucan 厳選 + knowledge 増強、スキーマ凍結 + プリフライト)。次々区間 v5 = 意図レベル selfgen (spec 済み) + counterfactual 注入 + rejection-sampling 主体の蒸留 + Commitment-Ledger 一貫性軸 + ja round-trip アンカリング + INC-0 (mutated-eval 再生率、router-health baseline)。GPT/Grok 余剰の主戦場は審判・監査・spec 設計 (テキスト非混入) で、C 群直接混入は実効トークン寄与でキャップ。
+
+## 2026-07-11 (深夜) — 【引き継ぎメモ: 本セッション→並行セッション】200-step 試走の 4 腕プロファイル + router 実測
+
+- **方針把握済み**: k32 続行・訓練量最優先・炉を止めない (ユーザー決定、feedback_training_volume_first)。1000-step 本走 (router mult 0.08 / save 300) の発射を確認。**当セッションは以後ローカル専任 (データ工場・Codex 選別・vault 回収) に徹し、gpu-host には触らない** (二重発射防止)。router LR 10 倍の 200-step 追試は方針に従い中止 (発射前に SIGKILL 済み、成果物なし)。
+- **200-step 試走の最終実測 (MMLU n=600, choice-logprob, 同一 items, 同一 run 直列 4 腕)**: base@k8 **0.8500** / base@k32 **0.8183** / joint@k8 **0.8450** / joint@k32 **0.7950**。paired: k32 化の無訓練コスト −3.17pt [−5.53,−0.80] p=0.013 有意 / 200-step 訓練の k32 寄与 **−2.33pt [−4.77,+0.11] p=0.081 (改善ではなく悪化方向、未確定)** / k8 非劣化 −0.50pt [−2.79,+1.79] p=0.775 **PASS**。
+- **router 実測 (本走の設計に直結)**: 200 step (mult 0.08 = LR 8e-7) 後の gate weight の base からの相対 L2 変化 = **median 0.11%** (40 層、cos 0.99998) — **router は実質不動**。線形外挿で 1000 step でも ~0.5%。「k32 の借金返済」に router 再教育が必要なら、mult 0.08 は桁が足りない可能性が高い (次の 300-step checkpoint 判断か第 2 期発射時の材料に。実測は export 済み gate の直接比較で再現可能)。k8 非劣化 PASS も「router がほぼ動かなかったから」の可能性があり、anchor KL の効果とはまだ言えない。
+- **ローカル側の成果**: ツールコール量産・第 2 弾完走 **4,918/5,000 = 98.4%** (multi_turn 95.2%、truncation 0、vault 回収済み)。第 1 弾と合わせ **機械検証済み 9,846 件**が Codex 厳選待ち。
