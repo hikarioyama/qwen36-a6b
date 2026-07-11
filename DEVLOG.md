@@ -360,3 +360,9 @@
 - 二重フィルタ (DF≤2 + min_hits=2) の全量再走: **removed 143,487 / 2,015,157 = 7.1%** (誤除去版 31.7% → 1/4.5)。kept 1,871,670 rows。eval 別は bfcl 単独 131k (91%) が残存。
 - 除去例の目視 (n=3): マッチ gram は「one currency to another using the latest exchange」「location parameters type object properties location type string」等 — **eval 問題の転写ではなく、同一 API ドメイン (為替/天気系) の説明文・schema 断片の偶然一致が主**。さらに精密化 (schema フィールド除外照合) は可能だが、kept 187 万行で本走選別には十分 + 保守側除去は BFCL 評価の解釈健全性に寄与するため、**clean_v2 で確定・再々走なし** (13 万行の追加救出は限界効用低と判断)。
 - 本走コーパスの入力確定: `clean_v2/` (Toucan 4 サブセット + ToolMind、ライセンスラベル付き manifest)。次工程 = trainer offsets 改修完了後に native tools 形式で全量変換 → Codex 厳選。
+
+## 2026-07-11 (深夜) — 200 ステップ試走 完走 → 合否判定 eval 発射
+
+- **完走** (保存バグ修正後の再走、fresh 200 step、決定論 on、joint 構成): eval_loss 軌跡 **0.723 (50) → 0.7022 (100) → 0.6909 (150) → 0.683 (200)** — 単調低下。checkpoint-100 / checkpoint-200 (各 249GB DCP) 保存成功、save-live-audit 全 rank 一致。HF full model export 完了 (safetensors 3 shard + config)。クラッシュ・OOM・NaN なし、定常 76.8s/it。
+- **合否判定 eval 発射** (gpu-host GPU0/1、`run_joint200_eval.sh`): base@k8 (fresh reference) → joint200@k32 → joint200@k8 の MMLU n=600 3 腕直列 + paired verdict 2 本。判定基準 (kill 表読み替え): joint@k8 vs base@k8 劣化 ≤0.8pt かつ joint@k32 改善方向 → 本走 GO / k8 劣化 >1.5pt → router 再凍結。
+- Ghostty クラッシュで Claude セッションが 1 回落ちたが、detached 運用により走行実体 (試走/量産第2弾/checkpoint回収/cx 3本) は全て無傷。Monitor のみ張り直し。
