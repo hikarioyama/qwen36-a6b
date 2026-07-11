@@ -347,3 +347,10 @@
   2. **min_hits=2**: distinct マッチ gram が 2 種類未満の row は除去しない。DF フィルタをすり抜ける非対称定型 (eval 側で稀・コーパス側で普遍、例の schema gram が該当) を殺す。
 - 検証: FP row → match 空 ✅ / **真の転写検出 19/20 維持** (BFCL user 質問文 12 語以上の丸写し、n=20) ✅ / Kimi-K2 shard0 先頭 500 row の除去 15/500 = 3.0% (v1 は同 shard 56%) ✅。テスト fixture は 9 単語 (2 grams) に更新して全 PASS。
 - v1 の manifest/removals は保全 (`clean/`)、v2 は `clean_v2/` に再走中。教訓: **除去率そのものを検分対象にする** — 「除去した」という事実は清潔の証明ではなく、除去の中身を 1 件レベルで見るまで信じない。
+
+## 2026-07-11 (夜) — ツールコール量産・第 1 弾完走: 採用率 98.6%、2 ノブ修復が量産スケールで実証
+
+- n=5,000 (両 GPU、no-think 注入 + stage hint 有効): **accepted 4,928/5,000 = 98.56%**、truncation 0。層別: single 1250/1250 (100%) / parallel 1243/1250 (99.4%) / error_recovery 1233/1250 (98.6%) / **multi_turn 1202/1250 (96.2%)** — pilot (修復前) の 19.2% から +77pt。
+- 副効果: no-think 化で生成が大幅高速化 (think トークンを吐かないため)。5,000 件が約 2.5h で完走 (見積 13h → 実測 ~2.5h)。
+- vault 回収済み (`corpora/selfgen/qwen36-a6b/20260711_toolcall_v11_prod5000`、train.jsonl diff 一致)。**第 2 弾 (seed 20260712、5,000 件、第 1 弾との user_request 重複 0.8%) を発射** — 大量生成 → Codex 厳選方針 (ユーザー指示) の母集団づくり。
+- checkpoint 転送実測: gpu-host→vault 28MB/s (17.2GB shard、n=1、Tailscale direct)。249GB checkpoint ≈ 2.5h/個で本走の 300-step 間隔 (≈6.4h) に成立。`esft/vault_pull_checkpoint.sh` (再開可能 + SHA 照合) を整備、試走 checkpoint-100 の回収走行中。

@@ -20,6 +20,7 @@
 - **GPU はできるだけ余らせない。空いたら究極目標に寄与する作業を即割り当てる。**
 - aux-host は当面使用不可。使えるのは **gpu-host(8×96GB)とホームラボ(RTX PRO 6000 ×2)** のみ。GPU 2(5070Ti)は表示用で計算に使わない。
 - **恒久分担 (07-11 確定): ローカル = データ生成工場 + eval 計測室 / gpu-host = 訓練炉。**
+- **データ戦略の強化 (07-11 ユーザー指示): ホームラボ GPU 両方を生成で埋め続け、大量生成 → Codex 厳選の 2 段フィルタで品質を取る。** 機械検証 (正しさ) → Codex 審査 (品質、rubric 固定・厳しめ) の順。Codex 契約枠は潤沢、選別対象は自己生成 + Toucan 厳選抽出。判定ログは全件保存。
 - 現在の割当 (07-11 午後): gpu-host 8GPU = **200-step joint probe 走行中** / ローカル GPU 0,1 = **selfgen pilot500 生成走行中** / ネットワーク = Toucan-1.5M (21.8GB) + ToolMind (4.0GB) を /mnt/vault/corpora/ へ DL 中。
 - **決定論 env 速度コスト実測済み**: overhead **+8.9%**(det on 61.96 vs off 56.87 s/it、n=2/腕、ABBA、same-condition)。200-step は on 推奨(+17分)、本走の on/off は選択肢3案でユーザー判断 → `reports/FULLFFN_DET_SPEED_AB_20260711.md`。
 
@@ -38,6 +39,11 @@
 
 ### T3. Full-FFN joint trainer 配備 【完了 — grad ゲート v3 PASS】
 - trainer 改修 (二重 opt-in の joint、router LR group、anchor KL forward hook 方式) を gpu-host に配備。gradgate v3 で GPU 実機 PASS: router union 40/40 / expert 80/80 / attn/embed 凍結クリーン / fresh vs resume digest 全 8 rank bit 一致。詳細 `reports/FULLFFN_JOINT_TRAINER_20260711.md` + DEVLOG 2026-07-11 午後。
+
+### 本走の checkpoint 方針 (2026-07-11 ユーザー指示)
+- **save-steps = 300**(300 step ≈ 6.4h ごと、1 個 249GB = DCP full)。
+- **保存のたびにローカル HDD (/mnt/vault/checkpoints/) へ回収**(フォールバック用)。転送帯域は実測して回収方式を決定 (実測中)。vault 残量と相談し、間引きが必要になったらユーザーに提示 (勝手に消さない)。
+- 200 ステップ試走の checkpoint-100/200 と HF export も判定後に回収対象。
 
 ### T6. 200-step joint probe の完了検分と paired 評価 【走行中 — 最優先】
 - 走行構成: gradgate fresh 段と同一条件 + max-steps 200 / eval-steps 50 / save-steps 100 / 決定論 on / FULLFFN_PROBE off。出力 `gpu-host:codex_runs/fullffn_joint_200step_20260711/`、完了マーカー `JOINT_200STEP_DONE`。
