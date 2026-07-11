@@ -77,3 +77,4 @@
 - 数字は同一条件 paired + CI95 のみ信用。単発・条件違いは参考値扱い。
 - 負の結果も DEVLOG に死因つきで記録(実験データ削除禁止)。
 - gpu-host/aux-host のジョブは runner 最終 marker + 全成果物で完了判定(`set -o pipefail`)。
+- **vault 回収 (2026-07-11 ユーザー指示)**: 重要データはホームラボ HDD (/mnt/vault) に保存。**run 完走検分の最後に必ず回収**: selfgen/自作コーパス → `corpora/selfgen/qwen36-a6b/`、eval 生データ・実験ログ (crash 含む) → `evals/qwen36_a6b_fullffn_20260711/`、有望 checkpoint/patch → `checkpoints/`。回収済み: selfgen 全 5 run、B2-1000 patch (SHA c1b3f041 一致)、B2 eval items ×2、fullffn ログ 5 本。未回収 (完走後): prod5000、200-step v2 の HF export (kill 判定通過時のみ)、decontam v2 成果。
