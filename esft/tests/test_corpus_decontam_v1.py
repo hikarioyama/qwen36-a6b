@@ -22,7 +22,9 @@ sys.modules[SPEC.name] = corpus
 SPEC.loader.exec_module(corpus)
 
 
-MATCH = "alpha beta gamma delta epsilon zeta eta theta"
+# Nine words -> two distinct 8-grams: EvalIndex.match requires >=2 distinct
+# matching grams (min_hits) so a single shared boilerplate gram cannot reject.
+MATCH = "alpha beta gamma delta epsilon zeta eta theta iota"
 
 
 class CorpusDecontamV1Test(unittest.TestCase):

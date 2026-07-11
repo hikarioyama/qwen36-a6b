@@ -338,3 +338,12 @@
 - **v1 crash (23:05 UTC-9)**: step 100 の eval は成功 (eval_loss 0.7022、step 50 の 0.723 から低下)、直後の `_save_checkpoint` → `_state_component_signatures` → `IndexKernel.cu:111 index out of bounds` (rank1 初発) で全 rank SIGABRT。checkpoint-100 は未保存。訓練自体は 99 step まで完全に健全 (train loss 0.795→0.61 帯)。crash ログは `train200.crash_step100_linspace.log` として保全。
 - **機構確定 (measured, ローカル GPU 再現)**: digest サンプリング経路 (FULLFFN_PROBE=0 のみ) の `torch.linspace(0, N-1, 4096, dtype=long)` は CUDA の float 計算で丸まり、**N ≥ 1e9 で max index == N (N-1 を 1 超過)**。N=1e9/4.4e9/8.8e9 で再現、N=1e7 では出ない。FSDP flat param (rank あたり ~8.8e9 bytes) の campaign 保存で決定論的に発火。gradgate v3 が無事だったのは probe on = full digest でサンプリング経路を踏まないから。resume 側の検証 (L1384/1471) も同経路 = campaign resume も同バグだった。
 - **修正**: 整数演算 `arange(4096) * (numel-1) // 4095` に置換 (両端含む等間隔、オーバーフロー余裕 numel < 2.25e15)。正当性テスト全レンジ PASS。gpu-host 配備 → **v2 再発射 (fresh)**。step 1 の loss 0.7954 / grad_norm 0.7917 が v1 と bit 一致 = 決定論 env の再現性の生き証拠。次の山場は step 100 の保存 (~2:10 後)、save-live-audit を Monitor 対象に追加。
+
+## 2026-07-11 (夜) — decontam v1 の除去 31.7% は false positive、二重フィルタで修正 → v2 再走
+
+- decontam v1 完走の検分で異常検知: **除去 638,541/2,015,157 = 31.7%、うち 95.2% (608k) が bfcl 単独マッチ**。除去 row の実物再現で原因確定 — マッチした 8-gram は `"type object properties required type function function name"` **ただ 1 種類**。OpenAI 形式 tool schema の JSON ボイラープレートで、eval 問題の漏洩とは無関係 (measured, n=1 row 再現 + 除去内訳全数)。
+- 修正 2 段 (両方 measured で検証):
+  1. **eval 側 DF フィルタ** (`--max-df 2`): 同一 eval セット内の 3 row 以上に出る gram は定型として index から除外。BFCL 実測: 147,811 grams 中 40,441 (27%) が定型で落ちる。DF1 = 64% が問題固有 = 検出力の本体。
+  2. **min_hits=2**: distinct マッチ gram が 2 種類未満の row は除去しない。DF フィルタをすり抜ける非対称定型 (eval 側で稀・コーパス側で普遍、例の schema gram が該当) を殺す。
+- 検証: FP row → match 空 ✅ / **真の転写検出 19/20 維持** (BFCL user 質問文 12 語以上の丸写し、n=20) ✅ / Kimi-K2 shard0 先頭 500 row の除去 15/500 = 3.0% (v1 は同 shard 56%) ✅。テスト fixture は 9 単語 (2 grams) に更新して全 PASS。
+- v1 の manifest/removals は保全 (`clean/`)、v2 は `clean_v2/` に再走中。教訓: **除去率そのものを検分対象にする** — 「除去した」という事実は清潔の証明ではなく、除去の中身を 1 件レベルで見るまで信じない。

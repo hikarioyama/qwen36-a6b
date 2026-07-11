@@ -480,14 +480,40 @@ class EvalIndex:
     masks: dict[bytes, int]
     statuses: dict[str, dict[str, Any]]
 
-    def match(self, row: dict[str, Any]) -> list[str]:
-        mask = 0
-        for digest in record_gram_digests(row):
-            mask |= self.masks.get(digest, 0)
-        return [name for bit, name in enumerate(EVAL_NAMES) if mask & (1 << bit)]
+    def match(self, row: dict[str, Any], min_hits: int = 2) -> list[str]:
+        """Eval sets with at least ``min_hits`` DISTINCT matching grams.
+
+        A single shared gram is schema/format boilerplate that DF filtering on
+        the eval side cannot always catch (a gram can be rare in the eval set
+        yet ubiquitous in the corpus). Real transcription of an eval item
+        yields a run of consecutive grams, so requiring >=2 distinct hits
+        keeps recall (measured: 19/20 BFCL question transcripts still detected
+        with the DF filter alone) while cutting single-gram coincidences.
+        """
+        per_set: dict[int, set[bytes]] = {}
+        for digest in set(record_gram_digests(row)):
+            mask = self.masks.get(digest, 0)
+            if not mask:
+                continue
+            for bit in range(len(EVAL_NAMES)):
+                if mask & (1 << bit):
+                    per_set.setdefault(bit, set()).add(digest)
+        return [EVAL_NAMES[bit] for bit, digests in sorted(per_set.items())
+                if len(digests) >= min_hits]
 
 
-def build_eval_index(overrides: dict[str, Path] | None = None) -> EvalIndex:
+def build_eval_index(overrides: dict[str, Path] | None = None,
+                     max_df: int = 2) -> EvalIndex:
+    """Build the rejection index, dropping non-discriminative grams.
+
+    A gram that appears in more than ``max_df`` distinct rows of the SAME eval
+    set is boilerplate (tool-schema JSON scaffolding, shared parameter-format
+    prose), not evidence of leakage. Measured on BFCL (n=4,696 rows): the
+    "type object properties required ..." schema gram alone removed 608k of
+    638k Toucan rows (95% of removals) before this filter. True transcription
+    still matches on row-unique grams (DF 1 = 64% of BFCL grams), so recall
+    for real leakage is preserved. ``max_df=0`` disables the filter.
+    """
     overrides = overrides or {}
     masks: dict[bytes, int] = {}
     statuses: dict[str, dict[str, Any]] = {}
@@ -505,16 +531,27 @@ def build_eval_index(overrides: dict[str, Path] | None = None) -> EvalIndex:
                 rows, source_paths, origin = local_eval_rows(name)
             row_count = 0
             grams = 0
+            df: dict[bytes, int] = {}
             for row in rows:
                 if not isinstance(row, dict):
                     continue
                 row_count += 1
-                for digest in record_gram_digests(row):
-                    masks[digest] = masks.get(digest, 0) | (1 << bit)
-                    grams += 1
+                row_digests = set(record_gram_digests(row))
+                grams += len(row_digests)
+                for digest in row_digests:
+                    df[digest] = df.get(digest, 0) + 1
+            dropped_boilerplate = 0
+            for digest, count in df.items():
+                if max_df and count > max_df:
+                    dropped_boilerplate += 1
+                    continue
+                masks[digest] = masks.get(digest, 0) | (1 << bit)
             statuses[name] = {
                 "status": "AVAILABLE", "origin": origin, "rows_loaded": row_count,
                 "ngram_occurrences": grams,
+                "unique_grams": len(df),
+                "boilerplate_grams_dropped": dropped_boilerplate,
+                "max_df": max_df,
                 "source_sha256": {str(path): sha256_file(path) for path in source_paths if path.is_file()},
             }
         except Exception as exc:  # local cache absence must be explicit, not repaired by network
@@ -576,11 +613,12 @@ def process_parquet(source: Path, dest: Path, index: EvalIndex, log_fh: Any, bat
 
 
 def decontam(inputs: list[Path], output_dir: Path, *, batch_size: int,
-              overrides: dict[str, Path], allow_no_eval: bool) -> dict[str, Any]:
+              overrides: dict[str, Path], allow_no_eval: bool,
+              max_df: int = 2) -> dict[str, Any]:
     output_dir = output_dir.resolve()
     if output_dir.exists() and any(output_dir.iterdir()):
         raise FileExistsError(f"refusing to mix output into non-empty {output_dir}")
-    index = build_eval_index(overrides)
+    index = build_eval_index(overrides, max_df=max_df)
     available = [name for name, value in index.statuses.items() if value["status"] == "AVAILABLE"]
     if not available and not allow_no_eval:
         raise RuntimeError("all eval sources are SKIPPED; refusing to create an unverified clean corpus")
@@ -633,6 +671,9 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     dec_p.add_argument("--eval-override", action="append", default=[], metavar="NAME=PATH",
                        help="test/offline override; valid names: " + ", ".join(EVAL_NAMES))
     dec_p.add_argument("--allow-no-eval", action="store_true", help="unsafe: permit output when every eval source is SKIPPED")
+    dec_p.add_argument("--max-df", type=int, default=2,
+                       help="drop grams appearing in more than this many rows of the same eval set "
+                            "(boilerplate filter; 0 disables)")
     args = parser.parse_args(argv)
     if args.batch_size <= 0:
         parser.error("--batch-size must be positive")
@@ -654,7 +695,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     manifest = args.manifest or (args.output_dir / "manifest.json")
     report = decontam(inputs, args.output_dir, batch_size=args.batch_size,
-                      overrides=eval_override_map(args.eval_override), allow_no_eval=args.allow_no_eval)
+                      overrides=eval_override_map(args.eval_override), allow_no_eval=args.allow_no_eval,
+                      max_df=args.max_df)
     write_json(manifest, report)
     print(canonical({"status": "OK", "manifest": str(manifest), "clean_output_root": str(args.output_dir),
                      "removed_rows": report["totals"]["removed_rows"]}))
