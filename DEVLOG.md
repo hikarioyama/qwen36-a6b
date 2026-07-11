@@ -366,3 +366,14 @@
 - **完走** (保存バグ修正後の再走、fresh 200 step、決定論 on、joint 構成): eval_loss 軌跡 **0.723 (50) → 0.7022 (100) → 0.6909 (150) → 0.683 (200)** — 単調低下。checkpoint-100 / checkpoint-200 (各 249GB DCP) 保存成功、save-live-audit 全 rank 一致。HF full model export 完了 (safetensors 3 shard + config)。クラッシュ・OOM・NaN なし、定常 76.8s/it。
 - **合否判定 eval 発射** (gpu-host GPU0/1、`run_joint200_eval.sh`): base@k8 (fresh reference) → joint200@k32 → joint200@k8 の MMLU n=600 3 腕直列 + paired verdict 2 本。判定基準 (kill 表読み替え): joint@k8 vs base@k8 劣化 ≤0.8pt かつ joint@k32 改善方向 → 本走 GO / k8 劣化 >1.5pt → router 再凍結。
 - Ghostty クラッシュで Claude セッションが 1 回落ちたが、detached 運用により走行実体 (試走/量産第2弾/checkpoint回収/cx 3本) は全て無傷。Monitor のみ張り直し。
+
+## 2026-07-11 (深夜) — 200 ステップ試走の合否判定: router 非破壊 PASS / k32 の丘は 200 step では登れず
+
+- 4 腕 MMLU (n=600、同一 items、choice-logprob、gpu-host GPU0/1、paired McNemar):
+  - **joint@k8 vs base@k8: Δ−0.50pt CI95 [−2.79,+1.79] p=0.775 — 非有意 = router 非破壊ゲート PASS** (anchor KL + 低 LR の設計どおり)
+  - **joint@k32 vs base@k32: Δ−2.33pt CI95 [−4.77,+0.10] p=0.081 — 改善ゼロ、悪化方向 (未確定)**
+  - base@k32 vs base@k8: Δ−3.17pt CI95 [−5.53,−0.80] p=0.013 — **k 拡張自体が無訓練で有意に MMLU を下げる** (choice-logprob 方式での初実測)
+  - joint@k32 vs base@k8: Δ−5.50pt p=0.0001 (参考)
+- 読み (mechanism): joint 訓練は「router を壊さない」を実証したが、「k32 を活かす」方向には 200 step で全く進まず。k32 は出発点からマイナス (−3.2pt) で、それを埋める前に v3 コーパス方向への適応が k32 tail を僅かに悪化させた形。
+- eval 運用の教訓: ①訓練完了直後の発射は GPU メモリ解放前で OOM する (数分待つ/nvidia-smi 確認)、②eval_harness の kill は本体でなく `nvidia-smi --query-compute-apps` で孤児ワーカーまで掃除、③protocol は既存 manifest と突き合わせ (mmlu は choice-logprob が正、生成方式 max_new 1536 は trunc 81% で使用不能)、④paired-verdict CLI は model_path 不一致を拒否する設計のため cross-model 比較は per-item 手動計算 (今回実装した手順を踏襲)。
+- 次: HF export をローカルへ転送し、**4軸パイロット (BFCL 最優先) を joint@k8 / joint@k32 で paired 測定** — v3 コーパスは標的 (ツールコール) 寄りなので、標的軸が k8 で動いていれば「k 拡張なしの full-FFN joint 本走」(選択肢 A) が浮上する。B2 の BFCL +4.0pt は k32 と訓練の交絡があった — joint@k8 なら交絡なしで測れる。
