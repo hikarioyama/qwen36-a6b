@@ -6,6 +6,8 @@
 
 **35B-A6B を、ツールコール・コーディング・一貫性・日本語の4軸で、ベースモデルから有意に強化する。**
 
+- **k=32 (A6B) にこだわる (2026-07-11 ユーザー決定)**: k8 への撤退はしない。k32 の初期借金 (base@k32 は base@k8 比 −3.17pt 有意、choice-logprob n=600) を長期訓練で返済し、その先の容量を取りに行く。200 step では変化量が足りないのは想定内 — 訓練量で勝負する。
+
 - 「有意」= 同一問題・同一seed の paired 比較で CI95 が 0 を跨がない改善。盛りなし、`(n=?, same-condition?)` を常に添える。
 - 一般能力(MMLU/GSM8K 等)は非劣化ゲートで守る。4軸を上げて一般を落とすのは不採用。
 
@@ -45,7 +47,7 @@
 - **保存のたびにローカル HDD (/mnt/vault/checkpoints/) へ回収**(フォールバック用)。転送帯域は実測して回収方式を決定 (実測中)。vault 残量と相談し、間引きが必要になったらユーザーに提示 (勝手に消さない)。
 - 200 ステップ試走の checkpoint-100/200 と HF export も判定後に回収対象。
 
-### T6. 200-step joint probe の完了検分と paired 評価 【走行中 — 最優先】
+### T6. 200-step joint probe 【完了 — router 非破壊 PASS、k32 は長期戦と確定】
 - 走行構成: gradgate fresh 段と同一条件 + max-steps 200 / eval-steps 50 / save-steps 100 / 決定論 on / FULLFFN_PROBE off。出力 `gpu-host:codex_runs/fullffn_joint_200step_20260711/`、完了マーカー `JOINT_200STEP_DONE`。
 - 完了検分: eval_loss 軌跡 (50/100/150/200)、checkpoint-100/200 の実在、HF full model export の完全性。
 - 評価: HF export をローカルへ転送 → 4軸 + MMLU/GSM8K の paired 評価 (k32 と k8 の両方)。
