@@ -144,3 +144,9 @@ References to `deepseek-ai/ESFT`, DeepSeek-V2-Lite, DeepSeekMath and other
 upstream work retain their actual names. Machine-specific paths, runtime
 manifests, and host configuration are kept local and untracked; where launcher
 scripts must name a path, it is overridable via environment variable.
+
+The development log names three machines by **role**, not network identity:
+`gpu-host` (the multi-GPU training reactor), `aux-host` (a secondary GPU host
+for control arms and CPU data work), and `local` (the fixed evaluation machine).
+The `esft/deploy/` directory holds the launcher/trainer copies staged onto
+`gpu-host`.
