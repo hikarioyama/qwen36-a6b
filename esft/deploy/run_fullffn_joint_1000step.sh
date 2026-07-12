@@ -4,7 +4,7 @@
 # checkpoint は 300 step ごと (300/600/900) + 最終 1000。保存ごとにローカル vault へ回収する。
 set -euo pipefail
 ESFT_DIR=/mnt/docker-raid/models/esft
-VENV=~/esft-venv/bin/python
+VENV=${VENV:-python3}
 MODEL=/mnt/docker-raid/huggingface/hub/models--Qwen--Qwen3.6-35B-A3B/snapshots/995ad96eacd98c81ed38be0c5b274b04031597b0
 PREV=codex_runs/fullffn_joint_200step_20260711
 OUT=codex_runs/fullffn_joint_1000step_20260711

@@ -113,6 +113,6 @@ naive な per-sample bootstrap は楽観的になるため不採用。
 
 ## 成果物
 
-- script: `~/projects/qwen36-a6b/esft/rl/consistency_metrics.py`（`--files` 再実行可）
-- json: `~/projects/qwen36-a6b/esft/rl/reports/consistency_v1.json`
-- 本レポート: `~/projects/qwen36-a6b/esft/rl/reports/consistency_v1.md`
+- script: `esft/rl/consistency_metrics.py`（`--files` 再実行可）
+- json: `esft/rl/reports/consistency_v1.json`
+- 本レポート: `esft/rl/reports/consistency_v1.md`

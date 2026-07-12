@@ -9,7 +9,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-VENV=~/esft-work/venv/bin/python   # gpu-host の venv パスに合わせて調整
+VENV=${VENV:-python3}
 [ -x "$VENV" ] || VENV=$(command -v python)
 
 # モデル snapshot (995ad..) を glob 解決。曖昧なら明示パスに置換。

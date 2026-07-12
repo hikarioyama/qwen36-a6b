@@ -5,7 +5,7 @@
 # 最終成果物: resumable DCP checkpoint-200 + HF full model export (eval 用、~70GB)。
 set -euo pipefail
 ESFT_DIR=/mnt/docker-raid/models/esft
-VENV=~/esft-venv/bin/python
+VENV=${VENV:-python3}
 MODEL=/mnt/docker-raid/huggingface/hub/models--Qwen--Qwen3.6-35B-A3B/snapshots/995ad96eacd98c81ed38be0c5b274b04031597b0
 OUT=codex_runs/fullffn_joint_200step_20260711
 cd "$ESFT_DIR"

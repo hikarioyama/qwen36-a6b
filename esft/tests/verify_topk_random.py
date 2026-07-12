@@ -15,7 +15,7 @@ that RECORDS the top_k it observed. We then drive the exact production hook
   (d) the RNG is deterministic for a fixed seed (two installs -> identical k sequence),
       which is what keeps DDP ranks in sync.
 
-Run: ~/vllm-env/bin/python tests/verify_topk_random.py
+Run: python tests/verify_topk_random.py
 """
 from __future__ import annotations
 

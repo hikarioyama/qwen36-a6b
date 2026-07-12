@@ -3,7 +3,7 @@
 set -euo pipefail
 
 ESFT_DIR=${ESFT_DIR:-/mnt/docker-raid/models/esft}
-VENV=${VENV:-~/esft-venv/bin/python}
+VENV=${VENV:-python3}
 TRAINER=${TRAINER:-train_fullffn_dcp.py}
 MODEL=${MODEL:-/mnt/docker-raid/huggingface/hub/models--Qwen--Qwen3.6-35B-A3B/snapshots/995ad96eacd98c81ed38be0c5b274b04031597b0}
 SOURCE=${SOURCE:-codex_runs/fullffn_probe_dcp_v3_20260710/checkpoint-5}

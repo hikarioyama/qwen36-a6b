@@ -41,7 +41,9 @@ MODEL_PATH = Path(
     "/mnt/data/hf_cache/huggingface/hub/models--Qwen--Qwen3.6-35B-A3B/"
     "snapshots/995ad96eacd98c81ed38be0c5b274b04031597b0"
 )
-PATCH_PATH = Path("~/models/esft/b2_1000/expert_patch.safetensors")
+PATCH_PATH = Path(
+    os.environ.get("B2_PATCH", str(Path.home() / "models/esft/b2_1000/expert_patch.safetensors"))
+)
 PATCH_SHA256 = "c1b3f041051e9c184e5a3ea14126f921e3a2619b29454e3e73b96f79f45199d3"
 PATCH_TENSORS = 1666
 RUN_ROOT = ESFT / "reports" / "eval" / "codex_runs"

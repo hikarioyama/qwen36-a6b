@@ -12,7 +12,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-VENV=~/esft-work/venv/bin/python
+VENV=${VENV:-python}
 [ -x "$VENV" ] || VENV=$(command -v python)
 
 MODEL=$(ls -d /mnt/docker-raid/huggingface/hub/*/snapshots/995ad* 2>/dev/null | head -1)

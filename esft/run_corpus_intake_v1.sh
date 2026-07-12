@@ -2,8 +2,8 @@
 # 外部コーパス intake v1 全量 run: scan (全量実測) → decontam (8-gram 除去)。CPU/IO only。
 # 起動は detached (nohup)。完了マーカー INTAKE_V1_DONE。
 set -euo pipefail
-cd ~/projects/qwen36-a6b
-RUN_ROOT=/mnt/vault/corpora/derived/qwen36-a6b-intake-20260711-v1
+cd "$(dirname "$0")/.."   # repo root (this script lives in esft/)
+RUN_ROOT=${RUN_ROOT:-/mnt/vault/corpora/derived/qwen36-a6b-intake-20260711-v1}
 mkdir -p "$RUN_ROOT"
 
 echo "=== PHASE scan start $(date -u +%s)"
