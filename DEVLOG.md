@@ -180,7 +180,7 @@
 - **Full-FFN probe v3 Phase A**: component別full digestとstage境界を追加して真stock/GA4を再実行。checkpoint save前後は全rankでmodel/optimizer完全一致、checkpoint-5からのmodel/optimizer load直後も全rank一致した。step6の全32 microbatch hash、各microbatch loss raw float bits、pre-forward RNGもreference/resumeで一致。一方、clip後gradient digestは全rank不一致で、直後のmodel/Adafactor exp_avg_sqも不一致。したがってDCP save/load、sampler skip、RNG、forwardではなく、backward kernelまたはFSDP/NCCL reductionの再起動間非決定性が最初の分岐点。200-stepは引き続き停止し、同一checkpoint-5から決定論設定を固定した1-step resumeを2回比較する。
 - **fresh resume再現性probe v1**: 同じv3 checkpoint-5から別のfresh processで5→6を再実行し、v3のfresh resume枝と比較。load model/optimizer、pre-forward RNG、全32 microbatch、全raw loss bitsは一致したが、clip後gradient digestは8 rankすべて不一致。よって差はwarm連続枝固有ではなく、native grouped-mm backwardまたはFSDP/NCCL reductionの再起動間非決定性。次は`CUBLAS_WORKSPACE_CONFIG=:4096:8`、`NCCL_ALGO=Ring`、`NCCL_PROTO=Simple`とPyTorch deterministic coreを固定したcold/cold 1-step pairを行う。
 - **決定論cold/cold probe arm A**: `CUBLAS_WORKSPACE_CONFIG=:4096:8`、`NCCL_ALGO=Ring`、`NCCL_PROTO=Simple`、`torch.use_deterministic_algorithms(True)`、cuDNN deterministic、TF32無効を全8 rankで確認し、同じcheckpoint-5から5→6を完走。peak allocated最大63.64GiB、frozen gradなし、recordログ生成成功。診断用`--skip-final-checkpoint`も機能し、checkpoint-6は非生成。これは比較基準の採取であり単独ではGREENにしない。次に独立cold processのarm Bを同じ設定で走らせ、load/RNG/32 microbatch/raw loss/clip後gradient/post-optimizerをarm Aとbyte比較する。
-- **決定論cold/cold probe arm B 実行試行**: **BLOCKED（remote 実行なし）**。Codex サンドボックスから `ssh -F ~/.ssh/config gpu-host` を実行したが、remote shell 開始前に `socket: Operation not permitted` / `ssh: connect to host REDACTED-IP port 22: failure` で拒否された。ユーザー指示どおり回避策は試さず、GPU/入力artifactの再検証、arm B、比較、checkpoint生成はいずれも未実施。checkpoint-5 と arm A record は未変更、200-step/本走も開始していない。再開には同一SSH経路が Codex sandbox で許可されることが必要。詳細: `reports/FULLFFN_DETERMINISM_ARMB_20260710.md`。
+- **決定論cold/cold probe arm B 実行試行**: **BLOCKED（remote 実行なし）**。Codex サンドボックスから `ssh -F ~/.ssh/config gpu-host` を実行したが、remote shell 開始前に `socket: Operation not permitted` / `ssh: connect to host <gpu-host-ip> port 22: failure` で拒否された。ユーザー指示どおり回避策は試さず、GPU/入力artifactの再検証、arm B、比較、checkpoint生成はいずれも未実施。checkpoint-5 と arm A record は未変更、200-step/本走も開始していない。再開には同一SSH経路が Codex sandbox で許可されることが必要。詳細: `reports/FULLFFN_DETERMINISM_ARMB_20260710.md`。
 
 ## 2026-07-10 — B2-1000 paired評価完了
 
@@ -230,7 +230,7 @@
 ## 2026-07-11 — Full-FFN 決定論 env 速度 A/B probe: BLOCKED
 
 - 200-step 本番の前提となる同一条件 ABBA (A,B,B,A)、各10 step・warm-up 1 step除外の速度計測を、gpu-host GPU 0--7 で開始前に接続確認した。
-- 指定経路 `ssh -F ~/.ssh/config gpu-host` は remote shell 開始前に `socket: Operation not permitted` / `ssh: connect to host REDACTED-IP port 22: failure` で拒否された。ユーザーの停止条件に従い、回避策、remote 状態確認、GPU job 実行は一切行わなかった。
+- 指定経路 `ssh -F ~/.ssh/config gpu-host` は remote shell 開始前に `socket: Operation not permitted` / `ssh: connect to host <gpu-host-ip> port 22: failure` で拒否された。ユーザーの停止条件に従い、回避策、remote 状態確認、GPU job 実行は一切行わなかった。
 - **結果は n=0, same-condition: not established**。決定論 env の s/step、平均/分散、paired 差は未測定であり、200-step 本番で決定論設定を維持するかの判断材料は未取得。checkpoint-5、既存 record/run dir、200-step 本番はいずれも未変更/未開始。詳細: `reports/FULLFFN_DET_SPEED_AB_20260711.md`。
 
 ## 2026-07-11 — M-IFEval 日本語 paired seed-dispersion bring-up: BLOCKED
@@ -391,3 +391,39 @@
 - **200-step 試走の最終実測 (MMLU n=600, choice-logprob, 同一 items, 同一 run 直列 4 腕)**: base@k8 **0.8500** / base@k32 **0.8183** / joint@k8 **0.8450** / joint@k32 **0.7950**。paired: k32 化の無訓練コスト −3.17pt [−5.53,−0.80] p=0.013 有意 / 200-step 訓練の k32 寄与 **−2.33pt [−4.77,+0.11] p=0.081 (改善ではなく悪化方向、未確定)** / k8 非劣化 −0.50pt [−2.79,+1.79] p=0.775 **PASS**。
 - **router 実測 (本走の設計に直結)**: 200 step (mult 0.08 = LR 8e-7) 後の gate weight の base からの相対 L2 変化 = **median 0.11%** (40 層、cos 0.99998) — **router は実質不動**。線形外挿で 1000 step でも ~0.5%。「k32 の借金返済」に router 再教育が必要なら、mult 0.08 は桁が足りない可能性が高い (次の 300-step checkpoint 判断か第 2 期発射時の材料に。実測は export 済み gate の直接比較で再現可能)。k8 非劣化 PASS も「router がほぼ動かなかったから」の可能性があり、anchor KL の効果とはまだ言えない。
 - **ローカル側の成果**: ツールコール量産・第 2 弾完走 **4,918/5,000 = 98.4%** (multi_turn 95.2%、truncation 0、vault 回収済み)。第 1 弾と合わせ **機械検証済み 9,846 件**が Codex 厳選待ち。
+
+## 2026-07-11 (夕) — v4 プリフライトが v3 の HumanEval 転写を検出 / ja decontam は偽陽性と判定
+
+- v4 組み立て (v3 239,924 + Toucan 厳選 39,678 + general/knowledge 増強 39,635 + selfgen 層別 4,044 = **323,281 行**、shuffle seed 20260712、sha256 eb6db2f0) 後の G2 監査 (random 5k) で **24.9% (1,246 行) がヒット** — 内訳分解と実物目視で二種類の別問題と判定:
+  - **ja = 偽陽性 (確定)**: japanese_local 84.8% / oasst2_ja 76.7% のヒットは「コンビニエンスストア」「するにはどうすれば」等の日常語窓。機構 = decontam の CJK 1 文字=1 トークン設計で 8-gram=8 文字しかなく、低エントロピー。連続 run 最長 11 でも実物は一般表現 (「グルコースとアミノ酸の取り込みを」)。**v4 では ja を除去しない**。CJK matcher の較正 (gram 長 or run 基準 + mutated-eval 検証) は v5 バックログへ
+  - **code = 真の転写 (濃厚)**: codefeedback 8.8% / evol_codealpaca 3.5% が humaneval/bfcl にヒット、**run 分布が二峰性 (散発 1-5 vs クラスタ 11-18)**。run 11 = 18 単語連続一致 = HumanEval 素数判定コード等の転写。codefeedback/evol の HumanEval 汚染は文献既知。**v3 に最初から混入しており、200 step 試走 + 現行 1,200 step はこのデータで訓練済み**
+- 対処: v3 に en 系 eval 限定 run≥6 の転写フィルタを全量適用 → 除去行を引いて v4 を再組み立て (走行中)。
+- **eval 設計への警告 (G3 で必須)**: coding 軸を HumanEval で測ると、v3 系で訓練した腕だけ非対称に盛られる (base は v3 を見ていない)。coding 軸の判定は HumanEval 以外 (MBPP+等の held-out) を主指標にするか、HumanEval には汚染注記を付ける。
+
+## 2026-07-12 (朝) — 区間 2 完走 (200→1000 step) → 区間 3 (v4) を空白数分で発射
+
+- **区間 2 完走**: eval_loss 0.723 (50) → 0.683 (200) → 0.6507 (550) → 0.6284 (950) → 0.6321 (1000 最終、揺らぎ範囲)。全 checkpoint (300/600/900/1000) の save-live-audit 全 rank match=True。クラッシュ・OOM・NaN ゼロ、定常 78.9s/it。
+- **区間 3 発射**: `run_fullffn_joint_v4corpus_interval3.sh` — v4 (322,262 行) で fresh 起動 (構成同一・燃料のみ変更 = 区間傾き比較が same-condition)。G2 ゲート通過確認 (render check OK: errors 0, over7168 25,937=8.0%)。fp32 export (128GB) は bf16 鋳直しで 65.4GB に半減して転送中。
+- **夜間の Codex 3 本納品** (再発注後 ~4h で全完了): ①意図レベル selfgen (T1-T4 tier + distractor + paraphrase/監査 I/F、tests 6+9 PASS)、②品質選別ハーネス (rubric×2 + ランナー + **パイロット n=100: accept 0 / reject 100** — 全件「転写タスク」判定で 93.3% 単発合格率の診断を独立裏付け)、③trainer offsets 改修 (--tokenize-mode offsets + --tools-mode native、tests 11+4+21 PASS、default バイト同一)。
+- **cx ハーネスの二次罠を修理**: stdin 吸収 cat が EOF しないパイプで永遠ブロック → 3 run × 14h 損失。timeout 15 パッチ + 起動時 `< /dev/null` 明示を規範化 (memory 更新済み)。
+- render 長さ統計 (3 回目で正): v4 = 701M tokens、p50 525 / p90 5,391 / p99 24,425、7168 超 8.0% — trainer 切り詰め。v5 で長行分割を検討。
+- 転写 selfgen 4,044 行は品質審判全 reject だが v4 に残置 (プロトコル形式学習の固有役割、1.3%)。ユーザーに提示済み。
+
+## 2026-07-12 (朝) — G3 傾き判定: ディップ回復・借金未返済 / router は単調平坦化という機構発見
+
+- **G3 (MMLU n=600、同一 600 items、choice-logprob、paired)**: base@k8 508/600 (84.67%) / base@k32 489 (81.50%) / joint200@k32 477 (79.50%) / **joint1000@k32 486 (81.00%)**。
+  - 訓練傾き (200→1000): **Δ+1.50pt CI95 [−0.54,+3.54] p=0.20** — 正方向・未有意
+  - vs base@k32: Δ−0.50pt p=0.79 — **200 step 時点の訓練ディップ (−2.33pt) はほぼ完全回復**
+  - vs base@k8 (床): **Δ−3.67pt p=0.011 — k32 借金は未返済**
+  - マシン間一致検査: 同一モデル・同一 items で gpu-host vs ローカル正誤一致 98.7% (Δ−0.33pt) — 比較有効
+- **router 診断 3 点比較 (knowledge_en 524k tok, 同一 blocks)**: rank1-8 質量 0.1775→0.1668→**0.1247**、rank9-32 0.1989→0.1890→**0.1664**、entropy 5.145→5.195→**5.328** (一様=5.545)、top10% expert 占有 0.297→0.285→0.259。**平坦化は過渡でなく単調・加速方向** — top-32 が担う pre-topk 質量は base 37.6% → joint1000 29.1%。
+- **機構の読み**: MMLU 回復は router 修復ではなく FFN 適応由来。router は base の較正から単調に離れて平坦化しており、選択性が落ちている。借金が返らない構造要因の候補。**anchor KL (0.15) が平坦化を止められていない — anchor の参照分布 (base 固定か自己参照か) の実装確認が必要**。候補機構: router 重みの実効縮小 (logit スケール減 → softmax 平坦化)。
+- **進路**: 現路線 (v4 → v5) 続行 + **ノブ C (anchor 強化 / router LR 再考 / logit スケール保存) の優先度が上昇**。区間 3 は v4 で再発射済み (prepare 完了後、cache ゲート通過)。
+
+## 2026-07-12 (昼) — α ダイヤル発見: k32 の借金は訓練ゼロで全額返済 → パイプライン設計転換
+
+- **ダイヤル定義**: gate scores を降順に並べ rank 9 以降を α 倍 → 再正規化 (実行時、重み不変)。α=0 は top-8 renorm と数学的同一 (入れ子性: k32 の上位 8 = k8 の 8)。実装は eval_harness.py `--router-tail-scale` (forward hook ~20 行)。検証: α=0 vs base@k8 予測一致 98/100 (bf16 ノイズ水準、マシン間一致 98.7% と同等)。
+- **掃引実測 (MMLU n=600 同一 items, paired vs α=1)**: α=0: 84.67 / α=0.25: 84.33 (+2.83 [+0.97,+4.70]) / **α=0.5: 84.50 (+3.00 [+1.35,+4.65])** / α=0.75: 82.83 (+1.33 [+0.12,+2.55]) / α=1: 81.50。曲線は [0,0.5] 平坦→以降崩れ。**−3.17pt の正体は再正規化希釈と確定** (選択でも expert 破損でもない)。
+- **パイプライン転換 (ユーザー合意)**: 較正=ダイヤル (訓練ゼロ、区間境界で掃引し直す) / 能力=FFN 訓練 / **router 凍結** (anchor 複雑性ごと不要化)。進捗メーター = 最適 α の推移と「84.67 を超える α の出現」。予備部品として router-only モード+逆KL anchor (Codex 納品済み、未投入) を温存。
+- **区間交代**: v4 joint (旧 anchor、~step300 相当まで走行、成果物は保全) を kill → `fullffn_tail05_frozen_router_20260712` 発射: **base から fresh / router 凍結 / --router-tail-scale 0.5 (trainer 移植済み、Codex、全テスト PASS、α は checkpoint メタデータに記録) / v4 / 1000 step**。キャンペーン初の「借金ゼロ地点から容量上積みを狙う」区間。
+- パネル (3 腕 Opus) の要旨は DEVLOG 前項+reports 参照: joint 平坦化は LM 損失自体の性質 (shared expert とのアンサンブル谷)、router-only 単体は天井 84.67、n=600 の MDE 3.4pt 問題 → 合否判定は大 n で。

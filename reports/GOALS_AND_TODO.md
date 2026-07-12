@@ -86,3 +86,12 @@
 - 負の結果も DEVLOG に死因つきで記録(実験データ削除禁止)。
 - gpu-host/aux-host のジョブは runner 最終 marker + 全成果物で完了判定(`set -o pipefail`)。
 - **vault 回収 (2026-07-11 ユーザー指示)**: 重要データはホームラボ HDD (/mnt/vault) に保存。**run 完走検分の最後に必ず回収**: selfgen/自作コーパス → `corpora/selfgen/qwen36-a6b/`、eval 生データ・実験ログ (crash 含む) → `evals/qwen36_a6b_fullffn_20260711/`、有望 checkpoint/patch → `checkpoints/`。回収済み: selfgen 全 5 run、B2-1000 patch (SHA c1b3f041 一致)、B2 eval items ×2、fullffn ログ 5 本。未回収 (完走後): prod5000、200-step v2 の HF export (kill 判定通過時のみ)、decontam v2 成果。
+
+## 2026-07-11 (夜) 追記 — v4 コーパス確定・区間 3 発射準備完了
+
+- **戦略の正**: `reports/DATA_QUALITY_STRATEGY_20260711.md` (敵対的パネル 5 腕 + Grok 文献 + 実測で確定)。二層方針 = 区間 3 は v4 (在庫 A 群 de-scope 版) で炉を止めず、品質の本戦 (意図レベル selfgen / 蒸留 / 一貫性軸 / ja decontam 較正) は v5 で。
+- **v4 確定**: gpu-host `data/v4_20260711.jsonl` = **322,262 行** (sha256 3d5cfa34)。組成 = v3 転写除去版 238,905 + Toucan 厳選 39,678 (strict×難度層別、同梱品質評価を活用) + general/knowledge 増強 39,635 (vault 未使用プール) + selfgen 層別 4,044 (idx≥1 全量 + idx0 35%)。
+- **G2 実績**: 5k 監査で v3 の HumanEval 転写 (codefeedback/evol、run 11-18 クラスタ) を検出 → en 系 run≥6 フィルタで 1,019 行除去。**ja 側 85% ヒットは CJK 8 文字 gram の偽陽性と判定し除去せず** (matcher 較正は v5)。再監査ヒット 0。レンダリング検証 (G2-③) は gpu-host で走行中、発射スクリプトに errors==0 ゲート組込済み。
+- **eval 警告 (G3 で適用)**: coding 軸の HumanEval は v3 系訓練腕が非対称に盛られる (転写混入を 1,200 step 学習済み)。coding 判定は held-out 指標を主にする。
+- **発射手順 (明朝)**: DONE マーカー → 区間 2 export 自動生成済み → `run_fullffn_joint_v4corpus_interval3.sh` (staged、構成同一・燃料のみ変更 = 区間傾き比較が same-condition) → export をローカル転送して G3 (床 = base@k8、MMLU + router 診断 + 4 軸)。
+- 常設ウォッチャー: 完走/エラー/停滞 30 分ポーリング。ckpt-300 は保存検知で vault 自動回収。
