@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Stream Toucan/selfgen tool-call records into the trainer's message JSONL.
 
-``train_fullffn_dcp.py`` deliberately accepts only ``messages``.  Its current
-call to ``apply_chat_template`` does not pass a ``tools=`` argument and cannot
-render a system-only first prefix, so this converter places Qwen's tool-schema
-text at the start of the first user message.  It also normalises the four observed Toucan representations to Qwen's native
-``assistant.tool_calls`` and ``tool`` roles.
+The default output is compatible with the legacy incremental trainer: it puts
+Qwen's tool-schema text at the start of the first user message.  With
+``--tools-mode native`` it instead preserves normal system messages and stores
+the schema in the record's native ``tools`` field for the trainer's offsets
+tokenisation mode.  It also normalises the four observed Toucan representations
+to Qwen's native ``assistant.tool_calls`` and ``tool`` roles.
 
 This program is CPU/IO only.  Parquet is read batch by batch; it never reads a
 whole file or corpus into memory.  A parquet shard still being written is not
@@ -140,17 +141,18 @@ def _legacy_tool_declaration(content: str) -> list[dict[str, Any]] | None:
         return None
 
 
-def normalize_messages(raw_messages: Any, raw_tools: Any = None) -> list[dict[str, Any]]:
+def _normalize_messages_and_tools(raw_messages: Any, raw_tools: Any = None, *,
+                                  tools_mode: str = "preamble") -> tuple[list[dict[str, Any]], Any]:
     """Normalise selfgen, Toucan legacy, and Toucan SFT messages.
 
     The output contains only roles accepted by the Qwen 3.6 chat template.
-    A leading system message is deliberately folded into the first user turn:
-    the trainer renders every prefix and this template rejects a system-only
-    prefix.  Tool schemas are likewise folded there because the trainer cannot
-    receive ``tools=``.  This is a trainer-compatible fallback, not an exact
-    substitute for inference-time ``tools=`` rendering (documented in the
-    accompanying report).
+    ``preamble`` retains the legacy behavior: a leading system message and tool
+    schemas are folded into the first user turn because the incremental trainer
+    renders system-only prefixes.  ``native`` keeps a normal system message and
+    returns the tool schemas separately for the trainer to pass as ``tools=``.
     """
+    if tools_mode not in {"preamble", "native"}:
+        raise ValueError(f"unknown tools mode: {tools_mode!r}")
     raw_messages = parse_json(raw_messages, want=list)
     tools = parse_json(raw_tools) if raw_tools is not None else None
     if tools is not None and not isinstance(tools, list):
@@ -198,29 +200,49 @@ def normalize_messages(raw_messages: Any, raw_tools: Any = None) -> list[dict[st
         else:
             raise ConversionError(f"unsupported message role {role!r}")
 
-    preamble_parts = []
-    if tools:
-        preamble_parts.append(_tool_system_content(tools))
-    if source_system and source_system.strip():
-        preamble_parts.append(source_system.strip())
-    if preamble_parts:
-        first_user = next((message for message in messages if message["role"] == "user"), None)
-        if first_user is None:
-            raise ConversionError("tool/system context has no following user turn")
-        first_user["content"] = "\n\n".join(preamble_parts) + "\n\n" + first_user["content"]
+    if tools_mode == "preamble":
+        preamble_parts = []
+        if tools:
+            preamble_parts.append(_tool_system_content(tools))
+        if source_system and source_system.strip():
+            preamble_parts.append(source_system.strip())
+        if preamble_parts:
+            first_user = next((message for message in messages if message["role"] == "user"), None)
+            if first_user is None:
+                raise ConversionError("tool/system context has no following user turn")
+            first_user["content"] = "\n\n".join(preamble_parts) + "\n\n" + first_user["content"]
+    elif source_system and source_system.strip():
+        messages.insert(0, {"role": "system", "content": source_system})
     if not messages or not any(msg["role"] == "assistant" for msg in messages):
         raise ConversionError("record has no assistant turn")
+    return messages, tools
+
+
+def normalize_messages(raw_messages: Any, raw_tools: Any = None, *,
+                       tools_mode: str = "preamble") -> list[dict[str, Any]]:
+    """Public message-only normaliser retained for callers and legacy tests."""
+    messages, _ = _normalize_messages_and_tools(
+        raw_messages,
+        raw_tools,
+        tools_mode=tools_mode,
+    )
     return messages
 
 
-def to_trainer_record(row: dict[str, Any], *, source_tag: str, domain: str) -> dict[str, Any]:
-    """Convert one source row without retaining source metadata or tool columns."""
+def to_trainer_record(row: dict[str, Any], *, source_tag: str, domain: str,
+                      tools_mode: str = "preamble") -> dict[str, Any]:
+    """Convert one source row, optionally retaining native tool schemas."""
     raw_tools = row.get("tools", row.get("available_tools"))
-    return {
-        "messages": normalize_messages(row.get("messages"), raw_tools),
+    messages, tools = _normalize_messages_and_tools(
+        row.get("messages"), raw_tools, tools_mode=tools_mode)
+    record = {
+        "messages": messages,
         "_source": source_tag,
         "_domain": domain,
     }
+    if tools_mode == "native" and tools is not None:
+        record["tools"] = tools
+    return record
 
 
 def parquet_is_complete(path: Path, min_age_seconds: float) -> bool:
@@ -274,7 +296,7 @@ def input_files(inputs: Iterable[str], min_age_seconds: float) -> Iterator[Path]
 
 def convert(inputs: Iterable[str], output: str, *, source_tag: str, domain: str,
             batch_size: int = 128, min_parquet_age_seconds: float = 300,
-            max_records: int = 0) -> tuple[int, int]:
+            max_records: int = 0, tools_mode: str = "preamble") -> tuple[int, int]:
     """Stream all usable input rows to ``output``.  Returns ``(written, bad)``."""
     written = bad = 0
     with Path(output).open("w", encoding="utf-8") as handle:
@@ -282,7 +304,8 @@ def convert(inputs: Iterable[str], output: str, *, source_tag: str, domain: str,
             iterator = iter_parquet_rows(path, batch_size) if path.suffix == ".parquet" else iter_jsonl_rows(path)
             for row_no, row in enumerate(iterator):
                 try:
-                    record = to_trainer_record(row, source_tag=source_tag, domain=domain)
+                    record = to_trainer_record(row, source_tag=source_tag, domain=domain,
+                                               tools_mode=tools_mode)
                 except (ConversionError, TypeError, ValueError) as exc:
                     bad += 1
                     print(f"SKIP {path}:{row_no}: {exc}", file=sys.stderr)
@@ -302,6 +325,9 @@ def main() -> int:
     parser.add_argument("--source-tag", required=True,
                         help="stored in _source on every emitted trainer record")
     parser.add_argument("--domain", default="toolcall", help="stored in _domain (default: toolcall)")
+    parser.add_argument("--tools-mode", choices=["preamble", "native"], default="preamble",
+                        help="preamble preserves legacy incremental training; native emits "
+                             "record.tools for trainer --tokenize-mode offsets")
     parser.add_argument("--batch-size", type=int, default=128)
     parser.add_argument("--min-parquet-age-seconds", type=float, default=300)
     parser.add_argument("--max-records", type=int, default=0, help="test/smoke cap; 0 streams all rows")
@@ -311,7 +337,8 @@ def main() -> int:
     written, bad = convert(args.input, args.output, source_tag=args.source_tag, domain=args.domain,
                            batch_size=args.batch_size,
                            min_parquet_age_seconds=args.min_parquet_age_seconds,
-                           max_records=args.max_records)
+                           max_records=args.max_records,
+                           tools_mode=args.tools_mode)
     print(json.dumps({"written": written, "skipped_invalid": bad}, sort_keys=True), file=sys.stderr)
     return 0
 

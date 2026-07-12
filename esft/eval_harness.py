@@ -699,7 +699,8 @@ def get_benchmark(name: str) -> Benchmark:
 # ============================ subject-model spec ============================
 
 def resolve_model_spec(kind: str, *, model_path=None, patch=None,
-                       nvfp4_model_path=None, topk=TOP_K_DEFAULT) -> dict:
+                       nvfp4_model_path=None, topk=TOP_K_DEFAULT,
+                       router_tail_scale=None) -> dict:
     """Resolve ``--model`` into a picklable spec the worker consumes.
 
     Raises ``ValueError`` on missing required paths (the CLI turns that into a
@@ -708,7 +709,8 @@ def resolve_model_spec(kind: str, *, model_path=None, patch=None,
     """
     if kind == "base":
         return {"kind": "base", "model_path": model_path or MODEL_35B,
-                "patch": None, "topk": topk}
+                "patch": None, "topk": topk,
+                "router_tail_scale": router_tail_scale}
     if kind == "patched":
         if not patch:
             raise ValueError("--patch <patch.safetensors> is required for --model patched")
@@ -764,6 +766,34 @@ def load_subject_model(spec: dict, gpu_id: int):
         for r in refs:
             r.gate.top_k = k
         assert all(int(r.gate.top_k) == k for r in refs)
+
+    # --router-tail-scale alpha: rank 9 以降の gate 重みを alpha 倍して再正規化する
+    # 実行時ダイヤル (重み不変)。alpha=0 は top-8 renorm と数学的に一致 = base@k8 再現。
+    # rank はトークンごとの順位 (固定 expert 集合ではない)。renorm 後の scores への
+    # 乗算 + 再 renorm は、renorm 前への乗算と可換なので post-renorm hook で正しい。
+    tail_scale = spec.get("router_tail_scale")
+    if is_moe and tail_scale is not None and float(tail_scale) != 1.0:
+        import torch as _t
+        _alpha = float(tail_scale)
+
+        def _make_tail_hook(alpha):
+            def _hook(_mod, _inp, out):
+                logits, scores, idx = out
+                if scores.shape[-1] <= 8:
+                    return None
+                s = scores.float()
+                order = s.argsort(dim=-1, descending=True)
+                mask = _t.ones_like(s)
+                mask.scatter_(-1, order[:, 8:], alpha)
+                s = s * mask
+                s = s / s.sum(-1, keepdim=True).clamp_min(1e-9)
+                return (logits, s.to(scores.dtype), idx)
+            return _hook
+
+        for r in refs:
+            r.gate.register_forward_hook(_make_tail_hook(_alpha))
+        print(f"[gpu{gpu_id}] router tail-scale alpha={_alpha} armed on {len(refs)} gates",
+              flush=True)
 
     if spec["kind"] == "patched":
         info = load_expert_patch(model, spec["patch"])
@@ -1263,6 +1293,9 @@ def main():
     ap.add_argument("--n", type=int, default=600, help="items per benchmark")
     ap.add_argument("--topk", type=int, default=TOP_K_DEFAULT,
                     help="gate.top_k override (ignored for dense). Patched/nvfp4: use K*")
+    ap.add_argument("--router-tail-scale", type=float, default=None,
+                    help="rank9+ の gate 重みを alpha 倍して再正規化 (実行時ダイヤル。"
+                         "0=top-8 renorm と同一, 1=素の topk)")
     ap.add_argument("--patch", default=None, help="ESFT expert patch (required for patched)")
     ap.add_argument("--nvfp4-model-path", default=None,
                     help="baked NVFP4 model dir (required for nvfp4)")
@@ -1302,7 +1335,8 @@ def main():
     try:
         spec = resolve_model_spec(
             args.model, model_path=args.model_path, patch=args.patch,
-            nvfp4_model_path=args.nvfp4_model_path, topk=args.topk)
+            nvfp4_model_path=args.nvfp4_model_path, topk=args.topk,
+            router_tail_scale=args.router_tail_scale)
     except ValueError as e:
         ap.error(str(e))
 

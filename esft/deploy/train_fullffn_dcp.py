@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Phase-0 (GPU-gated): ESFT training for Qwen3.6-35B-A3B.
 
-Adapts DeepSeek ESFT's train.py to the Qwen3_5Moe architecture. Three methods:
+Adapts DeepSeek ESFT's train.py to the Qwen3_5Moe architecture. Four methods:
 
   * ``--method delta`` (default): residual-delta ESFT (esft_qwen/delta_patch.py).
     Packed expert tensors stay frozen; small zero-init delta Parameters
@@ -37,6 +37,11 @@ Adapts DeepSeek ESFT's train.py to the Qwen3_5Moe architecture. Three methods:
     IGNORED for full-ffn -- all experts train. Pass any valid config, e.g. one with
     an empty ``experts`` map; only its presence is used.)
 
+  * ``--method router-only``: freeze the entire model except every routed-MoE
+    gate.  This uses the same FSDP/DCP checkpoint and final HF-export path as
+    full-ffn, but the optimizer contains only the gates.  The base FFN tensors
+    therefore remain part of the exported model unchanged.
+
 ``--router-top-k 32`` widens routing at TRAIN time (gate.top_k is read at call
 time; see tests/verify_topk_override.py) so rank-9..32 selected experts receive
 tokens and therefore gradient -- required for ESFT@k32 checkpoints that will be
@@ -65,6 +70,71 @@ os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 
 DELTA_STATE_NAME = "delta_state.safetensors"
 FULLFFN_CHECKPOINT_MARKER = "checkpoint_complete.json"
+ROUTER_TAIL_SCALE_METADATA_NAME = "router_tail_scale.json"
+
+
+def router_tail_scale_metadata(tail_scale: float) -> dict:
+    """Return the reproducibility record for an explicit tail-scale run."""
+    return {
+        "router_tail_scale": float(tail_scale),
+        "tail_rank_start": 9,
+        "score_compute_dtype": "float32",
+        "renormalize": True,
+        "scope": "all MoE gate forward outputs (training and in-training eval)",
+    }
+
+
+def write_router_tail_scale_metadata(output_dir: str, tail_scale: float | None) -> None:
+    """Write an explicit-tail-scale manifest, leaving legacy outputs untouched."""
+    if tail_scale is None:
+        return
+    os.makedirs(output_dir, exist_ok=True)
+    path = os.path.join(output_dir, ROUTER_TAIL_SCALE_METADATA_NAME)
+    temp_path = path + ".tmp"
+    with open(temp_path, "w") as f:
+        json.dump(router_tail_scale_metadata(tail_scale), f, indent=2)
+        f.write("\n")
+        f.flush()
+        os.fsync(f.fileno())
+    os.replace(temp_path, path)
+
+
+def install_router_tail_scale_hook(model, tail_scale: float | None):
+    """Install eval-equivalent post-gate score scaling on every MoE gate.
+
+    ``None`` deliberately performs no module discovery or hook registration so
+    the legacy default forward path remains byte-identical.  Like
+    ``eval_harness.py``, alpha=1 is also a no-op.  The hook only transforms the
+    gate's emitted scores and never dereferences a parameter, so it is safe
+    while FSDP FULL_SHARD has materialised a gate only for its forward call.
+    """
+    if tail_scale is None or float(tail_scale) == 1.0:
+        return []
+
+    import torch
+    from esft_qwen.common import find_moe_blocks
+
+    alpha = float(tail_scale)
+
+    def make_hook():
+        def hook(_module, _inputs, output):
+            logits, scores, indices = output
+            if scores.shape[-1] <= 8:
+                return None
+            scores_fp32 = scores.float()
+            order = scores_fp32.argsort(dim=-1, descending=True)
+            mask = torch.ones_like(scores_fp32)
+            # Gate output is [tokens, top_k], matching eval_harness.  Ellipsis
+            # additionally keeps this pure post-processing valid for a batched
+            # stand-in without changing real-model behavior.
+            mask.scatter_(-1, order[..., 8:], alpha)
+            scaled = scores_fp32 * mask
+            scaled = scaled / scaled.sum(-1, keepdim=True).clamp_min(1e-9)
+            return (logits, scaled.to(scores.dtype), indices)
+        return hook
+
+    refs = find_moe_blocks(model)
+    return [ref.gate.register_forward_hook(make_hook()) for ref in refs]
 
 
 def is_router_parameter_name(name: str) -> bool:
@@ -114,6 +184,47 @@ def build_fullffn_joint_param_groups(named_parameters, *, learning_rate: float,
     return groups
 
 
+def build_router_only_param_groups(named_parameters, *, learning_rate: float):
+    """Build the one no-decay optimizer group allowed in router-only mode.
+
+    This runs after FSDP wrapping, so it must discover Parameters from the
+    wrapped model rather than retaining pre-wrap gate references.  Failing closed
+    here prevents an accidental FFN/attention update from being checkpointed or
+    exported as a router-only run.
+    """
+    routers, unexpected = [], []
+    for name, parameter in named_parameters:
+        if not parameter.requires_grad:
+            continue
+        if is_router_parameter_name(name):
+            routers.append(parameter)
+        else:
+            unexpected.append(name)
+    if unexpected:
+        raise RuntimeError(
+            "router-only mode found non-router trainable parameters: "
+            + ", ".join(unexpected[:3])
+        )
+    if not routers:
+        raise RuntimeError("router-only optimizer found no trainable gate parameters")
+    return [{"params": routers, "lr": learning_rate, "weight_decay": 0.0}]
+
+
+def configure_router_only(model):
+    """Freeze every Parameter, then unfreeze only routed-MoE gate Parameters."""
+    from esft_qwen.common import find_moe_blocks
+
+    model.requires_grad_(False)
+    params = []
+    for ref in find_moe_blocks(model):
+        for parameter in ref.gate.parameters(recurse=True):
+            parameter.requires_grad_(True)
+            params.append(parameter)
+    if not params:
+        raise RuntimeError("router-only mode found no routed-MoE gate parameters")
+    return params
+
+
 def fullffn_frozen_grad_violations(named_parameters):
     """Return frozen Parameters that received a gradient (empty is required)."""
     return [name for name, parameter in named_parameters
@@ -133,6 +244,60 @@ def snapshot_router_weights_to_cpu(model):
         ref.layer_idx: ref.gate.weight.detach().to(device="cpu", copy=True)
         for ref in find_moe_blocks(model)
     }
+
+
+def load_router_anchor_weights_to_cpu(model, model_dir):
+    """Read just the gate tensors from a local HF safetensors model directory.
+
+    ``--router-anchor-ref PATH`` deliberately does *not* call
+    ``from_pretrained``: it opens only each expected ``*.gate.weight`` tensor,
+    keeps it on CPU, and validates the shape against the already-loaded student.
+    Both a normal one-file export and a sharded ``model.safetensors.index.json``
+    export are supported.
+    """
+    from pathlib import Path
+    from safetensors import safe_open
+    from esft_qwen.common import find_moe_blocks
+
+    root = Path(model_dir)
+    if not root.is_dir():
+        raise ValueError(f"router anchor reference is not a model directory: {root}")
+    refs = find_moe_blocks(model)
+    expected = {
+        f"{ref.name}.gate.weight": (ref.layer_idx, tuple(ref.gate.weight.shape))
+        for ref in refs
+    }
+    index_path = root / "model.safetensors.index.json"
+    if index_path.is_file():
+        with index_path.open() as handle:
+            weight_map = json.load(handle).get("weight_map", {})
+        paths = {key: root / weight_map[key] for key in expected if key in weight_map}
+    else:
+        candidates = sorted(root.glob("*.safetensors"))
+        if not candidates:
+            raise ValueError(f"router anchor reference contains no safetensors: {root}")
+        paths = {}
+        for candidate in candidates:
+            with safe_open(str(candidate), framework="pt", device="cpu") as archive:
+                for key in archive.keys():
+                    if key in expected:
+                        paths[key] = candidate
+    missing = sorted(set(expected) - set(paths))
+    if missing:
+        raise KeyError(
+            "router anchor reference is missing gate tensors: " + ", ".join(missing[:3])
+        )
+    result = {}
+    for key, (layer_idx, expected_shape) in expected.items():
+        with safe_open(str(paths[key]), framework="pt", device="cpu") as archive:
+            tensor = archive.get_tensor(key).detach().cpu().clone()
+        if tuple(tensor.shape) != expected_shape:
+            raise ValueError(
+                f"router anchor shape mismatch for {key}: "
+                f"reference={tuple(tensor.shape)} student={expected_shape}"
+            )
+        result[layer_idx] = tensor
+    return result
 
 
 class FSDPSafeRouterAnchor:
@@ -259,6 +424,69 @@ class FSDPSafeRouterAnchor:
         self.handles.clear()
 
 
+class RouterEvalObserver:
+    """Accumulate pre-top-k router statistics from evaluation forwards only.
+
+    The hooks do no second forward and retain no activation graph.  ``begin`` is
+    called by the trainer immediately before its normal ``evaluate`` loop, and
+    the aggregate is emitted immediately after the corresponding ``eval_loss``.
+    """
+
+    def __init__(self, model):
+        from esft_qwen.common import find_moe_blocks
+
+        self._collecting = False
+        self._sums = None
+        self._count = 0
+        self.handles = [
+            ref.gate.register_forward_hook(self._hook) for ref in find_moe_blocks(model)
+        ]
+
+    def begin(self):
+        self._collecting = True
+        self._sums = None
+        self._count = 0
+
+    def _hook(self, module, inputs, output):
+        import torch
+
+        # The Trainer makes the model eval before its loop; this check also makes
+        # the hook inert for ordinary train forwards and checkpoint recomputation.
+        if not self._collecting or module.training:
+            return
+        logits = FSDPSafeRouterAnchor._router_logits(output)
+        with torch.no_grad():
+            probs = torch.softmax(logits.float(), dim=-1)
+            ordered = probs.sort(dim=-1, descending=True).values
+            values = torch.stack((
+                (-(probs * probs.clamp_min(1e-9).log()).sum(dim=-1)).sum(),
+                ordered[:, :8].sum(),
+                ordered[:, 8:32].sum(),
+            ))
+            self._sums = values if self._sums is None else self._sums + values
+            self._count += int(probs.shape[0])
+
+    def finish(self):
+        """Return global (entropy, r1-8, r9-32), or None for an empty eval."""
+        import torch
+
+        self._collecting = False
+        if self._sums is None:
+            return None
+        packed = torch.cat((self._sums, self._sums.new_tensor([self._count])))
+        if torch.distributed.is_available() and torch.distributed.is_initialized():
+            torch.distributed.all_reduce(packed, op=torch.distributed.ReduceOp.SUM)
+        count = int(packed[-1].item())
+        if count == 0:
+            return None
+        return tuple((packed[:3] / count).detach().float().cpu().tolist())
+
+    def remove(self):
+        for handle in self.handles:
+            handle.remove()
+        self.handles.clear()
+
+
 def install_topk_random_hook(model, gates, topk_set, seed):
     """Register a model-level forward-pre-hook that rewrites gate.top_k every forward.
 
@@ -287,7 +515,94 @@ def install_topk_random_hook(model, gates, topk_set, seed):
     return handle, eval_k
 
 
-def render_and_tokenize(tokenizer, messages, mask_prompt=True, ignore_id=-100):
+def _assistant_turn_spans(rendered, messages):
+    """Return full rendered-text spans for assistant turns, in message order.
+
+    Qwen's template emits every message as ``<|im_start|>ROLE\n...<|im_end|>\n``.
+    Scan those wrappers from left to right instead of searching each assistant
+    content string: repeated content (including repeated tool calls) must still
+    map to the corresponding turn.  A ``tools=`` render may prepend one synthetic
+    system turn, so only the assistant-role wrappers are returned.
+    """
+    start_marker = "<|im_start|>"
+    end_marker = "<|im_end|>\n"
+    cursor = 0
+    spans = []
+    while True:
+        start = rendered.find(start_marker, cursor)
+        if start < 0:
+            break
+        role_end = rendered.find("\n", start + len(start_marker))
+        if role_end < 0:
+            raise ValueError("unterminated chat-template role header")
+        role = rendered[start + len(start_marker):role_end]
+        end = rendered.find(end_marker, role_end + 1)
+        # Content can itself contain marker-like text.  A real template turn
+        # terminator is followed by the next role wrapper or by EOF; skip any
+        # earlier lookalike and retain the left-to-right turn correspondence.
+        while end >= 0:
+            after_end = end + len(end_marker)
+            if after_end == len(rendered) or rendered.startswith(start_marker, after_end):
+                break
+            end = rendered.find(end_marker, end + 1)
+        if end < 0:
+            raise ValueError(f"unterminated chat-template {role!r} turn")
+        end += len(end_marker)
+        if role == "assistant":
+            spans.append((start, end))
+        cursor = end
+
+    expected = sum(msg.get("role") == "assistant" for msg in messages)
+    if len(spans) != expected:
+        raise ValueError("chat-template assistant turns did not match input messages")
+    return spans
+
+
+def _render_and_tokenize_offsets(tokenizer, messages, *, tools, mask_prompt, ignore_id):
+    """Tokenise once and supervise only tokens fully inside assistant turn spans.
+
+    This deliberately includes the assistant wrapper, ``<think>`` tag, and its
+    contents.  They are emitted by the assistant channel and the legacy
+    incremental path likewise supervises assistant-channel template output.
+    Tokens whose character offsets straddle a role boundary are masked rather
+    than assigned to either turn.
+    """
+    rendered = tokenizer.apply_chat_template(messages, tools=tools, tokenize=False)
+    encoded = tokenizer(
+        rendered,
+        add_special_tokens=False,
+        return_offsets_mapping=True,
+    )
+    input_ids = encoded["input_ids"]
+    offsets = encoded["offset_mapping"]
+    if not getattr(tokenizer, "is_fast", False):
+        raise ValueError("--tokenize-mode offsets requires a fast tokenizer")
+    if len(input_ids) != len(offsets):
+        raise ValueError("tokenizer returned mismatched input_ids and offset_mapping")
+    if not mask_prompt:
+        return input_ids, list(input_ids)
+
+    spans = _assistant_turn_spans(rendered, messages)
+    labels = []
+    span_index = 0
+    for token_id, (start, end) in zip(input_ids, offsets):
+        # Fast-tokenizer special tokens with (0, 0) have no attributable source
+        # characters.  This template normally offsets its inline special tokens,
+        # but masking zero-width tokens is the conservative boundary rule.
+        while span_index < len(spans) and start >= spans[span_index][1]:
+            span_index += 1
+        in_assistant = (
+            end > start
+            and span_index < len(spans)
+            and spans[span_index][0] <= start
+            and end <= spans[span_index][1]
+        )
+        labels.append(token_id if in_assistant else ignore_id)
+    return input_ids, labels
+
+
+def render_and_tokenize(tokenizer, messages, mask_prompt=True, ignore_id=-100, *,
+                        tools=None, tokenize_mode="incremental"):
     """Tokenise a conversation with the Qwen chat template.
 
     Builds labels turn-by-turn: assistant turns are supervised, everything else
@@ -295,14 +610,30 @@ def render_and_tokenize(tokenizer, messages, mask_prompt=True, ignore_id=-100):
     masked to ``ignore_id`` when ``mask_prompt`` is set. This mirrors ESFT's
     prompt-masking while respecting the model's own chat template.
     """
+    if tokenize_mode == "offsets":
+        return _render_and_tokenize_offsets(
+            tokenizer,
+            messages,
+            tools=tools,
+            mask_prompt=mask_prompt,
+            ignore_id=ignore_id,
+        )
+    if tokenize_mode != "incremental":
+        raise ValueError(f"unknown tokenize mode: {tokenize_mode!r}")
+
     input_ids, labels = [], []
     prev_len = 0
     for i, msg in enumerate(messages):
         convo = messages[: i + 1]
-        text = tokenizer.apply_chat_template(
-            convo, tokenize=False,
-            add_generation_prompt=(msg["role"] != "assistant"),
-        )
+        template_kwargs = {
+            "tokenize": False,
+            "add_generation_prompt": (msg["role"] != "assistant"),
+        }
+        # Omit this keyword for the default path so existing incremental calls
+        # remain the exact legacy call shape, not merely an equivalent template.
+        if tools is not None:
+            template_kwargs["tools"] = tools
+        text = tokenizer.apply_chat_template(convo, **template_kwargs)
         ids_full = tokenizer(text, add_special_tokens=False)["input_ids"]
         new_ids = ids_full[prev_len:]
         input_ids.extend(new_ids)
@@ -345,9 +676,11 @@ def pack_pairs(pairs, tokenizer, seq_length, random_concat_ratio, seed, ignore_i
     return all_in, all_lab
 
 
-def pack_examples(records, tokenizer, seq_length, random_concat_ratio, seed, ignore_id=-100):
+def pack_examples(records, tokenizer, seq_length, random_concat_ratio, seed, ignore_id=-100,
+                  tokenize_mode="incremental"):
     """Original single-process API (kept for the eval harness / tests)."""
-    pairs = [render_and_tokenize(tokenizer, rec["messages"], ignore_id=ignore_id)
+    pairs = [render_and_tokenize(tokenizer, rec["messages"], ignore_id=ignore_id,
+                                 tools=rec.get("tools"), tokenize_mode=tokenize_mode)
              for rec in records]
     return pack_pairs(pairs, tokenizer, seq_length, random_concat_ratio, seed, ignore_id)
 
@@ -402,6 +735,7 @@ def pack_pairs_streaming(pairs, tokenizer, seq_length, random_concat_ratio, seed
 
 _WORKER_TOK = None
 _WORKER_CAP = 0
+_WORKER_TOKENIZE_MODE = "incremental"
 
 
 def _trim_tail(iid, lab, cap):
@@ -413,17 +747,29 @@ def _trim_tail(iid, lab, cap):
     return iid, lab
 
 
-def _tok_worker_init(tok_path, cap):
-    global _WORKER_TOK, _WORKER_CAP
+def _tok_worker_init(tok_path, cap, tokenize_mode="incremental"):
+    global _WORKER_TOK, _WORKER_CAP, _WORKER_TOKENIZE_MODE
     from transformers import AutoTokenizer
     _WORKER_TOK = AutoTokenizer.from_pretrained(tok_path)
     _WORKER_CAP = cap
+    _WORKER_TOKENIZE_MODE = tokenize_mode
 
 
-def _tok_worker_one(messages):
+def _tok_worker_one(record):
     import array
     try:
-        iid, lab = render_and_tokenize(_WORKER_TOK, messages)
+        # Accept legacy bare-message payloads for direct callers, but normal
+        # packing sends records so a native ``tools`` field reaches the template.
+        if isinstance(record, dict):
+            messages, tools = record["messages"], record.get("tools")
+        else:
+            messages, tools = record, None
+        iid, lab = render_and_tokenize(
+            _WORKER_TOK,
+            messages,
+            tools=tools,
+            tokenize_mode=_WORKER_TOKENIZE_MODE,
+        )
     except Exception:
         return None  # skip records whose chat template cannot render
     iid, lab = _trim_tail(iid, lab, _WORKER_CAP)
@@ -433,46 +779,77 @@ def _tok_worker_one(messages):
     return array.array("i", iid), array.array("i", lab)
 
 
-def tokenize_parallel(records, tok_path, workers, cap=0):
+def tokenize_parallel(records, tok_path, workers, cap=0, tokenize_mode="incremental"):
     import multiprocessing as mp
     ctx = mp.get_context("spawn")
-    msgs = [rec["messages"] for rec in records]
     pairs = []
-    with ctx.Pool(workers, initializer=_tok_worker_init, initargs=(tok_path, cap)) as pool:
+    with ctx.Pool(workers, initializer=_tok_worker_init,
+                  initargs=(tok_path, cap, tokenize_mode)) as pool:
         _skipped = 0
-        for i, pair in enumerate(pool.imap(_tok_worker_one, msgs, chunksize=64)):
+        for i, pair in enumerate(pool.imap(_tok_worker_one, records, chunksize=64)):
             if pair is None:
                 _skipped += 1
                 continue
             pairs.append(pair)
             if (i + 1) % 20000 == 0:
-                print(f"[tokenize] {i + 1}/{len(msgs)}", flush=True)
+                print(f"[tokenize] {i + 1}/{len(records)}", flush=True)
     if _skipped:
         print(f"[tokenize] skipped {_skipped} record(s) with unrenderable chat template", flush=True)
     return pairs
 
 
-def cache_path_for(args, data_path=None):
+def cache_path_for(args, data_path=None, tools_present=False):
     data_path = data_path or args.train_data
     base = os.path.basename(data_path)
     return os.path.join(
         args.data_cache_dir,
         f"{base}.seq{args.seq_length}.seed{args.seed}"
-        f".ccr{args.random_concat_ratio}.max{args.max_records}.pt")
+        f".ccr{args.random_concat_ratio}.max{args.max_records}"
+        f".tok{args.tokenize_mode}.tools{int(tools_present)}.pt")
+
+
+def _cache_index_path_for(args, data_path):
+    """Sidecar that lets every training rank find the data-specific cache key.
+
+    ``tools_present`` is intentionally part of the payload cache name.  The
+    sidecar avoids reparsing a large JSONL on every rank merely to discover that
+    bit after a successful ``--prepare-data-only`` pass.
+    """
+    base = os.path.basename(data_path)
+    return os.path.join(
+        args.data_cache_dir,
+        f"{base}.seq{args.seq_length}.seed{args.seed}"
+        f".ccr{args.random_concat_ratio}.max{args.max_records}"
+        f".tok{args.tokenize_mode}.index.json")
+
+
+def _cache_source_signature(data_path):
+    stat = os.stat(data_path)
+    return {"size": stat.st_size, "mtime_ns": stat.st_mtime_ns}
 
 
 def build_or_load_packed(args, tokenizer, tok_path, allow_build, data_path=None):
     import torch
     data_path = data_path or args.train_data
-    cache = cache_path_for(args, data_path)
-    if os.path.exists(cache):
-        blob = torch.load(cache, weights_only=True)
-        print(f"[data] loaded cache {cache}: {blob['input_ids'].shape[0]} blocks")
-        return blob["input_ids"], blob["labels"]
+    source_signature = _cache_source_signature(data_path)
+    index_path = _cache_index_path_for(args, data_path)
+    try:
+        with open(index_path) as handle:
+            cache_index = json.load(handle)
+        if cache_index.get("source") == source_signature:
+            cache = cache_path_for(
+                args, data_path, tools_present=bool(cache_index["tools_present"]))
+            if os.path.exists(cache):
+                blob = torch.load(cache, weights_only=True)
+                print(f"[data] loaded cache {cache}: {blob['input_ids'].shape[0]} blocks")
+                return blob["input_ids"], blob["labels"]
+    except (FileNotFoundError, KeyError, json.JSONDecodeError):
+        pass
     if not allow_build:
-        sys.exit(f"[data] cache missing under multi-process launch: {cache}\n"
+        sys.exit(f"[data] cache missing or stale under multi-process launch: {index_path}\n"
                  f"run once with --prepare-data-only first (avoids NCCL timeouts "
                  f"while 2 ranks tokenise for an hour)")
+
     records = []
     with open(data_path) as f:
         for line in f:
@@ -481,15 +858,31 @@ def build_or_load_packed(args, tokenizer, tok_path, allow_build, data_path=None)
                 records.append(json.loads(line))
                 if args.max_records and len(records) >= args.max_records:
                     break
+    tools_present = any("tools" in record for record in records)
+    cache = cache_path_for(args, data_path, tools_present=tools_present)
+    if os.path.exists(cache):
+        blob = torch.load(cache, weights_only=True)
+        os.makedirs(args.data_cache_dir, exist_ok=True)
+        with open(index_path, "w") as handle:
+            json.dump({"source": source_signature, "tools_present": tools_present}, handle,
+                      sort_keys=True)
+        print(f"[data] loaded cache {cache}: {blob['input_ids'].shape[0]} blocks")
+        return blob["input_ids"], blob["labels"]
     print(f"[data] tokenising {len(records)} records "
           f"({args.tokenize_workers} workers)...", flush=True)
     import time
     t0 = time.time()
     cap = args.tokenize_cap if args.tokenize_cap > 0 else args.seq_length
     if args.tokenize_workers > 1:
-        pairs = tokenize_parallel(records, tok_path, args.tokenize_workers, cap=cap)
+        pairs = tokenize_parallel(records, tok_path, args.tokenize_workers, cap=cap,
+                                  tokenize_mode=args.tokenize_mode)
     else:
-        pairs = [_trim_tail(*render_and_tokenize(tokenizer, rec["messages"]), cap)
+        pairs = [_trim_tail(*render_and_tokenize(
+            tokenizer,
+            rec["messages"],
+            tools=rec.get("tools"),
+            tokenize_mode=args.tokenize_mode,
+        ), cap)
                  for rec in records]
     print(f"[data] tokenised in {time.time() - t0:.0f}s (tail-cap={cap})")
     input_ids, labels = pack_pairs_streaming(pairs, tokenizer, args.seq_length,
@@ -497,6 +890,9 @@ def build_or_load_packed(args, tokenizer, tok_path, allow_build, data_path=None)
     del pairs
     os.makedirs(args.data_cache_dir, exist_ok=True)
     torch.save({"input_ids": input_ids, "labels": labels}, cache)
+    with open(index_path, "w") as handle:
+        json.dump({"source": source_signature, "tools_present": tools_present}, handle,
+                  sort_keys=True)
     print(f"[data] packed {input_ids.shape[0]} blocks of {args.seq_length} -> {cache}")
     return input_ids, labels
 
@@ -535,10 +931,15 @@ def main():
     ap.add_argument("--expert-config", required=True)
     ap.add_argument("--train-data", required=True, help="ESFT-format jsonl ({'messages': [...]})")
     ap.add_argument("--output-dir", required=True)
-    ap.add_argument("--method", choices=["delta", "maskhook", "full-ffn"], default="delta")
+    ap.add_argument("--method", choices=["delta", "maskhook", "full-ffn", "router-only"],
+                    default="delta")
     ap.add_argument("--router-top-k", type=int, default=0,
                     help="override gate.top_k at train time (0 = keep config value 8); "
                          "use 32 for ESFT@k32 so rank-9..32 experts receive gradient")
+    ap.add_argument("--router-tail-scale", type=float, default=None, metavar="FLOAT",
+                    help="multiply per-token gate score ranks 9+ by FLOAT, then "
+                         "renormalize in float32 (None = legacy byte-identical path; "
+                         "0 = top-8 renorm)")
     ap.add_argument("--router-topk-random", action="store_true",
                     help="stochastic co-activation (EMoE-min): randomise gate.top_k on "
                          "EVERY training forward, sampled uniformly from --topk-random-set "
@@ -566,6 +967,10 @@ def main():
     ap.add_argument("--router-anchor-weight", type=float, default=0.15,
                     help="lambda for the base-routing anchor KL added to the loss "
                          "(0 disables the anchor; router still trains)")
+    ap.add_argument("--router-anchor-ref", default="run-start", metavar="{run-start,PATH}",
+                    help="router-anchor reference: run-start snapshots the loaded model "
+                         "(legacy behavior); PATH reads only gate weights from that local "
+                         "HF safetensors model directory")
     ap.add_argument("--seq-length", type=int, default=4096)
     ap.add_argument("--max-steps", type=int, default=500)
     ap.add_argument("--learning-rate", type=float, default=1e-5)
@@ -600,6 +1005,11 @@ def main():
     ap.add_argument("--data-cache-dir", default=None,
                     help="defaults to <dirname(train-data)>/cache")
     ap.add_argument("--tokenize-workers", type=int, default=16)
+    ap.add_argument("--tokenize-mode", choices=["incremental", "offsets"],
+                    default="incremental",
+                    help="incremental preserves the legacy per-prefix tokenisation; "
+                         "offsets renders each conversation once and labels only tokens "
+                         "fully inside assistant turn spans")
     ap.add_argument("--prepare-data-only", action="store_true",
                     help="tokenise+pack+cache, then exit (no GPU needed)")
     ap.add_argument("--verify-frozen", action="store_true",
@@ -637,6 +1047,9 @@ def main():
         args.data_cache_dir = os.path.join(os.path.dirname(args.train_data) or ".", "cache")
 
     is_full_ffn = args.method == "full-ffn"
+    is_router_only = args.method == "router-only"
+    uses_fsdp_checkpointing = is_full_ffn or is_router_only
+    router_training_enabled = args.train_router or is_router_only
     if args.allow_router_joint_fullffn and not is_full_ffn:
         ap.error("--allow-router-joint-fullffn is valid only with --method full-ffn")
     if args.allow_router_joint_fullffn and not args.train_router:
@@ -646,24 +1059,26 @@ def main():
                  "--allow-router-joint-fullffn")
     if is_full_ffn and args.router_topk_random:
         ap.error("--router-topk-random is forbidden with --method full-ffn; train at fixed k=32")
-    if is_full_ffn and args.optimizer != "adafactor":
-        ap.error("--method full-ffn currently requires --optimizer adafactor")
-    if args.resume_from_checkpoint and not is_full_ffn:
-        ap.error("--resume-from-checkpoint is currently supported only for --method full-ffn")
-    if args.skip_final_hf_export and not is_full_ffn:
-        ap.error("--skip-final-hf-export is valid only for --method full-ffn")
-    if args.skip_final_checkpoint and not is_full_ffn:
-        ap.error("--skip-final-checkpoint is valid only for --method full-ffn")
+    if is_router_only and args.router_topk_random:
+        ap.error("--router-topk-random is forbidden with --method router-only; train at fixed k")
+    if uses_fsdp_checkpointing and args.optimizer != "adafactor":
+        ap.error("--method full-ffn/router-only currently requires --optimizer adafactor")
+    if args.resume_from_checkpoint and not uses_fsdp_checkpointing:
+        ap.error("--resume-from-checkpoint is currently supported only for full-ffn/router-only")
+    if args.skip_final_hf_export and not uses_fsdp_checkpointing:
+        ap.error("--skip-final-hf-export is valid only for full-ffn/router-only")
+    if args.skip_final_checkpoint and not uses_fsdp_checkpointing:
+        ap.error("--skip-final-checkpoint is valid only for full-ffn/router-only")
     if args.skip_final_checkpoint and os.environ.get("FULLFFN_PROBE") != "1":
         ap.error("--skip-final-checkpoint requires FULLFFN_PROBE=1")
-    if args.deterministic_fullffn and not is_full_ffn:
-        ap.error("--deterministic-fullffn is valid only for --method full-ffn")
+    if args.deterministic_fullffn and not uses_fsdp_checkpointing:
+        ap.error("--deterministic-fullffn is valid only for --method full-ffn/router-only")
 
     # ---- FSDP env MUST be set before from_pretrained so cpu_ram_efficient_loading
     # (rank>0 loads on meta, rank0 materialises real weights) kicks in. transformers'
     # is_fsdp_enabled() checks ACCELERATE_USE_FSDP=="true" AND an initialised process
     # group, so we also init dist below before loading the model. ----
-    if is_full_ffn:
+    if uses_fsdp_checkpointing:
         os.environ["ACCELERATE_USE_FSDP"] = "true"
         os.environ.setdefault("FSDP_CPU_RAM_EFFICIENT_LOADING", "1")
         # Transformers 5.7 drops fsdp_config.state_dict_type while constructing
@@ -701,9 +1116,15 @@ def main():
     local_rank = int(os.environ.get("LOCAL_RANK", -1))
     world_size = int(os.environ.get("WORLD_SIZE", "1"))
     rank_tag = f"[rank{max(local_rank, 0)}]"
+    if args.router_tail_scale is not None:
+        print(
+            f"{rank_tag} [router-tail-scale] alpha={float(args.router_tail_scale)} "
+            "rank=9+ compute=float32 renorm=True scope=train+in-training-eval",
+            flush=True,
+        )
 
     # full-ffn: init the process group before from_pretrained so meta-loading works.
-    if is_full_ffn and world_size > 1 and not torch.distributed.is_initialized():
+    if uses_fsdp_checkpointing and world_size > 1 and not torch.distributed.is_initialized():
         torch.cuda.set_device(max(local_rank, 0))
         torch.distributed.init_process_group(backend="nccl")
 
@@ -735,11 +1156,11 @@ def main():
           f"(train {len(train_ds)} / val {len(val_ds)})")
 
     # ---- model ----
-    # delta/maskhook: full copy per rank on ONE GPU (device_map pins it). full-ffn:
+    # delta/maskhook: full copy per rank on ONE GPU (device_map pins it). FSDP modes:
     # device_map=None so accelerate/FSDP shards it; with cpu_ram_efficient_loading
     # only rank0 materialises real weights (others meta), then FSDP scatters shards.
     device_index = local_rank if local_rank >= 0 else 0
-    device_map = None if is_full_ffn else {"": device_index}
+    device_map = None if uses_fsdp_checkpointing else {"": device_index}
     config = AutoConfig.from_pretrained(args.model)
     if args.deterministic_fullffn:
         print(
@@ -753,7 +1174,7 @@ def main():
         )
     dtype = getattr(torch, args.dtype)
     load_kw = dict(config=config, dtype=dtype, device_map=device_map)
-    if is_full_ffn:
+    if uses_fsdp_checkpointing:
         load_kw["low_cpu_mem_usage"] = True
     try:
         model = AutoModelForImageTextToText.from_pretrained(args.model, **load_kw)
@@ -780,21 +1201,51 @@ def main():
             ref.gate.top_k = args.router_top_k
         print(f"{rank_tag} router top_k -> {args.router_top_k} on {len(refs)} layers")
 
+    # This is deliberately installed before Trainer/FSDP wrapping.  It is a
+    # parameter-free post-gate hook, so both normal and checkpoint-recomputed
+    # forwards apply the same deterministic transformation.
+    tail_scale_hooks = install_router_tail_scale_hook(model, args.router_tail_scale)
+    if args.router_tail_scale is not None:
+        print(
+            f"{rank_tag} router tail-scale alpha={float(args.router_tail_scale)} "
+            f"armed on {len(tail_scale_hooks)} gates",
+            flush=True,
+        )
+
     if args.method == "delta":
         handles = to_esft_delta(model, expert_config)
     elif args.method == "full-ffn":
+        handles = to_esft_full(model)
+    elif is_router_only:
+        # Reuse the full-FFN handles solely for existing diagnostics, then impose
+        # the stricter router-only freeze boundary below.
         handles = to_esft_full(model)
     else:
         handles = to_esft_qwen(model, expert_config)
     # ---- router-mobile joint training (flag-gated; default off = frozen router) ----
     router_snapshot = None
-    if args.train_router:
+    effective_router_lr_mult = 1.0 if is_router_only else args.router_lr_mult
+    if is_router_only:
+        rp = configure_router_only(model)
+        # Existing diagnostics expect handles.router_params when present, but this
+        # assignment is optional for old deployed handle classes.
+        setattr(handles, "router_params", rp)
+    elif args.train_router:
         rp = enable_router_training(model, handles)
-        router_snapshot = snapshot_router_weights_to_cpu(model)
+    else:
+        rp = []
+    if router_training_enabled:
+        if args.router_anchor_weight > 0:
+            router_snapshot = (
+                snapshot_router_weights_to_cpu(model)
+                if args.router_anchor_ref == "run-start"
+                else load_router_anchor_weights_to_cpu(model, args.router_anchor_ref)
+            )
+        ref_desc = args.router_anchor_ref
         print(f"{rank_tag} router UNFROZEN: {len(rp)} gate params trainable, "
-              f"LR = {args.router_lr_mult} * {args.learning_rate} = "
-              f"{args.router_lr_mult * args.learning_rate:.3e}; "
-              f"anchor lambda = {args.router_anchor_weight}")
+              f"LR = {effective_router_lr_mult} * {args.learning_rate} = "
+              f"{effective_router_lr_mult * args.learning_rate:.3e}; "
+              f"anchor lambda = {args.router_anchor_weight}; ref={ref_desc}")
 
     n_train = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"{rank_tag} ESFT trainable params ({args.method}): {n_train:,}")
@@ -840,6 +1291,28 @@ def main():
                 flush=True,
             )
 
+    if is_router_only:
+        trainable_names = [name for name, p in model.named_parameters() if p.requires_grad]
+        router_names = [
+            name for name, _ in model.named_parameters() if is_router_parameter_name(name)
+        ]
+        unexpected = sorted(set(trainable_names) - set(router_names))
+        missing = sorted(set(router_names) - set(trainable_names))
+        expected_params = sum(
+            p.numel() for name, p in model.named_parameters() if name in set(router_names)
+        )
+        if not router_names or unexpected or missing or n_train != expected_params:
+            raise RuntimeError(
+                "router-only freeze boundary mismatch: "
+                f"trainable={len(trainable_names)} expected={len(router_names)} "
+                f"params={n_train}/{expected_params} unexpected={unexpected[:3]} "
+                f"missing={missing[:3]}"
+            )
+        print(
+            f"{rank_tag} [router-only-freeze-audit] router_tensors={len(router_names)} "
+            f"trainable_params={n_train} ffn_trainable=0 unexpected=0 missing=0",
+            flush=True,
+        )
     if args.kl_teacher:
         # SCAFFOLD ONLY. The CE+KL loss composition is spec'd in IMPLEMENTATION_NOTES
         # but hosting a frozen 35B k=8 teacher alongside the 32B-trainable FSDP shards
@@ -891,7 +1364,7 @@ def main():
     # router's own pre-top-k logits while FSDP has that gate unsharded; compute()
     # folds the per-forward KL into the returned loss without re-reading a gate
     # Parameter after the forward.
-    if args.train_router and args.router_anchor_weight > 0 and router_snapshot is not None:
+    if router_training_enabled and args.router_anchor_weight > 0 and router_snapshot is not None:
         anchor = FSDPSafeRouterAnchor(model, router_snapshot,
                                       weight=args.router_anchor_weight,
                                       stride=args.router_anchor_stride)
@@ -933,7 +1406,7 @@ def main():
     # would capture unsharded params and break). Weight decay is applied to the (only
     # trainable) expert params via TrainingArguments.weight_decay + --optim.
     optimizer = None
-    if not is_full_ffn:
+    if not uses_fsdp_checkpointing:
         router_lr = (args.router_lr_mult * args.learning_rate) if args.train_router else None
         param_groups = build_param_groups(model, handles, weight_decay=args.weight_decay,
                                           router_lr=router_lr)
@@ -950,7 +1423,7 @@ def main():
     fsdp = ""
     fsdp_config = None
     optim_name = None
-    if is_full_ffn:
+    if uses_fsdp_checkpointing:
         fsdp = "full_shard auto_wrap"
         fsdp_config = {
             # Wrap at the DECODER LAYER, not the experts module: the layer forward
@@ -994,7 +1467,7 @@ def main():
         eval_steps=args.eval_steps,
         save_steps=args.save_steps,
         save_strategy="no" if args.skip_final_checkpoint else "steps",
-        save_total_limit=None if is_full_ffn else 8,
+        save_total_limit=None if uses_fsdp_checkpointing else 8,
         load_best_model_at_end=False,  # checkpoints are delta-only; best applied manually below
         metric_for_best_model="eval_loss",
         greater_is_better=False,
@@ -1013,10 +1486,10 @@ def main():
         # preserving the requested global batch and accumulated update.
         accelerator_config=(
             {"gradient_accumulation_kwargs": {"sync_each_batch": True}}
-            if is_full_ffn else None
+            if uses_fsdp_checkpointing else None
         ),
         **({"fsdp": fsdp, "fsdp_config": fsdp_config, "optim": optim_name}
-           if is_full_ffn else {}),
+           if uses_fsdp_checkpointing else {}),
     )
 
     def data_collator(data):
@@ -1030,12 +1503,35 @@ def main():
             output_dir = output_dir if output_dir is not None else self.args.output_dir
             os.makedirs(output_dir, exist_ok=True)
             info = save_delta_state(self.model, os.path.join(output_dir, DELTA_STATE_NAME))
+            write_router_tail_scale_metadata(output_dir, args.router_tail_scale)
             print(f"{rank_tag} [delta-ckpt] {info}")
             if self.processing_class is not None:
                 self.processing_class.save_pretrained(output_dir)
             torch.save(self.args, os.path.join(output_dir, "training_args.bin"))
 
     from transformers.optimization import Adafactor as _TransformersAdafactor
+
+    # Only router-training runs install the hook.  Existing frozen full-ffn and
+    # legacy delta/maskhook executions therefore keep their forward path intact.
+    router_observer = RouterEvalObserver(model) if router_training_enabled else None
+
+    def _evaluate_with_router_observation(self, *eval_args, **eval_kwargs):
+        if router_observer is not None:
+            router_observer.begin()
+        try:
+            # DeltaTrainer and the FSDP trainer do not customize evaluate, so
+            # dispatching to Trainer preserves their standard evaluation loop.
+            metrics = Trainer.evaluate(self, *eval_args, **eval_kwargs)
+        finally:
+            observed = router_observer.finish() if router_observer is not None else None
+        if observed is not None and self.is_world_process_zero():
+            entropy, rank_1_8, rank_9_32 = observed
+            print(
+                f"[router-obs] step={self.state.global_step} entropy={entropy:.3f} "
+                f"r18={rank_1_8:.3f} r932={rank_9_32:.3f}",
+                flush=True,
+            )
+        return metrics
 
     class CheckpointableAdafactor(_TransformersAdafactor):
         """Adafactor state without the derived per-rank RMS scalar.
@@ -1062,27 +1558,51 @@ def main():
     class FullFfnStandardTrainer(Trainer):
         """HF/Accelerate sharded FSDP checkpointing with an atomic completeness marker."""
 
+        evaluate = _evaluate_with_router_observation
+
         @staticmethod
         def _router_joint_checkpoint_config():
-            return {
+            config = {
                 "enabled": bool(args.train_router),
                 "router_lr_mult": float(args.router_lr_mult),
                 "router_lr": float(args.router_lr_mult * args.learning_rate),
                 "anchor_weight": float(args.router_anchor_weight),
                 "anchor_stride": int(args.router_anchor_stride),
             }
+            # Preserve the legacy full-ffn marker byte-for-byte. Router-only has
+            # its own explicit resume identity, including the fixed anchor source.
+            if is_router_only:
+                config.update({
+                    "enabled": True,
+                    "mode": "router-only",
+                    "router_lr_mult": 1.0,
+                    "router_lr": float(args.learning_rate),
+                    "anchor_ref": str(args.router_anchor_ref),
+                })
+            elif args.router_anchor_ref != "run-start":
+                # The legacy run-start default intentionally leaves old markers
+                # compatible; a non-default immutable reference must match on
+                # resume so a base-anchor run cannot silently drift.
+                config["anchor_ref"] = str(args.router_anchor_ref)
+            return config
 
         def create_optimizer(self, model=None):
             """Create the joint optimizer only after Trainer/FSDP has wrapped it."""
-            if self.optimizer is not None or not args.train_router:
+            if self.optimizer is not None or not router_training_enabled:
                 return super().create_optimizer(model)
             opt_model = self.model if model is None else model
-            groups = build_fullffn_joint_param_groups(
-                opt_model.named_parameters(),
-                learning_rate=args.learning_rate,
-                weight_decay=args.weight_decay,
-                train_router=True,
-                router_lr_mult=args.router_lr_mult,
+            groups = (
+                build_router_only_param_groups(
+                    opt_model.named_parameters(), learning_rate=args.learning_rate,
+                )
+                if is_router_only else
+                build_fullffn_joint_param_groups(
+                    opt_model.named_parameters(),
+                    learning_rate=args.learning_rate,
+                    weight_decay=args.weight_decay,
+                    train_router=True,
+                    router_lr_mult=args.router_lr_mult,
+                )
             )
             self.optimizer = CheckpointableAdafactor(
                 groups,
@@ -1093,8 +1613,9 @@ def main():
                 beta1=None,
             )
             router_group = groups[-1]
+            mode = "router-only" if is_router_only else "fullffn-joint"
             print(
-                f"{rank_tag} [fullffn-joint-optimizer] groups={len(groups)} "
+                f"{rank_tag} [{mode}-optimizer] groups={len(groups)} "
                 f"router_params={len(router_group['params'])} "
                 f"router_lr={router_group['lr']:.3e} router_weight_decay=0",
                 flush=True,
@@ -1321,6 +1842,10 @@ def main():
                     "router_joint": self._router_joint_checkpoint_config(),
                     "saved_at": dt.datetime.now(dt.timezone.utc).isoformat(),
                 }
+                if args.router_tail_scale is not None:
+                    marker["router_tail_scale"] = router_tail_scale_metadata(
+                        args.router_tail_scale
+                    )
                 temp_path = marker_path + ".tmp"
                 with open(temp_path, "w") as f:
                     json.dump(marker, f, indent=2)
@@ -1350,6 +1875,16 @@ def main():
                 raise RuntimeError(
                     f"weight_decay mismatch: checkpoint={marker.get('weight_decay')} "
                     f"run={self.args.weight_decay}"
+                )
+            saved_tail_scale = marker.get("router_tail_scale")
+            expected_tail_scale = (
+                router_tail_scale_metadata(args.router_tail_scale)
+                if args.router_tail_scale is not None else None
+            )
+            if saved_tail_scale != expected_tail_scale:
+                raise RuntimeError(
+                    "router tail-scale checkpoint configuration mismatch: "
+                    f"checkpoint={saved_tail_scale} run={expected_tail_scale}"
                 )
             saved_router_joint = marker.get("router_joint")
             expected_router_joint = self._router_joint_checkpoint_config()
@@ -1551,8 +2086,18 @@ def main():
                 )
             return loss
 
-    trainer_cls = (DeltaTrainer if args.method == "delta" else
-                   FullFfnStandardTrainer if is_full_ffn else Trainer)
+    class RouterObservedTrainer(Trainer):
+        evaluate = _evaluate_with_router_observation
+
+    class DeltaRouterObservedTrainer(DeltaTrainer):
+        evaluate = _evaluate_with_router_observation
+
+    trainer_cls = (
+        FullFfnStandardTrainer if uses_fsdp_checkpointing else
+        DeltaRouterObservedTrainer if args.method == "delta" and router_training_enabled else
+        DeltaTrainer if args.method == "delta" else
+        RouterObservedTrainer if router_training_enabled else Trainer
+    )
 
     # grad-gate 診断: GRAD_PROBE=1 のとき、各 optimizer step の直前(=backward 後)に
     # router / 選抜expert の grad norm と、非訓練 param の grad が None かを表示・assert する。
@@ -1699,7 +2244,7 @@ def main():
     )
     if optimizer is not None:
         trainer_kwargs["optimizers"] = (optimizer, None)  # scheduler built by Trainer
-    if is_full_ffn:
+    if uses_fsdp_checkpointing:
         trainer_kwargs["optimizer_cls_and_kwargs"] = (
             CheckpointableAdafactor,
             {
@@ -1711,11 +2256,11 @@ def main():
             },
         )
     trainer = trainer_cls(**trainer_kwargs)
-    if is_full_ffn:
+    if uses_fsdp_checkpointing:
         actual_state_dict_type = str(trainer.accelerator.state.fsdp_plugin.state_dict_type)
         if "SHARDED_STATE_DICT" not in actual_state_dict_type:
             raise RuntimeError(
-                "Full-FFN requires FSDP SHARDED_STATE_DICT, got "
+                "FSDP trainer requires SHARDED_STATE_DICT, got "
                 f"{actual_state_dict_type}"
             )
         print(f"{rank_tag} FSDP state_dict_type={actual_state_dict_type}", flush=True)
@@ -1727,7 +2272,7 @@ def main():
 
     # Always leave a resumable checkpoint at the requested target step, including
     # targets such as 300 that are not multiples of the regular 200-step interval.
-    if is_full_ffn and not args.skip_final_checkpoint:
+    if uses_fsdp_checkpointing and not args.skip_final_checkpoint:
         import torch.distributed as dist
         final_ckpt = os.path.join(args.output_dir, f"checkpoint-{trainer.state.global_step}")
         needs_save = not os.path.isfile(os.path.join(final_ckpt, FULLFFN_CHECKPOINT_MARKER))
@@ -1760,11 +2305,12 @@ def main():
     # ---- full-ffn final save: MUST run on ALL ranks (FULL_STATE_DICT gather is a
     # collective all-gather). Doing the early should_save return first would deadlock
     # rank0 waiting for the other ranks inside state_dict(). ----
-    if args.method == "full-ffn":
+    if uses_fsdp_checkpointing:
         if args.skip_final_hf_export:
             if trainer.args.should_save:
+                export_mode = "Full-FFN" if is_full_ffn else "router-only"
                 print(
-                    f"training complete; resumable Full-FFN DCP checkpoint at "
+                    f"training complete; resumable {export_mode} DCP checkpoint at "
                     f"{args.output_dir}/checkpoint-{trainer.state.global_step} "
                     "(final HF export skipped)",
                     flush=True,
@@ -1789,8 +2335,9 @@ def main():
                                       safe_serialization=True)
             with open(os.path.join(args.output_dir, "expert_cfg.json"), "w") as f:
                 json.dump(expert_config, f, indent=1)
+            write_router_tail_scale_metadata(args.output_dir, args.router_tail_scale)
             tokenizer.save_pretrained(args.output_dir)
-            print(f"training complete; full-ffn model -> {args.output_dir}")
+            print(f"training complete; {args.method} model -> {args.output_dir}")
         return
 
     if not trainer.args.should_save:
@@ -1820,6 +2367,7 @@ def main():
         info = save_expert_patch(model, expert_config, patch_path)
     with open(os.path.join(args.output_dir, "expert_cfg.json"), "w") as f:
         json.dump(expert_config, f, indent=1)
+    write_router_tail_scale_metadata(args.output_dir, args.router_tail_scale)
     tokenizer.save_pretrained(args.output_dir)
     print(f"training complete; patch -> {patch_path} ({info})")
 
