@@ -47,6 +47,14 @@ agreement of the *same* weights.
 
 Full detail: [`reports/ALPHA_DIAL_20260712.md`](reports/ALPHA_DIAL_20260712.md).
 
+**Prior art.** The `k' > k` degradation itself is not new — it is reported as an
+"inference-time scaling wall" by Elastic MoE (arXiv:2509.21892), which fixes it at
+training time. We did **not** find an identical method to the α dial; the nearest
+operation is Certain Head, Uncertain Tail (arXiv:2602.02443), which scales tail
+router scores for test-time sampling diversity rather than deterministic
+calibration and without the `α=0 ≡ exact top-k` anchor. Full survey (with related
+work and a verification note): [`reports/PRIOR_ART_ALPHA_DIAL.md`](reports/PRIOR_ART_ALPHA_DIAL.md).
+
 ---
 
 ## Why the dial changes the pipeline
