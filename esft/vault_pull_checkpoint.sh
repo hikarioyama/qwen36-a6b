@@ -30,8 +30,11 @@ for entry in "${entries[@]}"; do
   scp -q -F "$HOME/.ssh/config" "gpu-host:$SRC/$rel" "$local_path"
 done
 echo "[vault-pull] transfer done; verifying sha256"
-remote_sha=$("${SSH[@]}" "cd '$SRC' && find . -type f -print0 | sort -z | xargs -0 sha256sum")
-local_sha=$(cd "$DEST" && find . -type f ! -name .vault_pulled -print0 | sort -z | xargs -0 sha256sum)
+# 注意: リモートとローカルで locale の照合順序が違うと、同一内容でも sort 順が
+# ズレて文字列比較が偽陰性になる (2026-07-12 実害)。比較直前に LC_ALL=C で
+# 順序を正規化する。
+remote_sha=$("${SSH[@]}" "cd '$SRC' && find . -type f -print0 | sort -z | xargs -0 sha256sum" | LC_ALL=C sort)
+local_sha=$(cd "$DEST" && find . -type f ! -name .vault_pulled -print0 | sort -z | xargs -0 sha256sum | LC_ALL=C sort)
 if [ "$remote_sha" = "$local_sha" ]; then
   date -u +%Y-%m-%dT%H:%M:%SZ > "$DEST/.vault_pulled"
   echo "[vault-pull] VERIFIED_OK $CKPT"
