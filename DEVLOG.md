@@ -499,3 +499,10 @@
 - **現象は既出**: Elastic MoE (arXiv:2509.21892) が k'>k 推論の急劣化を "inference-time scaling wall" として報告 (解は訓練側)。Matryoshka MoE (2509.26520) も elastic k の訓練手法。
 - **手法は未発見**: tail rank の決定論的 α スケーリング + 再正規化 (α=0 ≡ 元 k と厳密一致) + ダイヤルネイティブ訓練、の組は見つからず。最近接は Certain Head, Uncertain Tail (2602.02443、tail 温度 + 再正規化だが目的は test-time の確率的多様性)。
 - 公開時の作法: 「現象の発見」を主張しない。主張は ①機構分解 (選択無傷・希釈のみ、入れ子性の実測) ②訓練ゼロの決定論的解 ③train-serve 一致。Elastic MoE を現象の先行として cite。
+
+## 2026-07-14 — v5 組み立て→全ゲート→発射 (ダイヤルネイティブ第 2 区間、燃料 = intent 入り)
+
+- **v5_20260714.jsonl = 325,559 行 (sha 743bb819)**: v4 − 旧転写 selfgen 4,044 + intent r1+r2 6,130 (T4 gold 1,211 は ×2 複製)。render check errors 0 (709M tok, p90 5,310)。汚染監査 **全量 6,130 行 × 3 段階でゼロヒット** (matcher v4 同一、eval 6 種)。vault 保存済み (v5-build + 監査台帳)。
+- **発射 (relay-operator 実行)**: `fullffn_v5intent_from_tail05_20260714` — tail05 export (fp32) から fresh、router 凍結 / α=0.5 / 1000 step / replay 0.30 同一。cache 先行生成 (v5 tokenize 350s, 52,395 blocks)。初 step 80.4s/it、8 GPU 飽和、loss 0.81→0.75。ETA ~22h。
+- tokenizer 差分の検証 (relay 発見): tail05 export の tokenizer.json は base と sha 不一致だが get_vocab/chat_template/実 200 行 render 全て一致 = HF 再シリアライズ順のみ。cache は launch と同一 model 指定で生成し整合確保。
+- 並行: intent_r3 (T4 全振り 5,000) paraphrase 走行中 → ローカル vLLM lane で execute 予定。step-300 checkpoint での燃料切替 (v5.1) 候補。
