@@ -506,3 +506,11 @@
 - **発射 (relay-operator 実行)**: `fullffn_v5intent_from_tail05_20260714` — tail05 export (fp32) から fresh、router 凍結 / α=0.5 / 1000 step / replay 0.30 同一。cache 先行生成 (v5 tokenize 350s, 52,395 blocks)。初 step 80.4s/it、8 GPU 飽和、loss 0.81→0.75。ETA ~22h。
 - tokenizer 差分の検証 (relay 発見): tail05 export の tokenizer.json は base と sha 不一致だが get_vocab/chat_template/実 200 行 render 全て一致 = HF 再シリアライズ順のみ。cache は launch と同一 model 指定で生成し整合確保。
 - 並行: intent_r3 (T4 全振り 5,000) paraphrase 走行中 → ローカル vLLM lane で execute 予定。step-300 checkpoint での燃料切替 (v5.1) 候補。
+
+## 2026-07-14 — 思考長プローブ陽性 (ThinkingCap 路線ゲート 1 通過) + BFCL 再配線
+
+- **思考長プローブ完走** (intent_r1 seeds、T2/T3 各 100、stage0、N=8、temp 1.0、thinking オン、n=1,600 rollouts): stage0 pass 率 61.4%。正解 rollout の think_chars は **二峰** — 58.7% がほぼ思考ゼロ (<50 chars)、思考した場合の p50 = 3,617 chars。
+- **本命の数字: 「同一 seed にゼロ思考正解と長思考正解が共存」= 151/188 seed (80%)**。宣言基準 (最短正解 < 中央値の半分、が 2 割以上) は 60.6% で大幅クリア → **陽性 (measured)**。長思考は T2/T3 では刈れる冗長性。
+- 解釈の注意: 測定は易しい層 (T2/T3) のみ。T4 では思考が必要な可能性が高く、INC-0/GRPO は「合格を落とさず短く」の verifiable reward + 全 tier 混合で守る。
+- ゲートどおり INC-0 (rejection-sampling SFT、RL_DESIGN.md) へ進む: 製造器 `esft/rl/inc0_shortthink_v1.py` を実装発注 (全 tier、最短正解思考を選抜、trainer 形式で think 込み焼き)。
+- **BFCL 再配線完了**: `esft/bfcl_fullffn_v1.py` — 腕を `name=モデルパス:topk:alpha` で任意指定、full-FFN checkpoint 直接ロード、α ダイヤル hook (eval_harness と同一機構、照合済み)、paired McNemar。CPU テスト 4/4。ツールコール軸の審判が境界測定に復帰。
