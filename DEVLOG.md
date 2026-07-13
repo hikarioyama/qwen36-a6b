@@ -427,3 +427,68 @@
 - **パイプライン転換 (ユーザー合意)**: 較正=ダイヤル (訓練ゼロ、区間境界で掃引し直す) / 能力=FFN 訓練 / **router 凍結** (anchor 複雑性ごと不要化)。進捗メーター = 最適 α の推移と「84.67 を超える α の出現」。予備部品として router-only モード+逆KL anchor (Codex 納品済み、未投入) を温存。
 - **区間交代**: v4 joint (旧 anchor、~step300 相当まで走行、成果物は保全) を kill → `fullffn_tail05_frozen_router_20260712` 発射: **base から fresh / router 凍結 / --router-tail-scale 0.5 (trainer 移植済み、Codex、全テスト PASS、α は checkpoint メタデータに記録) / v4 / 1000 step**。キャンペーン初の「借金ゼロ地点から容量上積みを狙う」区間。
 - パネル (3 腕 Opus) の要旨は DEVLOG 前項+reports 参照: joint 平坦化は LM 損失自体の性質 (shared expert とのアンサンブル谷)、router-only 単体は天井 84.67、n=600 の MDE 3.4pt 問題 → 合否判定は大 n で。
+
+## 2026-07-12 (昼過ぎ) — α=0.5 他軸無害性 PASS / 回収チェーン修理 / intent selfgen パイプライン始動
+
+- **α=0.5 他軸無害性チェック完了 (base 同士、paired 同一 items、ローカル 2 GPU)**: JMMLU n=600: base@k8 80.17% vs α0.5@k32 78.83% (Δ−1.33pt, McNemar p=0.31 ns) / GSM8K n=400 生成: 84.75% vs **85.75%** (Δ+1.00pt, p=0.63 ns)。MMLU (昨日の掃引 84.67 vs 84.50) と合わせ **3 軸すべて有意劣化なし — tail05 の α=0.5 ネイティブ構成は続行で確定** (選択肢 C クローズ)。
+- **checkpoint 回収チェーン 2 巡目が死亡** — 死因: repo 履歴書換えの巻き添えで作業ツリーの `vault_pull_checkpoint.sh` が `gpu-host` を参照、実 ssh config に無し (「repo は公開名に rename 済み、ローカルの ssh config は未追随」の gotcha を自分で踏んだ)。対処: **ssh config 側に公開名 (`gpu-host` / `aux-host`) の別名エントリを追加** (公開 repo に内部ホスト名を書き戻さない恒久解)。chain3 再発射 (joint1000 の ckpt-300 per-file SHA 修復→600/900/1000→probe100 検証、計 ~1.07TB、vault 空き 13TB)。
+- **intent selfgen (intent_r1, seeds 5,000)**:
+  - `execute --fixture` 煙試験 **PASS** (CPU、機構検証、訓練 jsonl 非生成)。execute 本体は全 seed all-or-nothing + state=prepared 必須と判明 → **順序は paraphrase→ingest→audit→execute が強制** (逆順だと ingest 不能)。
+  - **paraphrase teacher は Fireworks GLM-5.2** (accounts/fireworks/models/glm-5p2)。ローカル系譜クリーン teacher は全滅 (DSv4-Flash 重み+docker 像は optane から削除済み、GLM-5.1 317GB も削除済み、aux-host 到達不能) のため API 経由。A 群クリーン維持は戦略文書 §4.1 の指定どおり。
+  - 駆動: `esft/paraphrase_glm52_fireworks.py` (新規)。gotcha 2 件: ①Cloudflare が Python-urllib UA を 403 (code 1010) でブロック → UA 偽装必須 ②GLM-5.2 は CoT を content に垂れ流す → `reasoning_effort:"none"` で抑止 (7 vs 60+ tok 実測)。機械ゲート = value_literals 逐語出現 (ingest と同一判定) + tool/引数名リーク (`mock_`/`field_`) + 欠落フィードバック付き最大 3 リトライ。
+  - パイロット n=10: **ok 9 / fail 1** (fail は引用符付きリテラル `"UNAVAILABLE"` の引用符落ち → プロンプトに対策 1 行)。品質目視: 自然な英語・リーク 0・並列/依存/回復の構造保存。全量 4,500 走行中 (~2.5 行/s、概算 3M prompt + 1M completion tok)。
+- tail05 は 60/1000 (75.27s/it) で健全燃焼。エラー署名なし。
+
+## 2026-07-12 (午後) — 動的 K (per-token エキスパート数選択) の再検討 → 実測で死亡再確認
+
+- ユーザー提起「使うエキスパート数をトークンごとに動的に選ぶ案は α ダイヤル発見で再浮上しないか」。α ダイヤルは静的な連続 k (α=0≡k8, α=1≡k32) なので概念的には自然な拡張 — 理論却下せず per-token ダンプで判定。
+- **計測**: `esft/router_pertoken_topk_mass.py` (新規)。base router (=tail05 の凍結 router)、knowledge_en 128×4096 blocks (router 診断と同一 = same-condition)、524k tok × 40 層 = 21M 観測。per (token,layer) で top-8 質量 / top-32 質量 / keff95 (top-32 質量の 95% に必要な人数) を全保存 (`data/router_baseline/base_pertoken_knowledge_en.npz`)。
+- **結果 (n=21M, base, knowledge_en)**: keff95 は単峰・激狭 — p10=29 / p50=30 / p90=30、ヒストグラムは k29-30 に 90.4% 集中。**keff≤8 で済む (token,layer) は 0.0%、全層で top-8 が支配するトークンは 0.00%**。m8/m32 の token 間ばらつき (層平均) も p10-p90 = 0.380-0.496 と狭い。
+- **判定 (事前宣言基準: p10-p90 が広ければ生、詰まっていれば死)**: 「easy token 部分集団」は存在しない。router は全トークンで top-32 にほぼ一様に質量を撒いており、トークンごとに人数を変える根拠信号が無い。**GLM-5.2 の adaptive-k 死因 (k_eff=7.99/8) と同型 (こちらは 29.7/32)**。品質向けの per-token α 選択も、速度向けの k 削減も同判定。corpus は knowledge_en のみだが 0.0% のマージンは反転しない水準。
+- 整合性の注: 「router は tail に質量を撒く」×「α 掃引では tail 半減が無害」= router の tail 質量は較正過剰 (中身が未訓練でスコアだけ散る)。ダイヤルはこれを全域一律で補正しており、per-token に補正を細かくする余地が信号として存在しない、という一貫した絵。tail05 で FFN が育った後に router を再訓練する日が来たら、その時の router で再測の価値はある (凍結中は不変なので不要)。
+
+## 2026-07-12 (午後2) — intent_r1 パイプライン全段走行 + 監査が単一根因を検出 + ホームラボしばき
+
+- **paraphrase 完走**: 4,478/4,500 = 99.5% (GLM-5.2 Fireworks、28 分 + 再試行パス、2.9M tok ≈ $3)。ingest 済み (fallback 22 = T1 降格)。gotcha 2 件 (CF の UA ブロック / reasoning_effort:"none") は DEVLOG 前項。
+- **execute 発射事故と修理**: 初回発射が env 未設定 (arm A 相当 = 採用率 37.5% の構成) — 過去 A/B の教訓 (SELFGEN_NOTHINK+STAGE_HINT = arm C 95.8%) を発射コマンドに反映し忘れ。24 seed 時点で kill → arm C env で再発射 (resume)。ペース 6.2 seed/min/GPU (arm A の ~3 倍)、完走見込み ~6.7h。**教訓: selfgen 発射コマンドには env 2 点セットが必須** (スキル化対象)。
+- **cx 監査 (sol/high、層別 65 件: T1:5/T2:20/T3:20/T4:20)**: **FAIL 35 件が全て単一根因「並列 stage の配列順は natural_request から一意に決まらない」、その他の可解性問題ゼロ**。機械検証は canonical() の厳密順序比較 (v1.select_candidate L467) なので、モデルが並列呼び出しを逆順で出すと妥当でも plan_alignment 棄却 = データが暗黙の順序規約を教えてしまう。
+  - 修正方針 (確定、実装は wave パッチ着地後): 並列 stage は**多重集合一致**で受理し、受理時に expected 順へ正規化して下流 (mock_execute 結果、T4 link 検証 `results[0][0]` 参照、record) に渡す。receipt は call 内容 hash で決定的なので正規化は安全。修正後、plan_alignment 棄却 seed の再走パスが必要 (pending_seeds は record 有無しか見ない)。
+- **GPU 効率**: 単発 generate (batch=4) で 224W/450W — wave バッチ化 (複数 seed 同時、W×4 系列/generate) を cx work に発注 (run 20260712-134459)。着地後に order 修正と束ねて 1 回だけ再発射する。
+- **vault_pull の照合バグ発見・修正**: リモートとローカルの locale 照合順序差で、同一内容でも sort 順がズレて SHA 文字列比較が偽陰性 (checkpoint-300 で実害、probe100 の marker 欠落も同根と推定)。`LC_ALL=C sort` で比較直前に順序正規化。サイズ diff 29/29 一致 + 順序非依存 dict 比較 0 件不一致が根拠。chain3b 再発射済み。
+
+## 2026-07-12 (午後3) — wave バッチは throughput 不変 (負の結果) → vLLM バックエンド路線へ
+
+- **実測**: wave バッチ (W=8, 32 系列/generate) 後のペース 12.1 seeds/min (両GPU計, n=151, 750s) vs バッチ化前 12.4 seeds/min — **有意な差なし**。一方 GPU util 80→100%、電力 224W→300W(キャップ) = 消費だけ増えて仕事は同じ。
+- **機構の読み**: HF の静的バッチは wave 内の最長系列 (straggler) に全行が付き合う。逐次版は各 generate が EOS で即終了 (~5s/generate と推定) なので、straggler 税がバッチ利得をほぼ相殺。加えて HF generate の per-token Python ループ + 素朴な MoE 実装が律速。**静的バッチでは直らない — continuous batching (vLLM) が標準解**。
+- **vLLM 導入の注意**: システム python に vllm は無く、モデルは Qwen3_5MoeForConditionalGeneration (linear-attention 混成、transformers では fla/causal-conv1d fallback 警告)。訓練/eval スタック保護のため**隔離 venv (~/venvs/vllm-selfgen)** に導入。切替は「serve 煙試験合格時のみ、resume 前提」でリスク有界化 (失敗時は HF run 続行、損失 ~15 分)。
+- 現行 run (execute3: wave+正規化+armC+retry-failed, 253 completed/4804 pending) はそのまま燃焼中 — 完走見込み ~21:00。vLLM 化が刺されば ~5-10 倍で今夕完了 + v5 量産の恒久資産。
+
+## 2026-07-13 — tail05 完走 + 境界測定: 借金完済確定 (84.83 = 初の床超え点推定)、訓練傾きはゼロ
+
+- ローカルはハード都合でクラッシュ (7/12 夕、vLLM ロード×2 + 266GB ハッシュ + 転送の同時高負荷中)。gpu-host は無傷で **tail05 完走 1000/1000** (77.5s/it、エラーゼロ)。selfgen record 567 件・repo 内成果物は全て生存 (tmpfs のログのみ消失)。以後は負荷直列化で運転。
+- export fp32 129GB → bf16 65.4GiB (RAID 上 ~60s) → ローカル転送 + SHA 照合 PASS (LC_ALL=C 正規化版 vault_pull 方式)。
+- **境界測定 (MMLU n=600、床と同一 items、paired)**:
+  - **tail05 α=0.5: 84.83% = 床 84.67 に対し +0.17pt [−1.87,+2.21] ns — キャンペーン初の床超え点推定、借金完済状態を確定**
+  - α=0.75: 82.50 (−2.17 p=0.079) / α=1.0: 81.00 (−3.67 p=0.005) — 高 α の崩壊は base と同型 (tail 実質未成長)
+  - **k8 非劣化 PASS**: 84.17 (−0.50 ns) — router 凍結 + ダイヤルネイティブ訓練は top-8 の秩序を保存
+  - **訓練傾き (同一 α, base→tail05)**: α=0.5 +0.33 ns / α=0.75 −0.33 ns — **1000 step の v4 訓練は MMLU をどの α でも動かさず** (MDE ±2pt)
+- 読み: 完済はダイヤル (較正) の手柄。v4 の主眼はツールコール軸だが配線済み benchmark が無く審判不能 (v5 バックログの筆頭に昇格)。JMMLU/GSM8K の tail05 腕を追加測定中 (~40 分) — 結果で次区間 (A: v4 続行 / B: v5 待ち) を判断。
+
+## 2026-07-13 (続) — tail05 3軸判定完了 / 方針 B 採択 (v5 燃料優先)
+
+- **JMMLU (n=600 paired)**: tail05@α0.5 79.50% — 床比 −0.67 ns / 訓練傾き +0.67 ns。**GSM8K (n=400 paired)**: 87.50% — 床比 +2.75 (p=0.27) / 傾き +1.75 (p=0.48)。3 軸 (MMLU/JMMLU/GSM8K) すべて非劣化、GSM8K のみ正方向 (未有意)。
+- **判定とユーザー決定 (方針 B)**: v4 の訓練傾きは 3 軸で検出不能 → 同燃料の延長より **v5 燃料の完成を優先**。gpu-host 炉は v5 まで意図的に待機。ローカル GPU は selfgen 残り 4,433 seed (vLLM lane) へ。
+
+## 2026-07-13 (夜) — intent_r1 全量完走: ZPD 地図確定 (崖は T3→T4)、vLLM レーン 14 倍
+
+- **vLLM lane 実戦投入**: 起動 2 罠 (①混成アーキの Mamba cache: max_num_seqs 1024>748 → 256 に ②endpoint URL の /v1 二重化) を潰して本走。**171 seeds/min = HF 比 14 倍** (n=260, 91s)、残り 4,614 seed を 27 分で完走。
+- **summary (n=5,000, best-of-4, arm C env, 順序正規化検証器)**: accepted 3,873 (77.5%)。**tier 別: T1 97% / T2 87% / T3 91% / T4 28%** — 能力の崖は T3→T4 間。棄却の 98% が plan_alignment (json_parse 12, truncation 0) = 難しさで落ちる健全な棄却。distractor (T3) は 35B に効かず。
+- v5 含意: ①T4 合格 280 = rejection-sampled 本命 ②T4 系比率の増加 + 中間難度 (3 段) で橋 ③T2/T3 は量を絞る or 難化。
+- train.jsonl 3,873 行 (意図レベル、GLM-5.2 paraphrase = A 群クリーン、機械検証済み)。
+
+## 2026-07-13 (深夜) — intent_r2 (T4 重点) 完走: 崖の再現 26.6%、T4 gold 計 1,211 行
+
+- r2 (n=5,000, mix T1:.02/T2:.14/T3:.14/T4:.7, seed 20260713): paraphrase 4,891/4,900 ingest (99.8%) → vLLM lane で execute 完走。
+- **tier 別: T1 97.2% / T2 86.2% / T3 89.2% / T4 931/3,500 = 26.6%** — r1 の 28.0% (n=999) と一致、**崖の位置は再現 (measured)**。棄却の主因も plan_alignment (2,681) で同型。
+- **成果集計 (r1+r2)**: 意図レベル accepted 計 6,130 行、うち **T4 (長チェーン+エラー回復) gold 1,211 行** = rejection-sampled 本命。vLLM サーバは停止済み。
+- 次: v5 組み立て (v4 との差替え設計 + 監査全量化判断) → gpu-host 次区間発射。

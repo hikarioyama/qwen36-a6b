@@ -117,12 +117,24 @@ python3 tests/test_corpus_judge_v1.py            # judge ledger contract
   over α=1 (`n=600` paired).
 - α=0 ≡ base@k8: 98/100 identical predictions (bf16 noise).
 - Joint router training flattens routing entropy monotonically over 1000 steps.
+- **Debt-repayment milestone (first trained interval, `fullffn_tail05_frozen_router`,
+  1000 steps, router frozen, α-native at 0.5):** at the boundary the model
+  **draws level with the base@k8 floor** — MMLU `84.83` vs floor `84.67`
+  (+0.17 pt [−1.87, +2.21], `n=600`, paired, same items, **ns** — level, not a
+  significant win). k=8 non-degradation **PASS** (`84.17`, −0.50, ns): freezing the
+  router preserves the top-8 order. Harmlessness now holds on **three axes** —
+  JMMLU `79.50` (−0.67 ns) and GSM8K `87.50` (+2.75, `p=0.27`) both non-degrading
+  (`n=600`/`400`, paired). The 1000-step training slope is undetectable on all
+  three axes (MDE ±2 pt): this interval's repayment is the dial's doing, not the
+  FFN's.
 
 **Hypothesized / not yet measured:**
 
 - Whether FFN training can lift the *optimal-α* accuracy **above** the 84.67 k8
-  floor — the single dial only recovers the floor; exceeding it is the FFN's job.
-- α=0.5 harmlessness on the other four eval axes (only MMLU is swept so far).
+  floor — so far the model only *reaches* the floor; a significant exceedance is
+  still the FFN's job (the tool-call axis this data targets has no wired-up
+  benchmark yet, so that capability is currently unjudged).
+- α=0.5 harmlessness on the remaining eval axes (three of five measured so far).
 - Layer-wise α and α annealing (untested upside).
 
 **Not in this repo:** training data, model weights, and rollouts are excluded by
