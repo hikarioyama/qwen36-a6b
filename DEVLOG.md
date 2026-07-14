@@ -528,9 +528,9 @@
   - スモーク n=24: base@k8 20/24 vs tail05@k32+α0.5 9/24 — 生成が構文レベルで崩壊 (`<function calculate_derivative>` の `=` 欠落、関数名への空白混入)
   - 切り分け n=24: tail05@**k8** 10/24 (= ダイヤル・k32 無罪) / base@k32+α0.5 21/24 (= hook 無罪)。**犯人は checkpoint 本体**
   - **本確認 n=100 paired: base@k8 84/100 vs tail05@k8 53/100、不一致 34:3、McNemar exact p=1.2e-07** — v4 訓練による実劣化で確定 (measured)
-- **機構 (データ側で特定)**:
-  - 劣化は parallel 系に集中: parallel 15→6 / parallel_multiple 18→9 / simple_python 38→26 (multiple は 13→12 でほぼ無傷)
-  - v4/v5 の toolcall 監督信号を集計: **toucan (assistant tool-call turn 176,421 = 信号の 91%) は 1 turn 複数 call 率 0.0%**、selfgen も 22.2%。「1 turn に 1 call」へ強烈に矯正され、BFCL parallel (1 turn 複数 call 必須) が崩壊
-  - 残りの劣化 (simple_python 等の構文崩れ) はスタイル過適合 (mock_* 合成スキーマ名 + MCP 風長名に偏った燃料) が容疑。書式仮説 (preamble 埋め込み) は検証の結果**反証** — render は native `<function=...>` 構文で正しい
-- **含意**: ①MMLU/JMMLU/GSM8K が全て ns でも主目的軸は大きく壊れていた = 「審判の不在は無罪ではない」②走行中の v5.1 もほぼ同じ toolcall 燃料 (toucan 全量残存) — 境界測定に BFCL を必ず入れ、劣化が続くなら v6 で multi-call データの注入 + toucan の再バランスが筆頭対策 ③B2 期の「BFCL +4.0pt」(旧 patch 線) との差は要再検討 — 当時と燃料構成が違う
+- **機構 (2 段階の検証で確定)**:
+  - 仮説 1「preamble 書式」→ **反証**: render は native `<function=...>` 構文で正しい (v4/v5 とも実 render 検証)
+  - 仮説 2「1 turn 1 call への矯正」(toucan の multi-call 率 0.0%, n=176,421 turn から立てた) → **反証**: tail05 の parallel 系での call 数分布は base とほぼ同一 (2×18/3×7/4×8 vs 2×19/3×8/4×7)。call は正しい本数出ている
+  - **確定機構 = 関数名の複写忠実度の喪失**: 失敗は `get_fibonacci_sequence`→`get_f fibonacci sequence` (下線→空白)、`math.factorial`→`Math.factorial`、`<function=`→`<function ` のようなトークンレベルの名前・記号崩れ (greedy でも発生)。引数値は正しい。selfgen のツール名が `mock_finance_165_inspect_1` 型の機械的テンプレに偏り、「名前をスキーマから逐語コピー」でなく「部品から再構成」する癖を学習した、が最節約の説明
+- **含意**: ①MMLU/JMMLU/GSM8K が全て ns でも主目的軸は大きく壊れていた = 「審判の不在は無罪ではない」②走行中の v5.1 も同じ mock_* テンプレ名の燃料 — 境界測定 (BFCL 入り) で回復/悪化を判定 ③v6 の筆頭対策 = **selfgen ツール名の多様化 (実在風・非テンプレ、BFCL 名との衝突は既存 decontam で排除)** ④B2 期の「BFCL +4.0pt」(旧 patch 線) との差は要再検討 — 当時と燃料構成が違う
 
