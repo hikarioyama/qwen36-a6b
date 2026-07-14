@@ -521,3 +521,16 @@
 - **v5.1 resume 健全 (measured)**: checkpoint-300 から model_match=True 全 rank、loss 連続 (step 301-306: 0.612/0.568/0.551/0.585/0.506/0.604、切替前 ~0.55-0.66 から跳ねなし)、~78s/it、8 GPU 飽和。step 301-343 の v5 燃焼 43 step は設計どおり巻き戻し。残り 700 step を v5.1 (T4 gold 倍増) で燃焼、ETA ~15h。
 - **INC-0 rollout 完走** (~1h、vLLM lane): 全 tier 層別 1,000 seed × N=8 → **925 採用** (trainer 形式、think 込み、source_tag inc0_shortthink_20260714)。tier 別 stage0 pass: T1 78.6% / T2 66.8% / T3 55.1% / T4 52.7%。
 - **正直な留保**: 採用 rollout の think_chars は全 tier で p50=2 (stage0 = チェーン初手は T4 でも易しく、最短正解 ≒ ゼロ思考)。p90 は T1 2.7k → T4 7.3k と tier で伸びる。この分布で焼くと「常に即クローズ」への崩壊リスクあり — それを安価に白黒つけるのが INC-0 の役割。焼きは guest-gpu を予定 (gpu-host は v5.1 で占有中)。
+
+## 2026-07-14 — 【重大】BFCL 実測: v4 訓練が主目的軸を −31pt 壊していた (機構特定済み)
+
+- **BFCL 再配線後の初実測 (bfcl_fullffn_v1, BFCL-v4 AST 決定論サブセット, greedy, paired)**:
+  - スモーク n=24: base@k8 20/24 vs tail05@k32+α0.5 9/24 — 生成が構文レベルで崩壊 (`<function calculate_derivative>` の `=` 欠落、関数名への空白混入)
+  - 切り分け n=24: tail05@**k8** 10/24 (= ダイヤル・k32 無罪) / base@k32+α0.5 21/24 (= hook 無罪)。**犯人は checkpoint 本体**
+  - **本確認 n=100 paired: base@k8 84/100 vs tail05@k8 53/100、不一致 34:3、McNemar exact p=1.2e-07** — v4 訓練による実劣化で確定 (measured)
+- **機構 (データ側で特定)**:
+  - 劣化は parallel 系に集中: parallel 15→6 / parallel_multiple 18→9 / simple_python 38→26 (multiple は 13→12 でほぼ無傷)
+  - v4/v5 の toolcall 監督信号を集計: **toucan (assistant tool-call turn 176,421 = 信号の 91%) は 1 turn 複数 call 率 0.0%**、selfgen も 22.2%。「1 turn に 1 call」へ強烈に矯正され、BFCL parallel (1 turn 複数 call 必須) が崩壊
+  - 残りの劣化 (simple_python 等の構文崩れ) はスタイル過適合 (mock_* 合成スキーマ名 + MCP 風長名に偏った燃料) が容疑。書式仮説 (preamble 埋め込み) は検証の結果**反証** — render は native `<function=...>` 構文で正しい
+- **含意**: ①MMLU/JMMLU/GSM8K が全て ns でも主目的軸は大きく壊れていた = 「審判の不在は無罪ではない」②走行中の v5.1 もほぼ同じ toolcall 燃料 (toucan 全量残存) — 境界測定に BFCL を必ず入れ、劣化が続くなら v6 で multi-call データの注入 + toucan の再バランスが筆頭対策 ③B2 期の「BFCL +4.0pt」(旧 patch 線) との差は要再検討 — 当時と燃料構成が違う
+
