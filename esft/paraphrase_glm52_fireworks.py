@@ -29,13 +29,18 @@ import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-API_URL = "https://api.fireworks.ai/inference/v1/chat/completions"
-DEFAULT_MODEL = "accounts/fireworks/models/glm-5p2"
+import paraphrase_gates
+
+# PARAPHRASE_API_URL で OpenAI 互換の別 endpoint (例: ローカル vLLM) に差し替え可能。
+# 既定は Fireworks。ローカル self-paraphrase は系譜 A 群 (Qwen 系) を維持する。
+API_URL = os.environ.get("PARAPHRASE_API_URL",
+                         "https://api.fireworks.ai/inference/v1/chat/completions")
+DEFAULT_MODEL = os.environ.get("PARAPHRASE_MODEL", "accounts/fireworks/models/glm-5p2")
 
 SYSTEM_PROMPT = """You rewrite formal tool-call instructions into natural user requests.
 Rules:
-1. Write ONE natural request the way a real user would ask (chat or email style, fluent English, first person).
-2. NEVER mention internal tool names (like mock_warehouse_001_inspect_1) or internal parameter names (like field_1_1).
+1. Write ONE fluent English natural request in the supplied style card. Do not force a first-person voice.
+2. NEVER mention internal API, schema, tool, or parameter names.
 3. Every literal value listed by the user MUST appear VERBATIM in your text, character-for-character, including quotes, brackets and commas (e.g. ["tag-3","tag-4"] must appear exactly as ["tag-3","tag-4"]). If a literal is shown wrapped in double quotes (like "UNAVAILABLE" or "item-29"), the double quotes are part of the literal and must appear in your text.
 4. Preserve the operational structure: what can run in parallel, what depends on an earlier result, and any instruction about recovering from an error.
 5. Do not invent new requirements, values, or constraints.
@@ -46,14 +51,15 @@ def build_user_prompt(row: dict, missing: list[str] | None) -> str:
     literals = "\n".join(f"- {v}" for v in row["value_literals"])
     msg = (
         "Rewrite the following instruction as a natural user request.\n\n"
+        f"STYLE CARD ({row['style_card']['name']}): {row['style_card']['instruction']}\n\n"
         f"INSTRUCTION:\n{row['transcription_request']}\n\n"
         f"LITERALS THAT MUST APPEAR VERBATIM:\n{literals}\n\n"
-        "Remember: no tool names, no parameter names, all literals verbatim. JSON only."
+        "Remember: no internal schema names, all literals verbatim, and no new operational values. JSON only."
     )
     if missing:
         msg += (
             "\n\nYour previous attempt failed these checks — literals listed must "
-            "appear exactly as written; <remove ...> items must not appear at all: "
+            "appear exactly as written. Address the quality-gate feedback without adding requirements: "
             + ", ".join(missing)
         )
     return msg
@@ -102,15 +108,20 @@ class Usage:
 
 def call_api(api_key: str, model: str, messages: list[dict], usage: Usage,
              max_tokens: int, temperature: float) -> str:
-    payload = json.dumps({
+    body_obj = {
         "model": model,
         "messages": messages,
         "max_tokens": max_tokens,
         "temperature": temperature,
+    }
+    if "fireworks.ai" in API_URL:
         # GLM-5.2 on Fireworks streams CoT into content by default; "none"
         # suppresses it (measured: 7 vs 60+ completion tokens for a tiny JSON).
-        "reasoning_effort": "none",
-    }).encode()
+        body_obj["reasoning_effort"] = "none"
+    else:
+        # Local vLLM lane: suppress Qwen thinking the model-native way.
+        body_obj["chat_template_kwargs"] = {"enable_thinking": False}
+    payload = json.dumps(body_obj).encode()
     backoff = 8.0
     for attempt in range(7):
         req = urllib.request.Request(API_URL, data=payload, headers={
@@ -152,17 +163,18 @@ def paraphrase_row(row: dict, api_key: str, model: str, usage: Usage,
             missing = None  # parse failure: plain retry
             continue
         last_text = text
-        missing = [lit for lit in row["value_literals"] if lit not in text]
-        # Leakage gate: internal tool/param names must not surface in the request.
-        leaks = [w for w in ("mock_", "field_") if w in text]
-        if leaks:
-            missing = (missing or []) + [f"<remove internal name fragment: {w}>" for w in leaks]
-        if not missing:
+        gate = paraphrase_gates.check_request(row["gate_seed"], text)
+        if gate.passed:
             return {"seed_id": row["seed_id"], "natural_request": text,
-                    "tier": row.get("tier"), "rounds": round_no + 1, "ok": True}
+                    "tier": row.get("tier"), "style_card": row.get("style_card"),
+                    "rounds": round_no + 1, "ok": True}
+        # Keep feedback useful but do not disclose schema identifiers to the
+        # generator.  Ingest repeats the full authoritative checks.
+        missing = ["quality gate failed: preserve all typed values and remove internal wording"]
     return {"seed_id": row["seed_id"], "natural_request": last_text,
             "tier": row.get("tier"), "rounds": retries + 1, "ok": False,
-            "missing": missing}
+            "style_card": row.get("style_card"), "missing": missing,
+            "gate_failures": gate.failures if last_text is not None else {"request": ["no parseable JSON response"]}}
 
 
 def main() -> None:
@@ -214,7 +226,9 @@ def main() -> None:
             with write_lock:
                 if res.get("ok"):
                     fh_ok.write(json.dumps({"seed_id": res["seed_id"],
-                                            "natural_request": res["natural_request"]},
+                                            "natural_request": res["natural_request"],
+                                            "tier": res.get("tier"),
+                                            "style_card": res.get("style_card")},
                                            ensure_ascii=False) + "\n")
                     fh_ok.flush()
                     ok += 1

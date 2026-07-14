@@ -293,10 +293,75 @@ class SelfgenToolcallIntentTests(unittest.TestCase):
     def test_t1_preserves_v1_core_seed_exactly(self):
         baseline = selfgen.v1.make_seed(17, random.Random(123))
         intent = selfgen.make_seed(17, random.Random(123), "T1")
-        for key in ("seed_id", "schema_id", "domain", "pattern", "tools", "user_request", "expected_stages"):
+        # P0 intentionally adds semantic property descriptions; all executable
+        # schema/tracing fields remain v1-compatible after removing that new
+        # public metadata.
+        baseline_tools = copy.deepcopy(baseline["tools"])
+        intent_tools = copy.deepcopy(intent["tools"])
+        for tool in intent_tools:
+            for spec in tool["parameters"]["properties"].values():
+                spec.pop("description", None)
+        for key in ("seed_id", "schema_id", "domain", "pattern", "user_request", "expected_stages"):
             self.assertEqual(intent[key], baseline[key], key)
+        self.assertEqual(intent_tools, baseline_tools, "tools")
         self.assertEqual(intent["natural_request"], baseline["user_request"])
         self.assertEqual(intent["distractor_tools"], [])
+
+    def test_mock_name_style_is_byte_identical_to_existing_schema_names(self):
+        baseline = selfgen.v1.make_seed(17, random.Random(123))
+        styled = selfgen.make_seed(17, random.Random(123), "T1", name_style="mock")
+        baseline_names = [(tool["name"], list(tool["parameters"]["properties"])) for tool in baseline["tools"]]
+        styled_names = [(tool["name"], list(tool["parameters"]["properties"])) for tool in styled["tools"]]
+        self.assertEqual(styled_names, baseline_names)
+
+    def test_diverse_names_are_deterministic_and_all_styles_are_present(self):
+        first = selfgen.make_seed(9, random.Random(5), "T4", name_style="diverse", eval_names=set())
+        second = selfgen.make_seed(9, random.Random(5), "T4", name_style="diverse", eval_names=set())
+        self.assertEqual(first["tools"], second["tools"])
+        names = [tool["name"] for tool in first["tools"][:5]]
+        # Short verb form is verb_noun — never a bare English word, which would
+        # collide with natural request phrasing at the schema-leak gate.
+        verb, _, noun = names[0].partition("_")
+        self.assertIn(verb, selfgen.DIVERSE_VERBS)
+        self.assertIn(noun, selfgen.DIVERSE_NOUNS)
+        self.assertIn("_", names[1])  # snake_case
+        self.assertNotRegex(names[2], r"[_.-]")  # camelCase (possibly with a numeric suffix)
+        self.assertIn(".", names[3])  # dotted namespace
+        self.assertIn("-server-", names[4])  # server-prefix form
+        self.assertTrue(all(not name.startswith("field_") for tool in first["tools"]
+                            for name in tool["parameters"]["properties"]))
+        accepted, rejected, reasons = selfgen.evaluate_records(
+            selfgen.cpu_fixture_records([first]), set(), set())
+        self.assertEqual(len(accepted), 1, reasons)
+        self.assertFalse(rejected)
+
+    def test_diverse_name_rejects_injected_normalized_bfcl_name(self):
+        # ``math.factorial`` is representative of the real-function spellings
+        # guarded against by BFCL-v4 name loading; punctuation must not evade it.
+        with mock.patch.object(selfgen, "_function_name_candidate",
+                               side_effect=["math.factorial", "lookup_route"]):
+            chosen = selfgen._choose_diverse_function_name(
+                2, "math", random.Random(1),
+                {selfgen.normalize_identifier("math.factorial")}, set())
+        self.assertEqual(chosen, "lookup_route")
+
+    def test_prepare_records_requested_name_style_in_manifest(self):
+        original_root = selfgen.OUT_ROOT
+        try:
+            with tempfile.TemporaryDirectory() as tmp, \
+                 mock.patch.object(selfgen, "bfcl_function_names", return_value=frozenset()), \
+                 mock.patch.object(selfgen.v1, "verified_stock_identity", return_value={"revision": "test"}), \
+                 mock.patch.object(selfgen.v1, "bfcl_structural_profile", return_value={}), \
+                 mock.patch.object(selfgen.v1, "contamination_corpus", return_value=({}, set(), set())):
+                selfgen.OUT_ROOT = Path(tmp)
+                args = selfgen.parser().parse_args([
+                    "prepare", "--run-id", "diverse-test", "--n", "1", "--name-style", "diverse"])
+                args.func(args)
+                target = selfgen.run_dir("diverse-test")
+                self.assertEqual(json.loads((target / "manifest.json").read_text())["name_style"], "diverse")
+                self.assertEqual(json.loads((target / "seeds.json").read_text())["name_style"], "diverse")
+        finally:
+            selfgen.OUT_ROOT = original_root
 
     def test_intent_tiers_surface_every_static_value_without_call_structure(self):
         for tier in ("T2", "T3", "T4"):
@@ -325,11 +390,11 @@ class SelfgenToolcallIntentTests(unittest.TestCase):
 
     def test_default_tier_mix_has_exact_largest_remainder_allocation(self):
         mix = selfgen.parse_tier_mix(selfgen.DEFAULT_TIER_MIX)
-        self.assertEqual(selfgen.tier_counts(10, mix), {"T1": 1, "T2": 4, "T3": 3, "T4": 2})
+        self.assertEqual(selfgen.tier_counts(10, mix), {"T1": 0, "T2": 5, "T3": 3, "T4": 2})
         seeds, rejected = selfgen.build_seeds(10, 44, {}, set(), set(), mix)
         self.assertFalse(rejected)
         self.assertEqual({tier: sum(seed["tier"] == tier for seed in seeds) for tier in selfgen.TIERS},
-                         {"T1": 1, "T2": 4, "T3": 3, "T4": 2})
+                         {"T1": 0, "T2": 5, "T3": 3, "T4": 2})
 
     def test_long_chain_fixture_remains_machine_verifiable(self):
         seed = selfgen.make_seed(9, random.Random(5), "T4")
@@ -430,7 +495,7 @@ class SelfgenToolcallIntentTests(unittest.TestCase):
         self.assertFalse(next(record for record in records
                               if record["seed"]["seed_id"] == failed["seed"]["seed_id"])["failures"])
 
-    def test_paraphrase_ingest_falls_back_and_records_tier_downgrade(self):
+    def test_paraphrase_ingest_quarantines_failed_writeback_without_fallback(self):
         original_root = selfgen.OUT_ROOT
         try:
             with tempfile.TemporaryDirectory() as tmp:
@@ -447,10 +512,31 @@ class SelfgenToolcallIntentTests(unittest.TestCase):
                 writeback = target / "writeback.jsonl"
                 writeback.write_text(json.dumps({"seed_id": seed["seed_id"], "natural_request": "missing values"}) + "\n")
                 selfgen.ingest_paraphrase(type("Args", (), {"run_id": "intent-test", "input": str(writeback)})())
-                ingested = json.loads((target / "seeds.json").read_text())["seeds"][0]
-                self.assertEqual(ingested["tier"], "T1")
-                self.assertEqual(ingested["tier_original"], "T2")
-                self.assertEqual(ingested["user_request"], ingested["transcription_request"])
+                frozen = json.loads((target / "seeds.json").read_text())
+                self.assertEqual(frozen["seeds"], [])
+                self.assertEqual(frozen["paraphrase_result"], {"excluded": 1})
+                quarantined = json.loads((target / "paraphrase_excluded.jsonl").read_text())
+                self.assertEqual(quarantined["seed_id"], seed["seed_id"])
+                self.assertNotIn("fallback", str(quarantined))
+        finally:
+            selfgen.OUT_ROOT = original_root
+
+    def test_paraphrase_ingest_excludes_unparaphrased_t1_seed(self):
+        original_root = selfgen.OUT_ROOT
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                selfgen.OUT_ROOT = Path(tmp)
+                target = selfgen.run_dir("intent-test")
+                target.mkdir()
+                seed = selfgen.make_seed(8, random.Random(5), "T1")
+                selfgen.atomic_json(target / "manifest.json", {"state": "prepared"})
+                selfgen.atomic_json(target / "seeds.json", {"seeds": [seed]})
+                writeback = target / "writeback.jsonl"
+                writeback.write_text("")
+                selfgen.ingest_paraphrase(type("Args", (), {"run_id": "intent-test", "input": str(writeback)})())
+                self.assertEqual(json.loads((target / "seeds.json").read_text())["seeds"], [])
+                quarantined = json.loads((target / "paraphrase_excluded.jsonl").read_text())
+                self.assertIn("request", quarantined["failures"])
         finally:
             selfgen.OUT_ROOT = original_root
 

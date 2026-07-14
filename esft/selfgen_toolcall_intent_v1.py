@@ -14,6 +14,7 @@ from __future__ import annotations
 import argparse
 import copy
 import datetime as dt
+from functools import lru_cache
 import hashlib
 import json
 import multiprocessing as mp
@@ -31,16 +32,71 @@ from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
 import selfgen_toolcall_v1 as v1
+from bfcl_pilot import GORILLA as BFCL_GORILLA
+import paraphrase_gates
 
 
 ROOT = Path(__file__).resolve().parents[1]
 ESFT = ROOT / "esft"
 OUT_ROOT = ESFT / "data" / "selfgen_toolcall_intent_v1"
 TIERS = ("T1", "T2", "T3", "T4")
-DEFAULT_TIER_MIX = "T1:0.1,T2:0.4,T3:0.3,T4:0.2"
+# T1 is a formal transcription tier.  Strict paraphrase ingestion excludes
+# rows without a submitted paraphrase, so do not schedule it by default.
+DEFAULT_TIER_MIX = "T1:0,T2:0.45,T3:0.3,T4:0.25"
 MAX_RENDER_ATTEMPTS = 8
 HTTP_TIMEOUT_SECONDS = 300
 HTTP_MAX_ATTEMPTS = 5
+NAME_STYLES = ("mock", "diverse")
+STYLE_CARDS = (
+    ("neutral_direct", 0.25, "neutral, direct chat request; lead with the goal"),
+    ("terse_mobile", 0.20, "terse mobile request; compact but complete"),
+    ("conversational", 0.20, "conversational everyday request"),
+    ("professional_email", 0.15, "professional email or support-ticket request"),
+    ("informal", 0.10, "informal request"),
+    ("context_first", 0.10, "context-first narrative; give the situation before the goal"),
+)
+
+# These are deliberately local, ordinary English building blocks rather than a
+# small set of domain templates.  In particular, neither list contains names
+# copied from the evaluation corpus.  Keeping the vocabulary here makes seed
+# rendering self-contained and reproducible from the RNG seed.
+DIVERSE_VERBS = tuple("""
+accept acquire activate adjust allocate analyze archive arrange assess attach
+authorize balance book browse calculate cancel capture check classify clear
+collect compare compile compose confirm connect convert create decode deliver
+derive detect dispatch estimate export fetch filter finalize find format gather
+generate group import index inspect issue join launch link list locate lookup
+measure merge monitor move notify open optimize organize parse plan prepare
+preview process publish query reconcile record refresh release render reserve
+resolve retrieve review route save schedule search select send share sort split
+start submit summarize sync track transform translate update validate verify
+view watch
+""".split())
+DIVERSE_NOUNS = tuple("""
+account address agent alert allocation appointment archive asset audience balance
+batch bill booking branch budget calendar campaign catalog channel checkpoint
+city claim class client cluster collection comment contract coverage credential
+customer dataset deadline delivery device directory document draft driver event
+export facility fare feed file filter forecast form group history hold incident
+invoice item job key label ledger line list locale location manifest market
+member message metric model note notification offer order organization package
+page partner passenger payment period permit plan policy portfolio preference
+profile project property provider queue quote record region report request route
+rule schedule score search segment session shipment signal site slot source
+status store stream subscription summary supplier survey tag task team template
+ticket timeline token topic transaction trip user vehicle venue version warehouse
+waypoint window workflow zone activity approval attachment audit availability
+capacity category context destination detail estimate gateway guide identity image
+inventory journey language limit lookup metadata method origin owner priority
+receipt reference result role sample service setting shipment stage station
+threshold usage value variant visibility warning
+""".split())
+DIVERSE_DOMAIN_WORDS = tuple("""
+geo routes travel finance clinic civic library retail logistics energy media
+research property events safety telecom inventory planner records operations
+network dispatch
+""".split())
+_NAME_STYLE_COUNT = 5
 
 # Public aliases make the validator contract explicit and allow existing CPU
 # fixtures to be reused without copying the v1 implementation.
@@ -50,6 +106,267 @@ parse_model_turn = v1.parse_model_turn
 render_training = v1.render_training
 contaminated = v1.contaminated
 GenerationSpec = v1.GenerationSpec
+
+
+def normalize_identifier(value: str) -> str:
+    """Compare API identifiers without case or punctuation distinctions."""
+    return re.sub(r"[^a-z0-9]", "", value.lower())
+
+
+@lru_cache(maxsize=1)
+def bfcl_function_names() -> frozenset[str]:
+    """Return BFCL-v4 function names for the diverse-name rejection guard.
+
+    ``bfcl_pilot.GORILLA`` is the canonical pinned checkout location.  The
+    existing v1 JSON reader is reused so BFCL's JSON and JSONL ``.json`` files
+    are handled identically to the established contamination path.
+    """
+    data = BFCL_GORILLA / "bfcl_eval" / "data"
+    names: set[str] = set()
+
+    def visit(value: Any) -> None:
+        if isinstance(value, dict):
+            for key, item in value.items():
+                if key in {"name", "function_name"} and isinstance(item, str):
+                    names.add(item)
+                visit(item)
+        elif isinstance(value, list):
+            for item in value:
+                visit(item)
+
+    if data.is_dir():
+        for path in sorted(data.glob("BFCL_v4_*.json")):
+            visit(v1.load_json_or_jsonl(path))
+    return frozenset(names)
+
+
+def _normalized_forbidden_names(eval_names: Iterable[str] | None) -> set[str]:
+    names = set(bfcl_function_names())
+    if eval_names is not None:
+        names.update(name for name in eval_names if isinstance(name, str))
+    return {normalize_identifier(name) for name in names}
+
+
+def _function_name_style(seed_id: int, ordinal: int) -> int:
+    # The five styles cycle over consecutive tool slots.  A T4 seed therefore
+    # contains all five, while ordinary seeds mix styles across the run.
+    return (seed_id + ordinal) % _NAME_STYLE_COUNT
+
+
+def _function_name_candidate(style: int, domain: str, rng: random.Random, *,
+                             numeric_suffix: bool = False) -> str:
+    verb = rng.choice(DIVERSE_VERBS)
+    noun = rng.choice(DIVERSE_NOUNS)
+    qualifier = rng.choice(DIVERSE_NOUNS)
+    namespace = rng.choice(DIVERSE_DOMAIN_WORDS + (domain.replace("_", "-"),))
+    if style == 0:  # snake_case
+        name = f"{verb}_{noun}_{qualifier}"
+    elif style == 1:  # camelCase
+        name = verb + noun.title() + qualifier.title()
+    elif style == 2:  # dotted namespace
+        name = f"{namespace}.{noun}s.{verb}"
+    elif style == 3:  # server-prefixed hyphen form
+        name = f"{namespace}-server-{verb}_{noun}"
+    elif style == 4:  # short verb form — verb+noun, never a bare English word.
+        # A bare verb like "convert" collides with the natural phrasing of the
+        # request itself ("needs to be converted"), forcing a schema-leak
+        # false positive and carrying no copy-fidelity signal.
+        return f"{verb}_{noun}"
+    else:  # Defensive: callers derive this from the fixed style count.
+        raise ValueError(f"unknown diverse function-name style {style}")
+    # The caller schedules suffixes at most once every seven tool slots,
+    # avoiding a new mechanical template while still covering versioned APIs.
+    if numeric_suffix:
+        name += str(rng.randrange(2, 100))
+    return name
+
+
+def _choose_diverse_function_name(style: int, domain: str, rng: random.Random,
+                                  forbidden: set[str], used: set[str], *,
+                                  numeric_suffix: bool = False) -> str:
+    for _ in range(128):
+        candidate = _function_name_candidate(style, domain, rng, numeric_suffix=numeric_suffix)
+        normalized = normalize_identifier(candidate)
+        if normalized not in forbidden and normalized not in used:
+            used.add(normalized)
+            return candidate
+    raise RuntimeError("could not synthesize a non-BFCL diverse function name")
+
+
+def _parameter_name_candidate(index: int, rng: random.Random) -> str:
+    """Produce JSON-object parameter names without the old ``field_N_M`` form."""
+    first = rng.choice(DIVERSE_NOUNS)
+    second = rng.choice(DIVERSE_NOUNS)
+    style = index % 5
+    if style == 0:
+        # Never a bare English word: it would collide with natural request
+        # phrasing and trip the schema-leak gate on every honest paraphrase.
+        return f"{first}_{second}_{rng.choice(DIVERSE_NOUNS)}"
+    if style == 1:
+        return f"{first}_{second}"
+    if style == 2:
+        return first + second.title()
+    if style == 3:
+        return f"{first}-{second}"
+    return f"{first}.{second}"
+
+
+def _choose_parameter_name(index: int, rng: random.Random, used: set[str]) -> str:
+    for _ in range(128):
+        candidate = _parameter_name_candidate(index, rng)
+        if candidate not in used:
+            used.add(candidate)
+            return candidate
+    raise RuntimeError("could not synthesize a unique diverse parameter name")
+
+
+def _replace_identifiers(text: str, replacements: dict[str, str]) -> str:
+    """Replace legacy identifiers in the T1 transcription without partial hits."""
+    for old, new in sorted(replacements.items(), key=lambda item: len(item[0]), reverse=True):
+        text = re.sub(r"(?<![A-Za-z0-9_])" + re.escape(old) + r"(?![A-Za-z0-9_])", new, text)
+    return text
+
+
+def _receipt_link_sources(seed: dict[str, Any]) -> dict[str, tuple[int, int]]:
+    """Find result receipts already threaded into a seed's later calls."""
+    sources: dict[str, tuple[int, int]] = {}
+    for stage, calls in enumerate(seed["expected_stages"]):
+        for call_index, call in enumerate(calls):
+            result = mock_execute(call, stage, seed["pattern"])
+            receipt = result.get("result", {}).get("receipt")
+            if isinstance(receipt, str):
+                sources[receipt] = (stage, call_index)
+    return sources
+
+
+def _refresh_receipt_links(seed: dict[str, Any], sources: dict[str, tuple[int, int]]) -> None:
+    """Recompute deterministic receipt values after their producing API is renamed."""
+    refreshed: dict[tuple[int, int], str] = {}
+    for stage, calls in enumerate(seed["expected_stages"]):
+        for call in calls:
+            for field, value in call["arguments"].items():
+                source = sources.get(value) if isinstance(value, str) else None
+                if source is not None:
+                    call["arguments"][field] = refreshed[source]
+        for call_index, call in enumerate(calls):
+            result = mock_execute(call, stage, seed["pattern"])
+            receipt = result.get("result", {}).get("receipt")
+            if isinstance(receipt, str):
+                refreshed[(stage, call_index)] = receipt
+
+
+def _diversify_seed_names(seed: dict[str, Any], rng: random.Random,
+                          eval_names: Iterable[str] | None) -> None:
+    """Rename a completed mock schema and every reference to it in lockstep."""
+    receipt_sources = _receipt_link_sources(seed)
+    forbidden = _normalized_forbidden_names(eval_names)
+    used_function_names: set[str] = set()
+    function_names: dict[str, str] = {}
+    parameter_names: dict[str, str] = {}
+
+    # Parameters with the same legacy name (notably long-chain receipt links)
+    # retain one replacement everywhere, so the human-readable transcription
+    # can be remapped exactly as well.
+    for ordinal, tool in enumerate(seed["tools"]):
+        old_function = tool["name"]
+        source_seed = int(seed["seed_id"].rsplit("-", 1)[1])
+        style = _function_name_style(source_seed, ordinal)
+        function_names[old_function] = _choose_diverse_function_name(
+            style, seed["domain"], rng, forbidden, used_function_names,
+            numeric_suffix=style != 4 and (source_seed + ordinal) % 7 == 0)
+        local_parameter_names: set[str] = set()
+        props = tool["parameters"]["properties"]
+        for index, old_parameter in enumerate(props):
+            new_parameter = parameter_names.get(old_parameter)
+            if new_parameter is None:
+                new_parameter = _choose_parameter_name(len(parameter_names) + index, rng, local_parameter_names)
+                parameter_names[old_parameter] = new_parameter
+            local_parameter_names.add(new_parameter)
+        tool["parameters"]["properties"] = {
+            parameter_names[old_parameter]: spec for old_parameter, spec in props.items()
+        }
+        tool["parameters"]["required"] = [parameter_names[name] for name in tool["parameters"]["required"]]
+        tool["name"] = function_names[old_function]
+
+    for stage in seed["expected_stages"]:
+        for call in stage:
+            old_function = call["name"]
+            call["name"] = function_names[old_function]
+            call["arguments"] = {
+                parameter_names[name]: value for name, value in call["arguments"].items()
+            }
+    for derived in seed.get("derived_values", []):
+        derived["field"] = parameter_names[derived["field"]]
+    _refresh_receipt_links(seed, receipt_sources)
+    seed["user_request"] = _replace_identifiers(seed["user_request"], {**function_names, **parameter_names})
+
+
+def _guard_diverse_schema_names(seed: dict[str, Any], rng: random.Random,
+                                eval_names: Iterable[str] | None) -> None:
+    """Apply the BFCL collision guard to post-decoration distractor schemas too."""
+    forbidden = _normalized_forbidden_names(eval_names)
+    expected_names = {call["name"] for stage in seed["expected_stages"] for call in stage}
+    used: set[str] = set()
+    source_seed = int(seed["seed_id"].rsplit("-", 1)[1])
+    for ordinal, tool in enumerate(seed["tools"]):
+        normalized = normalize_identifier(tool["name"])
+        if normalized in forbidden or normalized in used:
+            if tool["name"] in expected_names:
+                raise RuntimeError("diverse function-name guard failed for an expected call")
+            style = _function_name_style(source_seed, ordinal)
+            tool["name"] = _choose_diverse_function_name(
+                style, seed["domain"], rng, forbidden, used,
+                numeric_suffix=style != 4 and (source_seed + ordinal) % 7 == 0)
+        else:
+            used.add(normalized)
+
+
+def _semantic_property_description(seed: dict[str, Any], tool: dict[str, Any], property_name: str,
+                                   ordinal: int) -> str:
+    """Produce public English semantics for every generated schema property.
+
+    This is intentionally derived from the domain and operation rather than a
+    host or corpus artifact.  Distinct ordinal wording ensures same-typed
+    properties are not only distinguishable by their JSON position.
+    """
+    domain = str(seed.get("domain", "service"))
+    name_words = re.sub(r"[_\-.]", " ", str(tool.get("name", "operation"))).split()
+    action = next((word for word in name_words if word in DIVERSE_VERBS), "complete")
+    lower_name = property_name.lower()
+    if "receipt" in lower_name:
+        return f"The receipt from the earlier {domain} operation that this {action} request depends on."
+    if "code" in lower_name:
+        return f"The reported error or recovery code needed to {action} this {domain} request."
+    field_words = re.sub(r"[_\-.]", " ", property_name).strip()
+    if field_words.startswith("field "):
+        field_words = f"{ordinal + 1}th requested detail"
+    return (f"The {field_words or 'requested detail'} used to {action} this {domain} request; "
+            "provide the value the user wants the operation to use.")
+
+
+def _ensure_schema_descriptions(seed: dict[str, Any]) -> None:
+    """Fill and verify property descriptions; absence is a generator bug."""
+    for tool in seed["tools"]:
+        for ordinal, (property_name, spec) in enumerate(tool["parameters"]["properties"].items()):
+            spec["description"] = _semantic_property_description(seed, tool, property_name, ordinal)
+    semantic = paraphrase_gates.check_schema_semantics(seed)
+    if not semantic.passed:
+        raise RuntimeError(f"generator emitted schema without semantic property descriptions: {semantic.failures}")
+
+
+def _style_card_for_seed(seed_id: str) -> dict[str, str]:
+    """Stable, seed-local style assignment independent of generation order."""
+    rng = random.Random(seed_id)
+    pick = rng.random()
+    cumulative = 0.0
+    for name, weight, instruction in STYLE_CARDS:
+        cumulative += weight
+        if pick < cumulative:
+            return {"name": name, "instruction": instruction}
+    # Floating-point roundoff cannot normally reach this branch, but keeping a
+    # deterministic terminal choice makes the assignment total.
+    name, _weight, instruction = STYLE_CARDS[-1]
+    return {"name": name, "instruction": instruction}
 
 
 def atomic_json(path: Path, value: Any) -> None:
@@ -217,10 +534,32 @@ def _intent_request(seed: dict[str, Any]) -> str:
     raise ValueError(f"unknown pattern {pattern!r}")
 
 
+_DISTRACTOR_SUFFIXES = ("preview", "legacy", "draft", "batch", "archive", "audit")
+
+
+def _distractor_name(name: str, ordinal: int) -> str:
+    """Morphology-preserving near-name: deceptively similar, never a template tag.
+
+    Mock-style names keep the historical ``_assistant_N`` suffix so the default
+    pipeline stays byte-identical; diverse names get a semantic sibling suffix
+    in the same morphology (snake/camel/dotted/hyphen).
+    """
+    if name.startswith("mock_"):
+        return name + f"_assistant_{ordinal + 1}"
+    word = _DISTRACTOR_SUFFIXES[ordinal % len(_DISTRACTOR_SUFFIXES)]
+    if "." in name:
+        return f"{name}.{word}"
+    if "-" in name:
+        return f"{name}-{word}"
+    if "_" in name or name.islower():
+        return f"{name}_{word}"
+    return name + word[0].upper() + word[1:]
+
+
 def _distractor(correct: dict[str, Any], ordinal: int) -> dict[str, Any]:
     """Near-name/schema tool that cannot accept the corresponding expected call."""
     out = copy.deepcopy(correct)
-    out["name"] = correct["name"] + f"_assistant_{ordinal + 1}"
+    out["name"] = _distractor_name(correct["name"], ordinal)
     props = out["parameters"]["properties"]
     required = out["parameters"]["required"]
     original = required[0]
@@ -285,6 +624,7 @@ def _long_chain_seed(seed_id: int, rng: random.Random) -> dict[str, Any]:
 def _decorate(seed: dict[str, Any], tier: str, rng: random.Random) -> dict[str, Any]:
     seed = copy.deepcopy(seed)
     seed["tier"] = tier
+    seed["style_card"] = _style_card_for_seed(seed["seed_id"])
     seed["distractor_tools"] = []
     seed.setdefault("derived_values", [])
     transcription = seed["user_request"]
@@ -300,13 +640,21 @@ def _decorate(seed: dict[str, Any], tier: str, rng: random.Random) -> dict[str, 
     return seed
 
 
-def make_seed(seed_id: int, rng: random.Random, tier: str = "T1", *, max_attempts: int = MAX_RENDER_ATTEMPTS) -> dict[str, Any]:
+def make_seed(seed_id: int, rng: random.Random, tier: str = "T1", *, max_attempts: int = MAX_RENDER_ATTEMPTS,
+              name_style: str = "mock", eval_names: Iterable[str] | None = None) -> dict[str, Any]:
     """Create one tiered seed; failed intent renderings are boundedly regenerated."""
     if tier not in TIERS:
         raise ValueError(f"unknown tier {tier!r}")
+    if name_style not in NAME_STYLES:
+        raise ValueError(f"unknown name style {name_style!r}")
     for attempt in range(max_attempts):
         base = _long_chain_seed(seed_id, rng) if tier == "T4" else v1.make_seed(seed_id, rng)
+        if name_style == "diverse":
+            _diversify_seed_names(base, rng, eval_names)
         seed = _decorate(base, tier, rng)
+        if name_style == "diverse":
+            _guard_diverse_schema_names(seed, rng, eval_names)
+        _ensure_schema_descriptions(seed)
         ok, missing = validate_value_occurrences(seed)
         if tier == "T1" or ok:
             seed["render_attempt"] = attempt + 1
@@ -315,7 +663,8 @@ def make_seed(seed_id: int, rng: random.Random, tier: str = "T1", *, max_attempt
 
 
 def build_seeds(count: int, rng_seed: int, profile: dict[str, Any], eval_grams: set[tuple[str, ...]],
-                eval_names: set[str], tier_mix: dict[str, float]) -> tuple[list[dict[str, Any]], Counter[str]]:
+                eval_names: set[str], tier_mix: dict[str, float], *,
+                name_style: str = "mock") -> tuple[list[dict[str, Any]], Counter[str]]:
     rng = random.Random(rng_seed)
     requested = tier_counts(count, tier_mix)
     schedule = [tier for tier in TIERS for _ in range(requested[tier])]
@@ -324,7 +673,7 @@ def build_seeds(count: int, rng_seed: int, profile: dict[str, Any], eval_grams: 
     candidate, schedule_index = 0, 0
     while len(seeds) < count:
         tier = schedule[schedule_index]
-        seed = make_seed(candidate, rng, tier)
+        seed = make_seed(candidate, rng, tier, name_style=name_style, eval_names=eval_names)
         reason = contaminated(seed, eval_grams, eval_names)
         if reason:
             rejected[reason] += 1
@@ -351,13 +700,19 @@ def _long_chain_links_match(seed: dict[str, Any], selected: list[list[dict[str, 
                             results: list[list[dict[str, Any]]]) -> bool:
     if seed["pattern"] != "long_chain":
         return True
-    return (
-        selected[1][0]["arguments"].get("first_receipt") == results[0][0]["result"]["receipt"] and
-        selected[1][0]["arguments"].get("second_receipt") == results[0][1]["result"]["receipt"] and
-        selected[2][0]["arguments"].get("prior_receipt") == results[1][0]["result"]["receipt"] and
-        selected[3][0]["arguments"].get("recovery_code") == results[2][0]["error"]["code"] and
-        selected[3][0]["arguments"].get("prior_receipt") == results[1][0]["result"]["receipt"]
-    )
+    # Link field names belong to each schema.  Resolve the declared source
+    # instead of assuming the old ``first_receipt``/``recovery_code`` spelling.
+    for link in seed.get("derived_values", []):
+        match = re.fullmatch(r"stage(\d+)\.call(\d+)\.(result|error)\.([A-Za-z0-9_]+)", link["source"])
+        if not match:
+            return False
+        source_stage, source_call = int(match.group(1)), int(match.group(2))
+        result = results[source_stage][source_call]
+        expected = result.get(match.group(3), {}).get(match.group(4))
+        target_stage = link["stage"]
+        if len(selected[target_stage]) != 1 or selected[target_stage][0]["arguments"].get(link["field"]) != expected:
+            return False
+    return True
 
 
 def cpu_fixture_records(seeds: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -432,10 +787,15 @@ def emit_paraphrase_batch(args: argparse.Namespace) -> None:
     for seed in frozen["seeds"]:
         if seed["tier"] == "T1":
             continue
-        rows.append({"schema_version": 1, "seed_id": seed["seed_id"], "tier": seed["tier"],
+        rows.append({"schema_version": 2, "seed_id": seed["seed_id"], "tier": seed["tier"],
+                     "style_card": seed["style_card"],
                      "transcription_request": seed["transcription_request"],
                      "value_literals": [_literal(value) for value in seed["request_values"]],
                      "derived_values": seed.get("derived_values", []),
+                     # This context remains in the private paraphrase batch.  It
+                     # gives the offline driver enough information to run the
+                     # same P0 gates as ingest without exposing it in output.
+                     "gate_seed": {key: seed[key] for key in ("tools", "expected_stages", "derived_values", "request_values")},
                      "writeback": {"seed_id": seed["seed_id"], "natural_request": "<paraphrased request>"}})
     atomic_jsonl(output, rows)
     print(output)
@@ -461,38 +821,54 @@ def ingest_paraphrase(args: argparse.Namespace) -> None:
     target, manifest, frozen = _load_frozen_seeds(args.run_id)
     if manifest.get("state") != "prepared":
         raise RuntimeError(f"run state must be prepared, got {manifest.get('state')!r}")
-    writebacks: dict[str, str] = {}
+    writebacks: dict[str, dict[str, Any]] = {}
     known = {seed["seed_id"] for seed in frozen["seeds"]}
     for row in _read_jsonl(Path(args.input)):
         seed_id, natural = row.get("seed_id"), row.get("natural_request")
         if seed_id not in known or seed_id in writebacks or not isinstance(natural, str):
             raise ValueError("writeback rows require unique known seed_id and string natural_request")
-        writebacks[seed_id] = natural
+        writebacks[seed_id] = row
     result = Counter()
+    candidate_rows = []
+    candidate_seeds: dict[str, dict[str, Any]] = {}
     for seed in frozen["seeds"]:
-        if seed["tier"] == "T1":
-            continue
-        natural = writebacks.get(seed["seed_id"])
-        valid, missing = validate_value_occurrences(seed, natural) if natural is not None else (False, ["<missing-writeback>"])
-        if valid:
+        row = writebacks.get(seed["seed_id"])
+        if row is None:
+            candidate_rows.append({"seed_id": seed["seed_id"], "natural_request": None,
+                                   "tier": seed["tier"], "style_card": seed["style_card"]})
+        else:
+            candidate_rows.append({"seed_id": seed["seed_id"], "natural_request": row["natural_request"],
+                                   "tier": seed["tier"], "style_card": seed["style_card"]})
+        candidate_seeds[seed["seed_id"]] = seed
+
+    evaluated = paraphrase_gates.evaluate_rows(candidate_seeds, candidate_rows, batch=True)
+    verdicts = {row["seed_id"]: row for row in evaluated}
+    retained, quarantined = [], []
+    for seed in frozen["seeds"]:
+        verdict = verdicts[seed["seed_id"]]
+        if verdict["passed"]:
+            natural = verdict["natural_request"]
             seed["natural_request"] = natural
             seed["user_request"] = natural
-            seed["paraphrase"] = {"status": "accepted"}
+            seed["paraphrase"] = {"status": "accepted", "style_card": seed["style_card"]["name"]}
+            retained.append(seed)
             result["accepted"] += 1
         else:
-            original = seed["tier"]
-            seed["natural_request"] = seed["transcription_request"]
-            seed["user_request"] = seed["transcription_request"]
-            seed["tier"] = "T1"
-            seed["tier_original"] = original
-            seed["tier_downgrade"] = {"reason": "value_occurrence_failed", "missing_literals": missing}
-            seed["paraphrase"] = {"status": "fallback_transcription"}
-            result["fallback"] += 1
+            # No transcription fallback: keep a private, inspectable
+            # quarantine record and remove the seed from the trainable set.
+            quarantine = {"seed_id": seed["seed_id"], "tier": seed["tier"],
+                          "style_card": seed["style_card"], "failures": verdict["failures"]}
+            quarantined.append(quarantine)
+            result["excluded"] += 1
+    frozen["seeds"] = retained
+    frozen["count"] = len(retained)
     frozen["paraphrase_ingested_at"] = dt.datetime.now(dt.UTC).isoformat()
     frozen["paraphrase_result"] = dict(result)
     atomic_json(target / "seeds.json", frozen)
-    atomic_json(target / "paraphrase_ingest.json", {"schema_version": 1, "run_id": args.run_id,
-                                                       "input": str(args.input), "result": dict(result)})
+    atomic_jsonl(target / "paraphrase_excluded.jsonl", quarantined)
+    atomic_json(target / "paraphrase_ingest.json", {"schema_version": 2, "run_id": args.run_id,
+                                                       "input_name": Path(args.input).name, "result": dict(result),
+                                                       "quarantine_artifact": "paraphrase_excluded.jsonl"})
     print(canonical(dict(result)))
 
 
@@ -1035,14 +1411,17 @@ def prepare(args: argparse.Namespace) -> None:
     target = run_dir(args.run_id)
     if target.exists():
         raise FileExistsError(f"refusing to overwrite {target}")
+    name_style = getattr(args, "name_style", "mock")
     mix = parse_tier_mix(args.tier_mix)
     stock = v1.verified_stock_identity()
     profile = v1.bfcl_structural_profile()
     contamination, grams, names = v1.contamination_corpus()
-    seeds, rejected = build_seeds(args.n, args.seed, profile, grams, names, mix)
+    seeds, rejected = build_seeds(args.n, args.seed, profile, grams, names, mix,
+                                  name_style=name_style)
     target.mkdir(parents=True)
     atomic_json(target / "seeds.json", {"schema_version": 1, "created_at": dt.datetime.now(dt.UTC).isoformat(),
                                          "rng_seed": args.seed, "count": args.n, "tier_mix": mix,
+                                         "name_style": name_style,
                                          "tier_counts": tier_counts(args.n, mix), "bfcl_structure": profile,
                                          "contamination": contamination, "seed_filter_rejections": dict(rejected),
                                          "seeds": seeds})
@@ -1051,11 +1430,13 @@ def prepare(args: argparse.Namespace) -> None:
                                              "model": {"identity": stock, "topk": 8, "patch": None},
                                              "generation": {"gpus": [0, 1], "best_of": args.best_of,
                                                             "temperature": args.temperature, "max_new": args.max_new},
+                                             "name_style": name_style,
                                              "strata": {"tiers": list(TIERS), "tier_mix": mix,
                                                          "patterns": list(v1.PATTERNS) + ["long_chain"],
                                                          "domains": list(v1.DOMAINS), "schema_count": v1.SCHEMA_COUNT},
                                              "contamination": contamination,
                                              "artifacts": {"seeds": "seeds.json", "paraphrase_batch": "paraphrase_batch.jsonl",
+                                                           "paraphrase_quarantine": "paraphrase_excluded.jsonl",
                                                            "audit_batch": "audit_batch.jsonl",
                                                            "generation_checkpoints": ["generation_records_gpu0.jsonl",
                                                                                         "generation_records_gpu1.jsonl"]}})
@@ -1073,6 +1454,8 @@ def parser() -> argparse.ArgumentParser:
     s.add_argument("--temperature", type=float, default=0.7)
     s.add_argument("--max-new", type=int, default=512)
     s.add_argument("--tier-mix", default=DEFAULT_TIER_MIX)
+    s.add_argument("--name-style", choices=NAME_STYLES, default="mock",
+                   help="schema identifier style (default: mock; preserves the v1-compatible names)")
     s.set_defaults(func=prepare)
     s = sub.add_parser("execute")
     s.add_argument("--run-id", required=True)
