@@ -534,3 +534,10 @@
   - **確定機構 = 関数名の複写忠実度の喪失**: 失敗は `get_fibonacci_sequence`→`get_f fibonacci sequence` (下線→空白)、`math.factorial`→`Math.factorial`、`<function=`→`<function ` のようなトークンレベルの名前・記号崩れ (greedy でも発生)。引数値は正しい。selfgen のツール名が `mock_finance_165_inspect_1` 型の機械的テンプレに偏り、「名前をスキーマから逐語コピー」でなく「部品から再構成」する癖を学習した、が最節約の説明
 - **含意**: ①MMLU/JMMLU/GSM8K が全て ns でも主目的軸は大きく壊れていた = 「審判の不在は無罪ではない」②走行中の v5.1 も同じ mock_* テンプレ名の燃料 — 境界測定 (BFCL 入り) で回復/悪化を判定 ③v6 の筆頭対策 = **selfgen ツール名の多様化 (実在風・非テンプレ、BFCL 名との衝突は既存 decontam で排除)** ④B2 期の「BFCL +4.0pt」(旧 patch 線) との差は要再検討 — 当時と燃料構成が違う
 
+
+## 2026-07-14 — B2 再測定で切り分け完結 / v5.1 を燃料欠陥で中止 (作り直しへ)
+
+- **B2 再測定 (bfcl_b2_recheck_20260714, n=100 paired, 新ハーネス bfcl_fullffn_v1, greedy)**: base@k8 84/100 vs B2(expert-patch)@k32+α0.5 **88/100 (+4pt)**。不一致 0:4 — **B2 が base に負けた item はゼロ**。McNemar p=0.125 (ns)、非劣性 (margin 5pt) PASS。旧測定の +4.0pt を新ハーネスで再現。
+- **切り分け確定**: 関数名複写の崩壊 (−31pt) は **v4 full-FFN 燃料 (mock_* テンプレ名 selfgen) に固有**。k32 化・α ダイヤル・expert-patch 方式・full-FFN 方式そのものは全て無罪 (B2 も full-FFN ではないが、少なくとも「k32 で訓練すると壊れる」は棄却)。
+- **v5.1 中止 (step ~371/1000, ユーザー決定)**: v5.1 燃料 (v5p1 intent) も同じ mock_* テンプレ名を含む = 既知の欠陥を共有。「クソだと分かっているデータセットで焼き続けるのは無意味」— 質最優先で燃料を作り直す。tail05 (v4 出力) とその子孫 (v5/v5.1 checkpoint) は汚染線として再利用しない。**再訓練は stock base + router 凍結 + α=0.5 の fresh 構成から**。
+- **作り直し方針 (ユーザー指示)**: ①diverse ツール名 (r4, 済) ②Sol 設計の品質ゲート実装 (P0 機械ゲート + style_card + schema description 付与 + **transcription フォールバック全廃** — ゲート落ちは捨てる) ③完成データセットは **HF に公開** ④汚染 checkpoint は recipe 化のうえ破棄可 (ユーザー許可)。実装は cx work に発注済み。
