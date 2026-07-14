@@ -514,3 +514,10 @@
 - 解釈の注意: 測定は易しい層 (T2/T3) のみ。T4 では思考が必要な可能性が高く、INC-0/GRPO は「合格を落とさず短く」の verifiable reward + 全 tier 混合で守る。
 - ゲートどおり INC-0 (rejection-sampling SFT、RL_DESIGN.md) へ進む: 製造器 `esft/rl/inc0_shortthink_v1.py` を実装発注 (全 tier、最短正解思考を選抜、trainer 形式で think 込み焼き)。
 - **BFCL 再配線完了**: `esft/bfcl_fullffn_v1.py` — 腕を `name=モデルパス:topk:alpha` で任意指定、full-FFN checkpoint 直接ロード、α ダイヤル hook (eval_harness と同一機構、照合済み)、paired McNemar。CPU テスト 4/4。ツールコール軸の審判が境界測定に復帰。
+
+## 2026-07-14 — step-300 燃料切替 (v5 → v5.1) + INC-0 rollout 完走
+
+- **切替の空振りを検出**: checkpoint-300 は 23:42 保存済みだったが、relay の待機実行が発火せず元プロセスが v5 燃料のまま step 343 まで継続 (バックストップの v5p1_in_cmdline=1 は偽陽性)。検出後 relay-operator が停止→resume を実行。
+- **v5.1 resume 健全 (measured)**: checkpoint-300 から model_match=True 全 rank、loss 連続 (step 301-306: 0.612/0.568/0.551/0.585/0.506/0.604、切替前 ~0.55-0.66 から跳ねなし)、~78s/it、8 GPU 飽和。step 301-343 の v5 燃焼 43 step は設計どおり巻き戻し。残り 700 step を v5.1 (T4 gold 倍増) で燃焼、ETA ~15h。
+- **INC-0 rollout 完走** (~1h、vLLM lane): 全 tier 層別 1,000 seed × N=8 → **925 採用** (trainer 形式、think 込み、source_tag inc0_shortthink_20260714)。tier 別 stage0 pass: T1 78.6% / T2 66.8% / T3 55.1% / T4 52.7%。
+- **正直な留保**: 採用 rollout の think_chars は全 tier で p50=2 (stage0 = チェーン初手は T4 でも易しく、最短正解 ≒ ゼロ思考)。p90 は T1 2.7k → T4 7.3k と tier で伸びる。この分布で焼くと「常に即クローズ」への崩壊リスクあり — それを安価に白黒つけるのが INC-0 の役割。焼きは guest-gpu を予定 (gpu-host は v5.1 で占有中)。
