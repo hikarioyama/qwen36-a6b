@@ -554,3 +554,13 @@
 - 外部知見 (Grok, 要一次確認): 値羅列 request は APIGen/ToolBench/ToolACE/Hammer/BFCL に存在しない異形。Hammer function masking (F1 0.90→0.60 崩落を 0.85 に維持) が名前過適合の実証済み対策。
 - 実装: `esft/selfgen_name_bijection.py` (Codex 製, round-trip テスト green)。v2 (recompute + 全パターン request 骨格) 実装中。
 - 次: T2/T3 の mock surface スモーク → 本走行 (全 5,000 seeds, gpu-host, env 3点 `SELFGEN_NOTHINK=1 SELFGEN_STAGE_HINT=1 SELFGEN_MT_FEWSHOT=1`) → restore → G2 → fresh 訓練 (stock base + router凍結 + α=0.5)。
+
+## 2026-07-15 — 本走行完走 (92.9%) → v6 組み立て → fresh 区間点火
+
+- **本走行完走** (intent_r4_mocksurface, gpu-host, env 3点): generated=5,000 / **accepted=4,643 (92.9%)** / 途中集計の tier 別 = T2 96% / T3 94% / T4 93% (n=2,117 時点)。旧 T4 26-28% の 3 倍超。reasons: plan_alignment 333 / unknown_argument 17 / 型ミス少数 / json_parse 2。
+- **restore 検証**: 4,643 行全数で mock 名漏れ 0 / request 不一致 0 / call 名不一致 0。
+- **G2 プリフライト全 pass** (4 レーン並列): render errors 0 (receipt byte 一致・decoy 0・think 漏れ 0) / 汚染 = BFCL 8-gram・関数名とも真ヒット 0 (陽性対照で matcher 健全性確認、部分一致 4,220 は全て偽陽性トリアージ済) / 品質 = 関数名 35,121 種 max freq 4・テンプレ支配なし・~11.6M tok / vault 保存 + sha 記録 (train_restored c919e4a9…)。
+- **v6_20260715.jsonl = 322,861 行 (sha d61451585bd57728)**: v5 (743bb819) − selfgen_intent_r1/r2 7,341 行 + selfgen_intent_mocksurface_20260715 (trainer 形式 preamble) 4,643 行。決定論 shuffle seed=20260715。render check errors 0 (709M tok, p90 5,379)。vault: qwen36-a6b-v6-build/ (BUILD_NOTE 付)。
+- 転送の罠: scp 一発目が silent 破損 (sha 不一致、サイズは一致)。**大物転送は必ず両側 sha 照合** — 再送で d6145158 一致確認。
+- **fresh 区間点火**: `fullffn_v6divnames_fresh_20260715` — **stock base (995ad96e) から fresh** / router 凍結 / α=0.5 (tail-scale) / v6 / 1000 step / replay 0.30 / adafactor。cache 52,364 blocks + replay 22,442 混合。step 1: loss 0.7996, 78.7s/it, 8 GPU 飽和, ETA ~22h。汚染 checkpoint 系譜 (tail05/v5/v5.1) は不使用。
+- 次: 完走後に G3 境界測定 (MMLU 3 腕 paired + **BFCL 非劣化 hard gate**) → 判定に従い ROADMAP 更新。HF データセット公開はその後 (公開前チェックリスト経由)。
