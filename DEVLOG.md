@@ -541,3 +541,16 @@
 - **切り分け確定**: 関数名複写の崩壊 (−31pt) は **v4 full-FFN 燃料 (mock_* テンプレ名 selfgen) に固有**。k32 化・α ダイヤル・expert-patch 方式・full-FFN 方式そのものは全て無罪 (B2 も full-FFN ではないが、少なくとも「k32 で訓練すると壊れる」は棄却)。
 - **v5.1 中止 (step ~371/1000, ユーザー決定)**: v5.1 燃料 (v5p1 intent) も同じ mock_* テンプレ名を含む = 既知の欠陥を共有。「クソだと分かっているデータセットで焼き続けるのは無意味」— 質最優先で燃料を作り直す。tail05 (v4 出力) とその子孫 (v5/v5.1 checkpoint) は汚染線として再利用しない。**再訓練は stock base + router 凍結 + α=0.5 の fresh 構成から**。
 - **作り直し方針 (ユーザー指示)**: ①diverse ツール名 (r4, 済) ②Sol 設計の品質ゲート実装 (P0 機械ゲート + style_card + schema description 付与 + **transcription フォールバック全廃** — ゲート落ちは捨てる) ③完成データセットは **HF に公開** ④汚染 checkpoint は recipe 化のうえ破棄可 (ユーザー許可)。実装は cx work に発注済み。
+
+## 2026-07-15 — T4 自己生成 0% の機構決着: 生成/訓練 surface 分離で 93-97% に回復 (measured)
+
+- **前夜の結論の修正**: 「desc2 (diverse名) が T4 を殺す」は表層。単独レバー A/B 11 本 (desc on/off / tool名mock化 / anchor注入 / transcription / receipt自己記述名 / 各組合せ, 全 n=30, best_of=4, extend prior) が**全部 0-3%** → 単独犯不在。
+- **機構 (teacher-forced 解剖 + cx 積モデルで確定)**: P(T4) ≈ C(stage進行) × B(binding) × R(receipt識別) の積。
+  - C の主犯 = **few_shots が全部 single-turn** → stage>0 で stage0 計画を byte 同一再出力 (解剖 9/9)。継続例 1 個の注入で intent_r1 T4 **13/30 → 26/30 (87%)**。`SELFGEN_MT_FEWSHOT=1` で opt-in 実装 (d624221)。
+  - B/R = desc2 natural paraphrase は値順シャッフル + arg名がランダム意味名で binding 手がかりゼロ (r1 は field_N_K + first/second_receipt で自己記述)。
+- **【probe バグ2】mock_execute の receipt = sha256(canonical(call))[:12] = call 内容のハッシュ**。リネーム系 probe は expected の derived 値が古いハッシュのままで**偽陰性**だった (モデルは prior から正しく receipt を複写していた)。nameswap/mockize 系の 0/30 は測定アーティファクトを含む。recompute_derived 実装で修正。
+- **決着測定**: desc2 T4 seeds を「mock序数名 + field_N_K + first/second_receipt + r1骨格request + 継続few-shot」に全単射変換 (derived 再計算込み) — **T4 28/30=93% (ローカル 0.25.0) / 29/30=97% (gpu-host 0.24.0)** (n=30×2 独立, best_of=4, extend prior)。旧ラウンド T4 26-28% の 3 倍超。
+- **採択戦略 = 生成/訓練 surface 分離** (Hammer arXiv:2410.04587 と同向き): 生成は mock surface (高収率)、訓練は逆写像で diverse名 + natural paraphrase に復元。健全性: 採択 = expected と exact-match なので復元後 trace は gold と同一、request 文はツール名を含まず、restore 後の receipt 再計算は全単射性により元 gold 値に byte 一致で戻る。
+- 外部知見 (Grok, 要一次確認): 値羅列 request は APIGen/ToolBench/ToolACE/Hammer/BFCL に存在しない異形。Hammer function masking (F1 0.90→0.60 崩落を 0.85 に維持) が名前過適合の実証済み対策。
+- 実装: `esft/selfgen_name_bijection.py` (Codex 製, round-trip テスト green)。v2 (recompute + 全パターン request 骨格) 実装中。
+- 次: T2/T3 の mock surface スモーク → 本走行 (全 5,000 seeds, gpu-host, env 3点 `SELFGEN_NOTHINK=1 SELFGEN_STAGE_HINT=1 SELFGEN_MT_FEWSHOT=1`) → restore → G2 → fresh 訓練 (stock base + router凍結 + α=0.5)。
