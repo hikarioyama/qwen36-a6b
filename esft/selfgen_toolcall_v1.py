@@ -425,6 +425,24 @@ FEW_SHOTS = [
     {"user": "Schema: mock_primary.lookup and mock_fallback.search. Result: UNAVAILABLE. Request: recover.",
      "assistant": {"calls": [{"name": "mock_fallback.search", "arguments": {"query": "item-9"}}]}},
 ]
+# Measured (2026-07-15, n=30, best_of=4, extend prior): the all single-turn few-shots
+# above never demonstrate turn continuation, so at stage>0 the model re-emits the
+# stage0 plan verbatim (9/9 in teacher-forced dissection). One continuation exemplar
+# lifts intent_r1 T4 from 13/30 to 26/30. Opt-in via SELFGEN_MT_FEWSHOT=1; scaffold
+# material is input-only and never reaches train.jsonl.
+MT_CONTINUATION_SHOTS = [
+    {"user": ("Schema: billing.accounts.open requires owner_tag; ledger-server-verify_entry requires "
+              "audit_flag; postFinalNotice requires summary_ref, first_receipt, second_receipt. "
+              "Request: open with \"item-5\" and verify with true at the same time; once both are done, "
+              "post the final notice with \"item-8\" and the two receipts. Turn: 2. "
+              "prior_tool_results: [{\"call\": \"billing.accounts.open\", \"ok\": true, \"result\": "
+              "{\"receipt\": \"mock-aa11\", \"stage\": 1}}, {\"call\": \"ledger-server-verify_entry\", "
+              "\"ok\": true, \"result\": {\"receipt\": \"mock-bb22\", \"stage\": 1}}]. "
+              "Instruction: Turns 1..1 are already executed. Emit ONLY the new tool-call JSON for turn 2. "
+              "Never repeat a call that was already executed."),
+     "assistant": {"calls": [{"name": "postFinalNotice", "arguments": {
+         "summary_ref": "item-8", "first_receipt": "mock-aa11", "second_receipt": "mock-bb22"}}]}},
+]
 
 
 def scaffold_prompt(seed: dict[str, Any], stage: int, tool_results: list[dict[str, Any]]) -> str:
@@ -437,7 +455,9 @@ def scaffold_prompt(seed: dict[str, Any], stage: int, tool_results: list[dict[st
         instruction = (f"Turns 1..{stage} are already executed; their results are in "
                        f"prior_tool_results. Emit ONLY the new tool-call JSON for turn {stage + 1}. "
                        "Never repeat a call that was already executed.")
-    return canonical({"system": SYSTEM, "few_shots": FEW_SHOTS, "tools": seed["tools"],
+    few_shots = FEW_SHOTS + (MT_CONTINUATION_SHOTS
+                             if os.environ.get("SELFGEN_MT_FEWSHOT") == "1" else [])
+    return canonical({"system": SYSTEM, "few_shots": few_shots, "tools": seed["tools"],
                       "user_request": seed["user_request"], "turn": stage + 1,
                       "prior_tool_results": tool_results,
                       "instruction": instruction})
