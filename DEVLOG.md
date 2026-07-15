@@ -564,3 +564,10 @@
 - 転送の罠: scp 一発目が silent 破損 (sha 不一致、サイズは一致)。**大物転送は必ず両側 sha 照合** — 再送で d6145158 一致確認。
 - **fresh 区間点火**: `fullffn_v6divnames_fresh_20260715` — **stock base (995ad96e) から fresh** / router 凍結 / α=0.5 (tail-scale) / v6 / 1000 step / replay 0.30 / adafactor。cache 52,364 blocks + replay 22,442 混合。step 1: loss 0.7996, 78.7s/it, 8 GPU 飽和, ETA ~22h。汚染 checkpoint 系譜 (tail05/v5/v5.1) は不使用。
 - 次: 完走後に G3 境界測定 (MMLU 3 腕 paired + **BFCL 非劣化 hard gate**) → 判定に従い ROADMAP 更新。HF データセット公開はその後 (公開前チェックリスト経由)。
+
+## 2026-07-15 — intent_r4 独立監査 (corpus-auditor) CLEAN / 訓練走行中
+
+- **独立監査 (corpus_decontam_v1 面, 本走行ゲートとは別ロジック)**: intent_r4_restored_trainer.jsonl 全 4,643 行 × 6 eval セット (mmlu/gsm8k/humaneval/jmmlu/bfcl/mifeval) → **removed_rows=0**。閾値下プローブ max-distinct-per-row=0 (全行)、raw (max_df=0) でも共有 8-gram ゼロ、**陽性対照で検出器の生存確認済み** (humaneval distinct 96-156 等で発火) — silent zero でない本物の clean。
+- 正直な限界 (監査係の申告): 両ゲートとも lexical。意味的 paraphrase 汚染の recall≈0 だが、tool-call schema データは自由記述 QA が無く表面積が小さい。BFCL は name-exact + 8-gram の二重被覆。mutated-eval 再生率チェックは backlog。
+- v6 sha 二重化の注記: 並走 2 セッションが同一レシピで v6 を独立組み立て (d6145158=訓練使用の正 / 96806d7b=冗長変種)。詳細 vault: qwen36-a6b-v5-build/V6_SHA_NOTE_20260715.md。**教訓 = 並走時は組み立て担当を peer 通信で一本化**。
+- fullffn_v6divnames_fresh_20260715 走行中 (step 3+ loss 0.84→0.77, 78.3s/it, 8 GPU 飽和, ETA 2026-07-16 昼)。Monitor 常駐 (100step 毎 + 異常 3 状態)。
