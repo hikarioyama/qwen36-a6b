@@ -580,3 +580,15 @@
 - **機構 = v4 と同一の「ネイティブ tool-call 構文の生成崩壊」**: `<function=NAME>` の `=` 欠落、関数名への空白/ゴミ混入 (`<function=b basketball.player_stats.get>`)、`<parameter=KEY>` の `=` 欠落。error 型: adapter_or_upstream_parser:ValueError 21 / cannot_find_match 8 / wrong_count 7。
 - **重要な含意: 名前過適合説 (mock_* テンプレ名) は反証された**。diverse 名 + natural request でも同型崩壊 → 名前スタイル無罪。v4 (intent ゼロ) と v6 (intent 入り) の共通成分 = tool-call 訓練行のレンダ経路 (toucan 39,678 行 + selfgen 系、corpus_to_trainer preamble モード + chat template レンダ) が新本命。**仮説 H1: 訓練が見る assistant tool-call 文字列がネイティブ構文と不一致で、壊れた構文を数万行規模で教えている** — cx にオフライン突合を発注 (レンダ vs apply_chat_template の byte diff)。
 - 判定: 本走行収率 92.9% の製造ライン自体は健在 (生成側の勝利は維持)。訓練側の構文破壊が独立の欠陥として存在。**次区間はレンダ機構の白黒がつくまで発射しない** (悪燃料の再燃焼は GPU の無駄)。
+
+## 2026-07-16 — v6 fresh 区間の審判: ダイヤル健在 / BFCL hard gate FAIL / mock名犯人説を反証 (measured)
+
+- **G3 MMLU (n=600 paired, choice-logprob, ローカル)**:
+  - base@k32+α0.5 84.50% vs base@k8 84.67% (−0.17pt, p=1.0) — **借金完済を再現、ダイヤルは完璧に機能**
+  - 素の k32 (α無し) 81.50% (−3.17pt, p=0.009) — ダイヤル必須の再確認
+  - v6fresh@k32+α0.5 **82.83%** vs base@k32+α0.5 84.50% — 訓練の純効果 **−1.67pt (p=0.089, ns だが負方向、不一致 19:9)**
+- **BFCL hard gate: FAIL** (bfcl_v4 AST 決定論サブセット, n=100 paired): base@k8 84/100 (過去実測と一致) vs v6fresh@k32+α0.5 **48/100 = −36pt**
+- **【重要】mock 名犯人説の反証**: v6 燃料は diverse 名 + 汚染ゼロ (二重監査) なのに、v4 と**同一の崩壊署名** (`<function NAME>` の `=` 欠落) で壊れた。名前は主犯でない。
+- **共通因子 = preamble 形式 tool-call SFT**: `<function=` 指示文を持つ行は toucan 39,678 + selfgen 4,643 = 44,321 行 (13.7%)、v4/v5/v6 全てに共通。corpus 内に壊れ形 (`<function ` スペース) は 18 行のみ = データから直接学んだ形ではなく、訓練による serialization 漂流。
+- **損傷の層構造** (raw 解剖 + 機械修復再採点): `=` 欠落 16/100 → 正規化で **48→61/100 (+13)** 回収。残層 = parallel call 崩壊 15 / parser KeyError 8 / missing_required 6 / その他 3。推論時正規化は部分回収 (−36→−23pt) に留まる。
+- 開いてる選択肢: (a) toolcall 成分を `--tools-mode native` で作り直し再訓練 / (b) checkpoint-300 の dose-response (要 export) / (c) toucan 除去・toolcall 線量削減 / (d) KeyError・parallel 残層の解剖続行。
