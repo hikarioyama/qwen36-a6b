@@ -571,3 +571,12 @@
 - 正直な限界 (監査係の申告): 両ゲートとも lexical。意味的 paraphrase 汚染の recall≈0 だが、tool-call schema データは自由記述 QA が無く表面積が小さい。BFCL は name-exact + 8-gram の二重被覆。mutated-eval 再生率チェックは backlog。
 - v6 sha 二重化の注記: 並走 2 セッションが同一レシピで v6 を独立組み立て (d6145158=訓練使用の正 / 96806d7b=冗長変種)。詳細 vault: qwen36-a6b-v5-build/V6_SHA_NOTE_20260715.md。**教訓 = 並走時は組み立て担当を peer 通信で一本化**。
 - fullffn_v6divnames_fresh_20260715 走行中 (step 3+ loss 0.84→0.77, 78.3s/it, 8 GPU 飽和, ETA 2026-07-16 昼)。Monitor 常駐 (100step 毎 + 異常 3 状態)。
+
+## 2026-07-16 — v6 fresh 区間の審判: MMLU 無害 / BFCL hard gate 不合格 (−36pt) — 機構は v4 と同一の構文崩壊
+
+- **区間完走**: fullffn_v6divnames_fresh_20260715、1000 step / 21.5h / 75-78s/it / eval_loss 0.667→0.622 単調降下 / クラッシュゼロ。bf16 export 65.4GiB をローカル転送 (sha 3/3 両側一致)。
+- **G3 (MMLU n=600 paired, choice-logprob, ローカル 2GPU)**: base@k8 84.67 / base@k32+α0.5 84.50 / **v6fresh@k32+α0.5 82.83** (Δ=−1.83 vs 床, 不一致 24:13, McNemar p=0.10 ns) / v6fresh@k32 80.83。**一般軸の訓練傾きはゼロ〜微負** (v4 時代と同型)。
+- **BFCL hard gate 不合格 (measured)**: base@k8 84/100 vs **v6fresh@k32+α0.5 48/100 = −36pt** (paired n=100, 不一致 39:3, McNemar p=6.6e-08)。v4 の −31pt より悪化。
+- **機構 = v4 と同一の「ネイティブ tool-call 構文の生成崩壊」**: `<function=NAME>` の `=` 欠落、関数名への空白/ゴミ混入 (`<function=b basketball.player_stats.get>`)、`<parameter=KEY>` の `=` 欠落。error 型: adapter_or_upstream_parser:ValueError 21 / cannot_find_match 8 / wrong_count 7。
+- **重要な含意: 名前過適合説 (mock_* テンプレ名) は反証された**。diverse 名 + natural request でも同型崩壊 → 名前スタイル無罪。v4 (intent ゼロ) と v6 (intent 入り) の共通成分 = tool-call 訓練行のレンダ経路 (toucan 39,678 行 + selfgen 系、corpus_to_trainer preamble モード + chat template レンダ) が新本命。**仮説 H1: 訓練が見る assistant tool-call 文字列がネイティブ構文と不一致で、壊れた構文を数万行規模で教えている** — cx にオフライン突合を発注 (レンダ vs apply_chat_template の byte diff)。
+- 判定: 本走行収率 92.9% の製造ライン自体は健在 (生成側の勝利は維持)。訓練側の構文破壊が独立の欠陥として存在。**次区間はレンダ機構の白黒がつくまで発射しない** (悪燃料の再燃焼は GPU の無駄)。
