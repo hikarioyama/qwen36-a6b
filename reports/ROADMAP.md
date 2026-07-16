@@ -2,7 +2,7 @@
 
 **これは生きた文書である。** 境界測定・プローブ・区間完走などの判定イベントごとに、担当セッションが本文を現状に合わせて更新する (更新履歴は末尾に追記)。数字は必ず (n=?, 条件) を添え、measured と hypothesized を区別する。矛盾が出たら DEVLOG.md の実測が正。
 
-最終更新: 2026-07-14 (v5.1 中止 — 燃料欠陥確定につき質最優先で作り直し / B2 再測定で切り分け完結)
+最終更新: 2026-07-16 (v6 fresh 区間の審判: ダイヤル完済再現 / BFCL hard gate FAIL −36pt / 損傷は weights 本体で確定 — 名前説・レンダ説・マスク説・schema置き場所説を全て反証、真犯人 = full-FFN × tool-call SFT の serialization 漂流)
 
 ## 上位目標 (不変)
 
@@ -20,11 +20,16 @@ Qwen3.6-35B-A3B を k=32 化した上で、4 軸 (ツールコール / コーデ
 - **【重大】v4 訓練は BFCL を −31pt 壊していた**: base@k8 84/100 vs tail05@k8 53/100 (paired, McNemar p=1.2e-07)。ダイヤル・k32 は無罪 (切り分け済み)。**機構 = 関数名の複写忠実度の喪失** (mock_* テンプレ名への過適合で名前を「再構成」する癖; call 数・引数値は無傷)。v5/v5.1 も同燃料構成
 - **B2 再測定で切り分け完結 (2026-07-14, n=100 paired)**: B2 (expert-patch 線)@k32+α0.5 88/100 vs base@k8 84/100、不一致 0:4 (B2 が負けた item ゼロ)、非劣性 PASS。**崩壊は v4 系燃料に固有** — k32/ダイヤル/patch 方式は全て無罪
 
-## 現況 (2026-07-14 時点)
+## 現況 (2026-07-16 時点)
 
-- **v5.1 は step ~371 で中止 (ユーザー決定)**: 燃料が既知欠陥 (mock_* テンプレ名) を共有するため。tail05 (v4 出力) とその子孫 checkpoint は汚染線として再利用しない — **再訓練は stock base + router 凍結 + α=0.5 の fresh 構成から**
-- gpu-host: 空き (次区間 = 作り直し燃料の完成待ち)
-- 燃料作り直し (質最優先・フォールバック禁止): r4 diverse 名 seeds 5,000 (済) → Sol 設計 P0 ゲート + style_card + schema description の実装 (cx 発注中) → shadow n=200 → Sol/GPT paraphrase 本番 → rejection sampling → G2 → 搬入。**完成データセットは HF に公開する (ユーザー指示)**
+- **燃料製造ラインは完治 (2026-07-15)**: 生成/訓練 surface 分離 (mockize⇄restore 全単射) で本走行採択 **92.9%** (n=5,000、旧 T4 26-28% → 93%)。G2/独立監査とも汚染ゼロ。この資産は健在で、レンダ問題の解決後に即再利用可能。
+- **v6 fresh 区間 (stock base + router 凍結 + α=0.5 + v6 燃料 1000 step) の審判 (2026-07-16)**:
+  - **ダイヤルは完璧**: base@k32+α0.5 84.50 vs base@k8 84.67 (n=600 paired, p=1.0) — 借金完済を再現
+  - MMLU 訓練純効果 −1.67pt (p=0.089 ns、負方向)
+  - **BFCL hard gate FAIL**: 48/100 vs base 84/100 (−36pt, p=6.6e-08)。**v6fresh@k8 でも 56/100 (−28pt) = 損傷は weights 本体・k 非依存**
+- **機構の消去法 (全て measured)**: 名前過適合説 反証 (diverse 名でも同型崩壊) / レンダ欠陥 H1 反証 (5.36 億 bytes diff 0) / マスク境界 H2 反証 (全 call supervised) / schema 置き場所 H3 単独説 弱 (両様式 probe で差なし)。**残る真犯人 = full-FFN × tool-call SFT (44,321 行, 13.7%) による serialization 漂流** (`<function=` の `=` 欠落等)。機械修復で 48→61 の部分回収、残層 = parallel 崩壊 15 / KeyError 8。
+- gpu-host: 空き。**次区間はツールコール SFT の壊さない焼き方が確定するまで発射しない**
+- 開いてる選択肢: (a) toolcall 成分を `--tools-mode native` で作り直し再訓練 (b) checkpoint-300 dose-response (c) toucan 除去/線量削減 (d) 残層解剖の続行 (e) LR/焼き温度を下げる・toolcall 行の loss 重み調整
 
 ## 短期の判定ゲート
 
