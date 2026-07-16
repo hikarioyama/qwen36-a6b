@@ -592,3 +592,12 @@
 - **共通因子 = preamble 形式 tool-call SFT**: `<function=` 指示文を持つ行は toucan 39,678 + selfgen 4,643 = 44,321 行 (13.7%)、v4/v5/v6 全てに共通。corpus 内に壊れ形 (`<function ` スペース) は 18 行のみ = データから直接学んだ形ではなく、訓練による serialization 漂流。
 - **損傷の層構造** (raw 解剖 + 機械修復再採点): `=` 欠落 16/100 → 正規化で **48→61/100 (+13)** 回収。残層 = parallel call 崩壊 15 / parser KeyError 8 / missing_required 6 / その他 3。推論時正規化は部分回収 (−36→−23pt) に留まる。
 - 開いてる選択肢: (a) toolcall 成分を `--tools-mode native` で作り直し再訓練 / (b) checkpoint-300 の dose-response (要 export) / (c) toucan 除去・toolcall 線量削減 / (d) KeyError・parallel 残層の解剖続行。
+
+## 2026-07-16 — 切り分け完結: 損傷は weights 本体 (full-FFN 方式 × tool-call データ) で確定 (measured)
+
+- **v6fresh@k8 (素, ダイヤル/k32 無し): BFCL 56/100 vs base@k8 84/100 = −28pt (n=100 paired)** — k 非依存の破壊 = checkpoint 本体の損傷で確定 (tail05@k8 10/24 と同じ構図)。
+- **h3 プローブ (n=12, greedy, 2 様式)**: native 形式 12/12 生成・構文破壊 2/12 / preamble (訓練同形式) 12/12・破壊 1/12 — **訓練と同じ形式で聞いても救われない** = prompt 分布ミスマッチ説も弱い。名前破壊 (`get_f fibonacci sequence`) は greedy で決定論再現 = weights に焼き付いた損傷。
+  - 注意: h3 初回走行は device_map=auto が GPU2 に漏れて CPU offload → gibberish (無効データ)。GPU0/1 限定で焼き直した値が上記。
+- **総合**: ①mock名説 反証 ②形式衝突説 弱 ③**full-FFN 方式 × tool-call データが識別子複写を壊す** が最有力。傍証 = B2 (expert-patch 方式, 同系燃料) は 88/100 無傷。
+- 資産: 燃料製造ライン (surface 分離, 採択 92.9%, 汚染ゼロ二重監査) は方式非依存で有効。α ダイヤル (借金完済 84.50≈84.67) も健在。
+- 開いてる選択肢: A=expert-patch 方式で v6 燃料を焼く (推奨) / B=full-FFN+対策で再走 / C=dose-response (ckpt-300/600)。ユーザ判断待ち。
