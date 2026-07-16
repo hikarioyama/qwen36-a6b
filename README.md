@@ -140,8 +140,19 @@ python3 tests/test_corpus_judge_v1.py            # judge ledger contract
 
 - Whether FFN training can lift the *optimal-α* accuracy **above** the 84.67 k8
   floor — so far the model only *reaches* the floor; a significant exceedance is
-  still the FFN's job (the tool-call axis this data targets has no wired-up
-  benchmark yet, so that capability is currently unjudged).
+  still the FFN's job.
+
+**Update 2026-07-16 (tool-call axis, now measured):** a BFCL-v4 AST harness is
+wired up (`esft/bfcl_fullffn_v1.py`, paired McNemar). Verdict so far is
+negative and instructive: full-FFN intervals **break** tool-call formatting
+(base@k8 84/100 vs trained checkpoints 48-56/100, `n=100` paired), the damage
+sits in the weights (k-independent, prompt-format swap does not rescue), and
+the earlier "mock-name overfitting" theory is **refuted** — diverse-name,
+decontaminated fuel breaks BFCL with the identical corruption signature. The
+expert-patch line stays intact (88/100), so the prime suspect is the full-FFN
+training x tool-call SFT interaction. The `fullffn_tail05_frozen_router`
+lineage shown above was retired for this reason; see `DEVLOG.md` 2026-07-14
+through 2026-07-16 for the full record.
 - α=0.5 harmlessness on the remaining eval axes (three of five measured so far).
 - Layer-wise α and α annealing (untested upside).
 

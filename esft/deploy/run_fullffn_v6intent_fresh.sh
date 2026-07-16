@@ -1,4 +1,8 @@
 #!/bin/bash
+# 注記 (2026-07-16): このスクリプトは並走セッションが独立に組み立てた v6 変種
+# (sha 96806d7b...) 用の staging 記録で、実際には発射されていない。実走行
+# (fullffn_v6divnames_fresh_20260715) は等価レシピの別ビルド (sha d6145158...) を
+# 使用した — 両者は同一 322,861 行・_source タグ文字列のみ相違 (DEVLOG 2026-07-15 参照)。
 # v6 fresh 区間 (2026-07-15, 燃料作り直し後の再出発):
 #   stock base から fresh / router 完全凍結 / --router-tail-scale 0.5 / v6 燃料 / 1000 step。
 # v6 = v5 − 旧 intent 全行 7,341 (mock_* テンプレ名、BFCL −31pt の汚染源)
