@@ -601,3 +601,9 @@
 - **総合**: ①mock名説 反証 ②形式衝突説 弱 ③**full-FFN 方式 × tool-call データが識別子複写を壊す** が最有力。傍証 = B2 (expert-patch 方式, 同系燃料) は 88/100 無傷。
 - 資産: 燃料製造ライン (surface 分離, 採択 92.9%, 汚染ゼロ二重監査) は方式非依存で有効。α ダイヤル (借金完済 84.50≈84.67) も健在。
 - 開いてる選択肢: A=expert-patch 方式で v6 燃料を焼く (推奨) / B=full-FFN+対策で再走 / C=dose-response (ckpt-300/600)。ユーザ判断待ち。
+
+## 2026-07-16 — H3 (schema 置き場所) 直接プローブ: 単独では崩壊を再現せず
+
+- **cx レンダ監査 (v6 全 44,321 tool-call 行, 5.36 億 bytes)**: 訓練ターゲットは preamble/native 両レンダで **byte diff 0**、`<tool_call>` 開始トークンは残存 149,723 call 全て supervised (部分マスク 0) — **H1 (壊れた構文を教えた) / H2 (マスク境界) 棄却**。副発見: Toucan 22,358 行が 7,168 tail cap で先頭 call を丸ごと喪失 (文脈カバレッジの交絡、構文欠陥ではない)。
+- **H3 直接プローブ (v6fresh bf16, BFCL 12 項目 × native/preamble 両様式, greedy, CVD=0,1)**: bad_func_syntax native 2/12 vs preamble 1/12 — **有意差なし、greedy 少数条件では崩壊がほぼ出ない** (n 小の限界は明記)。schema 置き場所の単独犯説は弱い。別セッションの層別解剖 (=欠落は機械修復で +13 回収、残層 parallel/KeyError) と合わせ、機構は「訓練による serialization 漂流が特定 decode/文脈条件で顕在化」の線。
+- probe 実装の罠 (再発防止): device_map=auto が表示 GPU (GPU2, 計算禁止) を掴んで meta offload → 出力が完全なゴミになる。**CUDA_VISIBLE_DEVICES=0,1 必須**。
